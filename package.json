@@ -1,0 +1,34 @@
+{
+  "name": "ultraspin",
+  "version": "0.1.0",
+  "description": "A big-screen frontend system for launching games and other media",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/justindarc/ultraspin.git"
+  },
+  "keywords": [
+    "electron",
+    "frontend",
+    "launcher",
+    "hyperspin"
+  ],
+  "author": {
+    "name": "Justin D'Arcangelo",
+    "email": "justindarc@gmail.com",
+    "url": "https://github.com/justindarc"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/justindarc/ultraspin/issues"
+  },
+  "homepage": "https://github.com/justindarc/ultraspin#readme",
+  "devDependencies": {
+    "electron": "^1.8.4",
+    "electron-builder": "^20.8.1"
+  }
+}
