@@ -1,0 +1,6 @@
+<Theme>
+    <video w="475" h="500" x="330" y="445" r="0" time="1" bcolor="0xffffff" bsize="0" type="fade" start="left"  />
+    <artwork1 x="512" y="130" r="0" delay="1" time=".5" type="grow y" start="none"  />
+    <artwork2 x="770" y="500" r="0" delay="1.5" time="1.5" type="elastic bounce" start="bottom"  />
+    <artwork3 x="100" y="650" r="0" delay="1" time="0" type="none" start="none"  />
+</Theme>
