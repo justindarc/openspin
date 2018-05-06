@@ -22,7 +22,8 @@ class USThemeElement extends HTMLElement {
     height: 100%;
     z-index: 1;
   }
-  .background > img {
+  .background > img,
+  .background > swf-image {
     width: 100%;
     height: 100%;
   }
@@ -52,10 +53,15 @@ class USThemeElement extends HTMLElement {
   }
   .video > video,
   .video > .artwork > img,
+  .video > .artwork > swf-image,
   .artwork1 > img,
+  .artwork1 > swf-image,
   .artwork2 > img,
+  .artwork2 > swf-image,
   .artwork3 > img,
-  .artwork4 > img {
+  .artwork3 > swf-image,
+  .artwork4 > img,
+  .artwork4 > swf-image {
     position: relative;
     width: 100%;
     height: 100%;
@@ -169,10 +175,31 @@ class USThemeElement extends HTMLElement {
     };
 
     img.onerror = () => {
-      let iframe = document.createElement('iframe');
-      iframe.src = './shumway/iframe/viewer.html?swf=../../' + this._name + '/' + component + '.swf';
+      let swfImage = document.createElement('swf-image');
+      swfImage.onload = () => {
+        if (attrs) {
+          let scaleX = window.innerWidth  / 1024;
+          let scaleY = window.innerHeight / 768;
+          let width  = swfImage.naturalWidth  * scaleX;
+          let height = swfImage.naturalHeight * scaleY;
+          let x = (attrs.x * scaleX) - (width  / 2);
+          let y = (attrs.y * scaleY) - (height / 2);
 
-      componentEl.appendChild(iframe);
+          attrs.w = width;
+          attrs.h = height;
+
+          componentEl.style.width  = width  + 'px';
+          componentEl.style.height = height + 'px';
+          componentEl.style.left = x + 'px';
+          componentEl.style.top  = y + 'px';
+
+          this._renderTransition(componentEl, attrs);
+        }
+
+        componentEl.appendChild(swfImage);
+      };
+
+      swfImage.src = './app/' + this._name + '/' + component + '.swf';
     };
 
     img.src = './' + this._name + '/' + component + '.png';

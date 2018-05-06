@@ -15,7 +15,8 @@ function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1024,
-    height: 768
+    height: 768,
+    webPreferences: { plugins: true }
   });
 
   mainWindow.webContents.openDevTools();
@@ -36,6 +37,27 @@ function createWindow() {
     // when you should delete the corresponding element.
     mainWindow = null;
   });
+}
+
+function loadPepperFlashPlugin() {
+  let pluginName;
+  switch (process.platform) {
+    case 'win32':
+      pluginName = 'pepflashplayer.dll';
+      break;
+    case 'darwin':
+      pluginName = 'PepperFlashPlayer.plugin';
+      break;
+    case 'linux':
+      pluginName = 'libpepflashplayer.so';
+      break;
+    default:
+      pluginName = 'unknown';
+      break;
+  }
+
+  let pluginPath = path.join(process.cwd(), 'plugins', 'PepperFlash', process.arch, process.platform, pluginName);
+  app.commandLine.appendSwitch('ppapi-flash-path', pluginPath);
 }
 
 // This method will be called when Electron has finished
@@ -59,6 +81,8 @@ app.on('activate', function() {
     createWindow();
   }
 });
+
+loadPepperFlashPlugin();
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

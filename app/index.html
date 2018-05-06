@@ -11,15 +11,11 @@
   <us-theme id="theme"></us-theme>
   <us-wheel id="wheel"></us-wheel>
 
-  <!-- All of the Node.js APIs are available in this renderer process. -->
-  <!--
-  <h1>Hello World!</h1>
-  We are using Node.js <script>document.write(process.versions.node);</script>,
-  Chromium <script>document.write(process.versions.chrome);</script>,
-  and Electron <script>document.write(process.versions.electron);</script>.
-  -->
-  <script src="./theme.js"></script>
-  <script src="./wheel.js"></script>
+  <script>
+    require('./swf-image.js')
+    require('./us-theme.js');
+    require('./us-wheel.js');
+  </script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       let theme = document.getElementById('theme');
@@ -51,7 +47,7 @@
             oldTheme.style.opacity = 0;
             oldTheme.remove();
 
-            let theme = new USThemeElement();
+            let theme = document.createElement('us-theme');
             theme.id = 'theme';
             theme.name = themes[evt.detail.selectedIndex % 4];
             theme.style.opacity = 0;

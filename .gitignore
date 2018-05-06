@@ -60,5 +60,11 @@ typings/
 # Distributable output files
 dist/
 
+# PepperFlash plugins
+plugins/PepperFlash/*/*/*
+
 # macOS temp files
 .DS_Store
+
+# Don't ignore .keep files
+!.keep
