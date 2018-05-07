@@ -1,8 +1,25 @@
+let _wheelEl = new WeakMap();
+let _itemCount = new WeakMap();
+let _selectedIndex = new WeakMap();
+let _isTransitioning = new WeakMap();
+
+function _normalizeIndex(index, itemCount) {
+  if (itemCount === 0) {
+    return -1;
+  }
+
+  if (index < 0) {
+    return (index % itemCount) + itemCount;
+  }
+
+  return index % itemCount;
+}
+
 class USWheelElement extends HTMLElement {
   constructor() {
     super();
 
-    let html =
+    const html =
 `
 <style>
   :host {
@@ -106,10 +123,10 @@ class USWheelElement extends HTMLElement {
     const shadowRoot = this.attachShadow({ mode: 'closed' });
     shadowRoot.appendChild(template.content.cloneNode(true));
 
-    this._wheelEl = shadowRoot.querySelector('.wheel');
-    this._itemCount = 0;
-    this._selectedIndex = -1;
-    this._isTransitioning = false;
+    _wheelEl.set(this, shadowRoot.querySelector('.wheel'));
+    _itemCount.set(this, 0);
+    _selectedIndex.set(this, -1);
+    _isTransitioning.set(this, false);
 
     window.addEventListener('keydown', (evt) => {
       if (evt.key === 'ArrowUp') {
@@ -121,49 +138,37 @@ class USWheelElement extends HTMLElement {
   }
 
   get itemCount() {
-    return this._itemCount;
+    return _itemCount.get(this);
   }
 
   set itemCount(value) {
-    this._itemCount = value;
+    _itemCount.set(this, value);
 
     this.selectedIndex = 0;
     this.reloadData();
   }
 
   get selectedIndex() {
-    return this._selectedIndex;
+    return _selectedIndex.get(this);
   }
 
   set selectedIndex(value) {
-    let normalizedValue = this._normalizeIndex(value);
-    if (this._selectedIndex !== normalizedValue) {
-      this._selectedIndex = normalizedValue;
+    let normalizedValue = _normalizeIndex(value, this.itemCount);
+    if (this.selectedIndex !== normalizedValue) {
+      _selectedIndex.set(this, normalizedValue);
 
       this.dispatchEvent(new CustomEvent('change', {
         detail: {
-          selectedIndex: this._selectedIndex
+          selectedIndex: normalizedValue
         }
       }));
     }
   }
 
-  _normalizeIndex(index) {
-    if (this._itemCount === 0) {
-      return -1;
-    }
-
-    if (index < 0) {
-      return (index % this._itemCount) + this._itemCount;
-    }
-
-    return index % this._itemCount;
-  }
-
   reloadData() {
     for (let i = 0; i < 15; i++) {
-      let index = this._normalizeIndex(this._selectedIndex + i - 7);
-      let element = this._wheelEl.children[i];
+      let index = _normalizeIndex(this.selectedIndex + i - 7, this.itemCount);
+      let element = _wheelEl.get(this).children[i];
 
       if (parseInt(element.dataset.index, 10) !== index) {
         element.dataset.index = index;
@@ -179,6 +184,7 @@ class USWheelElement extends HTMLElement {
   }
 
   previous() {
+    let wheelEl = _wheelEl.get(this);
     let transitions = 0;
 
     let onTransitionEnd = () => {
@@ -186,17 +192,17 @@ class USWheelElement extends HTMLElement {
         return;
       }
 
-      this._wheelEl.removeEventListener('transitionend', onTransitionEnd);
-      this._isTransitioning = false;
+      wheelEl.removeEventListener('transitionend', onTransitionEnd);
+      _isTransitioning.set(this, false);
 
       requestAnimationFrame(() => {
-        this._wheelEl.prepend(this._wheelEl.lastElementChild);
-        this._wheelEl.classList.remove('previous', 'next');
+        wheelEl.prepend(wheelEl.lastElementChild);
+        wheelEl.classList.remove('previous', 'next');
         this.reloadData();
       });
     };
 
-    if (this._isTransitioning) {
+    if (_isTransitioning.get(this)) {
       transitions = 15;
       onTransitionEnd();
 
@@ -205,15 +211,16 @@ class USWheelElement extends HTMLElement {
     }
 
     requestAnimationFrame(() => {
-      this._wheelEl.addEventListener('transitionend', onTransitionEnd);
-      this._wheelEl.classList.add('previous');
+      wheelEl.addEventListener('transitionend', onTransitionEnd);
+      wheelEl.classList.add('previous');
       this.selectedIndex--;
     });
 
-    this._isTransitioning = true;
+    _isTransitioning.set(this, true);
   }
 
   next() {
+    let wheelEl = _wheelEl.get(this);
     let transitions = 0;
 
     let onTransitionEnd = () => {
@@ -221,17 +228,17 @@ class USWheelElement extends HTMLElement {
         return;
       }
 
-      this._wheelEl.removeEventListener('transitionend', onTransitionEnd);
-      this._isTransitioning = false;
+      wheelEl.removeEventListener('transitionend', onTransitionEnd);
+      _isTransitioning.set(this, false);
 
       requestAnimationFrame(() => {
-        this._wheelEl.append(this._wheelEl.firstElementChild);
-        this._wheelEl.classList.remove('previous', 'next');
+        wheelEl.append(wheelEl.firstElementChild);
+        wheelEl.classList.remove('previous', 'next');
         this.reloadData();
       });
     };
 
-    if (this._isTransitioning) {
+    if (_isTransitioning.get(this)) {
       transitions = 15;
       onTransitionEnd();
 
@@ -240,12 +247,12 @@ class USWheelElement extends HTMLElement {
     }
 
     requestAnimationFrame(() => {
-      this._wheelEl.addEventListener('transitionend', onTransitionEnd);
-      this._wheelEl.classList.add('next');
+      wheelEl.addEventListener('transitionend', onTransitionEnd);
+      wheelEl.classList.add('next');
       this.selectedIndex++;
     });
 
-    this._isTransitioning = true;
+    _isTransitioning.set(this, true);
   }
 }
 
