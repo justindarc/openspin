@@ -1,3 +1,10 @@
+const StreamZip = require('node-stream-zip');
+const fs = require('fs');
+const path = require('path');
+const tmp = require('tmp');
+
+tmp.setGracefulCleanup();
+
 function fetchXml(url) {
   return new Promise((resolve, reject) => {
     let xhr = new XMLHttpRequest();
@@ -11,15 +18,17 @@ function fetchXml(url) {
 exports.fetchXml = fetchXml;
 
 function getThemeData(name) {
-  return fetchXml('./' + name + '/theme.xml').then((xmlDoc) => {
-    let result = {};
+  return getTempFileFromZip(name, 'theme.xml')
+    .then((tmpPath) => fetchXml('../' + tmpPath))
+    .then((xmlDoc) => {
+      let result = {};
 
-    xmlDoc.querySelectorAll('Theme > *').forEach((element) => {
-      result[element.nodeName] = parseElement(element);
+      xmlDoc.querySelectorAll('Theme > *').forEach((element) => {
+        result[element.nodeName] = parseElement(element);
+      });
+
+      return result;
     });
-
-    return result;
-  });
 }
 
 exports.getThemeData = getThemeData;
@@ -49,66 +58,115 @@ function parseElement(element) {
 
 exports.parseElement = parseElement;
 
-function renderImage(el, name, component, attrs) {
-  let img = document.createElement('img');
-  img.onload = () => {
-    requestAnimationFrame(() => {
-      if (attrs) {
-        let scaleX = window.innerWidth  / 1024;
-        let scaleY = window.innerHeight / 768;
-        let width  = img.naturalWidth  * scaleX;
-        let height = img.naturalHeight * scaleY;
-        let x = (attrs.x * scaleX) - (width  / 2);
-        let y = (attrs.y * scaleY) - (height / 2);
-
-        attrs.w = width;
-        attrs.h = height;
-
-        el.style.width  = width  + 'px';
-        el.style.height = height + 'px';
-        el.style.left = x + 'px';
-        el.style.top  = y + 'px';
-        el.style.transform = 'translate3d(0,0,0)';
-
-        renderTransition(el, attrs);
-      }
-
-      el.appendChild(img);
+function getTempFileFromZip(themeName, prefix) {
+  return new Promise((resolve, reject) => {
+    let zip = new StreamZip({
+      file: './app/' + themeName + '.zip',
+      storeEntries: true
     });
-  };
 
-  img.onerror = () => {
-    let swfImage = document.createElement('swf-image');
-    swfImage.onload = () => {
-      requestAnimationFrame(() => {
-        if (attrs) {
-          let scaleX = window.innerWidth  / 1024;
-          let scaleY = window.innerHeight / 768;
-          let width  = swfImage.naturalWidth  * scaleX;
-          let height = swfImage.naturalHeight * scaleY;
-          let x = (attrs.x * scaleX) - (width  / 2);
-          let y = (attrs.y * scaleY) - (height / 2);
+    zip.on('ready', () => {
+      let zipEntries = zip.entries();
+      for (let zipFilename in zipEntries) {
+        if (zipFilename.toLowerCase().startsWith(prefix)) {
+          let zipEntry = zipEntries[zipFilename];
+          let extension = path.extname(zipFilename);
 
-          attrs.w = width;
-          attrs.h = height;
+          tmp.tmpName({ template: './tmp/theme-XXXXXX' + extension }, (error, tmpPath) => {
+            if (error) {
+              reject(error);
+              return;
+            }
 
-          el.style.width  = width  + 'px';
-          el.style.height = height + 'px';
-          el.style.left = x + 'px';
-          el.style.top  = y + 'px';
-          el.style.transform = 'translate3d(0,0,0)';
+            zip.extract(zipFilename, tmpPath, (error) => {
+              if (error) {
+                reject(error);
+                return;
+              }
 
-          renderTransition(el, attrs);
+              // Cleanup temp file later.
+              setTimeout(() => {
+                fs.unlink(tmpPath, (error) => {
+                  if (error) {
+                    console.error(error);
+                  }
+                });
+              }, 1000);
+
+              resolve(tmpPath);
+            });
+          });
+
+          break;
         }
+      }
+    });
+  });
+}
 
-        el.appendChild(swfImage);
-      });
-    };
+function renderImage(el, name, component, attrs) {
+  getTempFileFromZip(name, component).then((tmpPath) => {
+    let extension = path.extname(tmpPath).toLowerCase();
+    if (extension === '.swf') {
+      let swfImage = document.createElement('swf-image');
+      swfImage.onload = () => {
+        requestAnimationFrame(() => {
+          if (attrs) {
+            let scaleX = window.innerWidth  / 1024;
+            let scaleY = window.innerHeight / 768;
+            let width  = swfImage.naturalWidth  * scaleX;
+            let height = swfImage.naturalHeight * scaleY;
+            let x = (attrs.x * scaleX) - (width  / 2);
+            let y = (attrs.y * scaleY) - (height / 2);
 
-    swfImage.src = './app/' + name + '/' + component + '.swf';
-  };
+            attrs.w = width;
+            attrs.h = height;
 
-  img.src = './' + name + '/' + component + '.png';
+            el.style.width  = width  + 'px';
+            el.style.height = height + 'px';
+            el.style.left = x + 'px';
+            el.style.top  = y + 'px';
+            el.style.transform = 'translate3d(0,0,0)';
+
+            renderTransition(el, attrs);
+          }
+
+          el.appendChild(swfImage);
+        });
+      };
+
+      swfImage.src = tmpPath;
+    } else {
+      let img = document.createElement('img');
+      img.onload = () => {
+        requestAnimationFrame(() => {
+          if (attrs) {
+            let scaleX = window.innerWidth  / 1024;
+            let scaleY = window.innerHeight / 768;
+            let width  = img.naturalWidth  * scaleX;
+            let height = img.naturalHeight * scaleY;
+            let x = (attrs.x * scaleX) - (width  / 2);
+            let y = (attrs.y * scaleY) - (height / 2);
+
+            attrs.w = width;
+            attrs.h = height;
+
+            el.style.width  = width  + 'px';
+            el.style.height = height + 'px';
+            el.style.left = x + 'px';
+            el.style.top  = y + 'px';
+            el.style.transform = 'translate3d(0,0,0)';
+
+            renderTransition(el, attrs);
+          }
+
+          el.appendChild(img);
+        });
+      };
+
+      img.src = '../' + tmpPath;
+    }
+  });
 }
 
 exports.renderImage = renderImage;
@@ -131,25 +189,27 @@ function renderVideo(el, name, attrs) {
   let artworkEl = el.querySelector('.artwork');
   artworkEl.innerHTML = '';
 
-  let img = document.createElement('img');
-  img.onload = () => {
-    requestAnimationFrame(() => {
-      let width  = img.naturalWidth  * scaleX;
-      let height = img.naturalHeight * scaleY;
-      let imgX = (attrs.x * scaleX) - (width  / 2) - x;
-      let imgY = (attrs.y * scaleY) - (height / 2) - y;
+  getTempFileFromZip(name, 'video').then((tmpPath) => {
+    let img = document.createElement('img');
+    img.onload = () => {
+      requestAnimationFrame(() => {
+        let width  = img.naturalWidth  * scaleX;
+        let height = img.naturalHeight * scaleY;
+        let imgX = (attrs.x * scaleX) - (width  / 2) - x;
+        let imgY = (attrs.y * scaleY) - (height / 2) - y;
 
-      artworkEl.style.width  = width  + 'px';
-      artworkEl.style.height = height + 'px';
-      artworkEl.style.left = imgX + 'px';
-      artworkEl.style.top  = imgY + 'px';
-      artworkEl.style.transform = 'translate3d(0,0,0)';
+        artworkEl.style.width  = width  + 'px';
+        artworkEl.style.height = height + 'px';
+        artworkEl.style.left = imgX + 'px';
+        artworkEl.style.top  = imgY + 'px';
+        artworkEl.style.transform = 'translate3d(0,0,0)';
 
-      artworkEl.appendChild(img);
-    });
-  };
+        artworkEl.appendChild(img);
+      });
+    };
 
-  img.src = './' + name + '/video.png';
+    img.src = '../' + tmpPath;
+  });
 
   renderTransition(el, attrs);
 

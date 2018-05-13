@@ -32,6 +32,8 @@
     "electron-builder": "^20.8.1"
   },
   "dependencies": {
-    "swf-reader": "^1.0.0"
+    "node-stream-zip": "^1.7.0",
+    "swf-reader": "^1.0.0",
+    "tmp": "0.0.33"
   }
 }

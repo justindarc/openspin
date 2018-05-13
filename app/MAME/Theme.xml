@@ -1,4 +1,0 @@
-<Theme>
-    <video w="650" h="360" forceaspect="horizontal" below="yes" overlaybelow="true" x="345" y="445" r="0" delay=".7" time="1.1" bcolor="0x000000" bsize="0" overlayoffsetx="-11" type="tv zoom out" start="none" rest="shake"/>
-    <artwork1 x="405" y="120" r="0" delay=".5" time=".5" type="none" start="top" rest ="none" />
-</Theme>
