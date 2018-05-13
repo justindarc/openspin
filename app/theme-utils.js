@@ -1,7 +1,4 @@
-let _componentEls = new WeakMap();
-let _name = new WeakMap();
-
-function _fetchXml(url) {
+function fetchXml(url) {
   return new Promise((resolve, reject) => {
     let xhr = new XMLHttpRequest();
     xhr.onerror = (evt) => reject(evt);
@@ -11,19 +8,23 @@ function _fetchXml(url) {
   });
 }
 
-function _getThemeData(name) {
-  return _fetchXml('./' + name + '/theme.xml').then((xmlDoc) => {
+exports.fetchXml = fetchXml;
+
+function getThemeData(name) {
+  return fetchXml('./' + name + '/theme.xml').then((xmlDoc) => {
     let result = {};
 
     xmlDoc.querySelectorAll('Theme > *').forEach((element) => {
-      result[element.nodeName] = _parseElement(element);
+      result[element.nodeName] = parseElement(element);
     });
 
     return result;
   });
 }
 
-function _parseColor(base10) {
+exports.getThemeData = getThemeData;
+
+function parseColor(base10) {
   let string = base10.toString(16);
 
   while (string.length < 6) {
@@ -33,7 +34,9 @@ function _parseColor(base10) {
   return string;
 }
 
-function _parseElement(element) {
+exports.parseColor = parseColor;
+
+function parseElement(element) {
   let result = {};
 
   for (let attr of element.attributes) {
@@ -44,7 +47,9 @@ function _parseElement(element) {
   return result;
 }
 
-function _renderImage(el, name, component, attrs) {
+exports.parseElement = parseElement;
+
+function renderImage(el, name, component, attrs) {
   let img = document.createElement('img');
   img.onload = () => {
     requestAnimationFrame(() => {
@@ -65,7 +70,7 @@ function _renderImage(el, name, component, attrs) {
         el.style.top  = y + 'px';
         el.style.transform = 'translate3d(0,0,0)';
 
-        _renderTransition(el, attrs);
+        renderTransition(el, attrs);
       }
 
       el.appendChild(img);
@@ -93,7 +98,7 @@ function _renderImage(el, name, component, attrs) {
           el.style.top  = y + 'px';
           el.style.transform = 'translate3d(0,0,0)';
 
-          _renderTransition(el, attrs);
+          renderTransition(el, attrs);
         }
 
         el.appendChild(swfImage);
@@ -106,7 +111,9 @@ function _renderImage(el, name, component, attrs) {
   img.src = './' + name + '/' + component + '.png';
 }
 
-function _renderVideo(el, name, attrs) {
+exports.renderImage = renderImage;
+
+function renderVideo(el, name, attrs) {
   let scaleX = window.innerWidth  / 1024;
   let scaleY = window.innerHeight / 768;
   let width  = attrs.w * scaleX;
@@ -144,14 +151,16 @@ function _renderVideo(el, name, attrs) {
 
   img.src = './' + name + '/video.png';
 
-  _renderTransition(el, attrs);
+  renderTransition(el, attrs);
 
-  _renderBorder(el.querySelector('.border1'), attrs.bshape, attrs.bsize,  attrs.bcolor);
-  _renderBorder(el.querySelector('.border2'), attrs.bshape, attrs.bsize2, attrs.bcolor2);
-  _renderBorder(el.querySelector('.border3'), attrs.bshape, attrs.bsize3, attrs.bcolor3);
+  renderBorder(el.querySelector('.border1'), attrs.bshape, attrs.bsize,  attrs.bcolor);
+  renderBorder(el.querySelector('.border2'), attrs.bshape, attrs.bsize2, attrs.bcolor2);
+  renderBorder(el.querySelector('.border3'), attrs.bshape, attrs.bsize3, attrs.bcolor3);
 }
 
-function _renderBorder(element, shape, size, color) {
+exports.renderVideo = renderVideo;
+
+function renderBorder(element, shape, size, color) {
   element.style.borderRadius = '0';
 
   if (size === undefined || color === undefined) {
@@ -165,12 +174,14 @@ function _renderBorder(element, shape, size, color) {
     element.style.borderRadius = size + 'px';
   }
 
-  element.style.border = size + 'px solid #' + _parseColor(color);
+  element.style.border = size + 'px solid #' + parseColor(color);
   element.style.left = -size + 'px';
   element.style.top  = -size + 'px';
 }
 
-function _renderTransition(element, attrs) {
+exports.renderBorder = renderBorder;
+
+function renderTransition(element, attrs) {
   requestAnimationFrame(() => {
     let baseTransform = element.style.transform;
 
@@ -237,142 +248,4 @@ function _renderTransition(element, attrs) {
   });
 }
 
-class USThemeElement extends HTMLElement {
-  constructor() {
-    super();
-
-    const html =
-`
-<style>
-  :host {
-    display: block;
-  }
-  * {
-    -webkit-user-drag: none;
-    user-select: none;
-  }
-  .theme {
-    background: #000;
-    width: 100%;
-    height: 100%;
-  }
-  .background {
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-  }
-  .background > img,
-  .background > swf-image {
-    width: 100%;
-    height: 100%;
-  }
-  .video {
-    position: absolute;
-    z-index: 1;
-  }
-  .artwork1,
-  .artwork2,
-  .artwork3,
-  .artwork4 {
-    position: absolute;
-    z-index: 10;
-  }
-  .video > video,
-  .video > .artwork > img,
-  .video > .artwork > swf-image,
-  .artwork1 > img,
-  .artwork1 > swf-image,
-  .artwork2 > img,
-  .artwork2 > swf-image,
-  .artwork3 > img,
-  .artwork3 > swf-image,
-  .artwork4 > img,
-  .artwork4 > swf-image {
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
-  .video > video {
-    background: #000;
-  }
-  .video > .border1,
-  .video > .border2,
-  .video > .border3,
-  .video > .artwork {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    transform: translate3d(0, 0, 0);
-  }
-</style>
-<div class="theme">
-  <div class="background"></div>
-  <div class="video">
-    <div class="border3"></div>
-    <div class="border2"></div>
-    <div class="border1"></div>
-    <video></video>
-    <div class="artwork"></div>
-  </div>
-  <div class="artwork1"></div>
-  <div class="artwork2"></div>
-  <div class="artwork3"></div>
-  <div class="artwork4"></div>
-</div>
-`;
-
-    let template = document.createElement('template');
-    template.innerHTML = html;
-
-    const shadowRoot = this.attachShadow({ mode: 'closed' });
-    shadowRoot.appendChild(template.content.cloneNode(true));
-
-    _componentEls.set(this, {
-      background: shadowRoot.querySelector('.background'),
-      artwork1: shadowRoot.querySelector('.artwork1'),
-      artwork2: shadowRoot.querySelector('.artwork2'),
-      artwork3: shadowRoot.querySelector('.artwork3'),
-      artwork4: shadowRoot.querySelector('.artwork4'),
-      video: shadowRoot.querySelector('.video')
-    });
-
-    _name.set(this, null);
-  }
-
-  get name() {
-    return _name.get(this);
-  }
-
-  set name(value) {
-    _name.set(this, value);
-    this.render();
-  }
-
-  render() {
-    let componentEls = _componentEls.get(this);
-    let name = this.name;
-
-    _getThemeData(name).then((theme) => {
-      for (let component in componentEls) {
-        let componentEl = componentEls[component];
-
-        if (component !== 'video') {
-          componentEl.innerHTML = '';
-        }
-
-        let attrs = theme[component];
-        if (attrs || component === 'background') {
-          if (component === 'video') {
-            _renderVideo(componentEl, name, attrs);
-          } else {
-            _renderImage(componentEl, name, component, attrs);
-          }
-        }
-      }
-    });
-  }
-}
-
-customElements.define('us-theme', USThemeElement);
+exports.renderTransition = renderTransition;

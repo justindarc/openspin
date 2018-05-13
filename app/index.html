@@ -8,17 +8,18 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/shadydom/1.0.14/shadydom.min.js"></script>
 </head>
 <body>
-  <us-theme id="theme"></us-theme>
+  <us-theme-background id="background"></us-theme-background>
   <us-wheel id="wheel"></us-wheel>
+  <us-theme-foreground id="foreground"></us-theme-foreground>
 
   <script>
     require('./swf-image.js')
-    require('./us-theme.js');
+    require('./us-theme-background.js');
+    require('./us-theme-foreground.js');
     require('./us-wheel.js');
   </script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      let theme = document.getElementById('theme');
       let wheel = document.getElementById('wheel');
 
       let themes = [
@@ -43,19 +44,31 @@
 
         changeThemeTimeout = setTimeout(function() {
           requestAnimationFrame(function() {
-            let oldTheme = document.getElementById('theme');
-            oldTheme.style.opacity = 0;
-            oldTheme.remove();
+            let oldBackground = document.getElementById('background');
+            oldBackground.style.opacity = 0;
+            oldBackground.remove();
 
-            let theme = document.createElement('us-theme');
-            theme.id = 'theme';
-            theme.name = themes[evt.detail.selectedIndex % 4];
-            theme.style.opacity = 0;
+            let oldForeground = document.getElementById('foreground');
+            oldForeground.style.opacity = 0;
+            oldForeground.remove();
 
-            document.body.prepend(theme);
+            let background = document.createElement('us-theme-background');
+            background.id = 'background';
+            background.name = themes[evt.detail.selectedIndex % 4];
+            background.style.opacity = 0;
+
+            document.body.prepend(background);
+
+            let foreground = document.createElement('us-theme-foreground');
+            foreground.id = 'foreground';
+            foreground.name = themes[evt.detail.selectedIndex % 4];
+            foreground.style.opacity = 0;
+
+            document.body.append(foreground);
 
             requestAnimationFrame(function() {
-              theme.style.opacity = 1;
+              background.style.opacity = 1;
+              foreground.style.opacity = 1;
 
               wheelActiveTimeout = setTimeout(function() {
                 wheel.classList.remove('active');

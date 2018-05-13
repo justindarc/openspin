@@ -6,6 +6,31 @@ let _src = new WeakMap();
 let _naturalWidth = new WeakMap();
 let _naturalHeight = new WeakMap();
 
+function createSWFObject(src, callback) {
+  let absolutePath = path.join(process.cwd(), src);
+  return new Promise((resolve, reject) => {
+    SWFReader.read(absolutePath, (error, swf) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+
+      let object = document.createElement('object');
+      object.data = absolutePath;
+      object.width  = swf.frameSize.width;
+      object.height = swf.frameSize.height;
+
+      let wmodeParam = document.createElement('param');
+      wmodeParam.name = 'wmode';
+      wmodeParam.value = 'transparent';
+
+      object.appendChild(wmodeParam);
+
+      resolve([object, swf]);
+    });
+  });
+}
+
 class SWFImage extends HTMLElement {
   constructor() {
     super();
@@ -82,31 +107,6 @@ class SWFImage extends HTMLElement {
   get naturalHeight() {
     return _naturalHeight.get(this);
   }
-}
-
-function createSWFObject(src, callback) {
-  let absolutePath = path.join(process.cwd(), src);
-  return new Promise((resolve, reject) => {
-    SWFReader.read(absolutePath, (error, swf) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-
-      let object = document.createElement('object');
-      object.data = absolutePath;
-      object.width  = swf.frameSize.width;
-      object.height = swf.frameSize.height;
-
-      let wmodeParam = document.createElement('param');
-      wmodeParam.name = 'wmode';
-      wmodeParam.value = 'transparent';
-
-      object.appendChild(wmodeParam);
-
-      resolve([object, swf]);
-    });
-  });
 }
 
 customElements.define('swf-image', SWFImage);
