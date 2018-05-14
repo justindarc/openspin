@@ -1,7 +1,8 @@
 const { getThemeData, renderImage, renderVideo } = require('./theme-utils.js');
 
 let _componentEls = new WeakMap();
-let _name = new WeakMap();
+let _system = new WeakMap();
+let _game = new WeakMap();
 
 class USThemeForegroundElement extends HTMLElement {
   constructor() {
@@ -29,6 +30,11 @@ class USThemeForegroundElement extends HTMLElement {
   .artwork3,
   .artwork4 {
     position: absolute;
+    z-index: 2;
+  }
+  .video[data-below="true"],
+  .video[data-below="yes"] {
+    z-index: 1;
   }
   .video > video,
   .video > .artwork > img,
@@ -46,7 +52,17 @@ class USThemeForegroundElement extends HTMLElement {
     height: 100%;
   }
   .video > video {
-    background: #000;
+    object-fit: fill;
+    z-index: 1;
+  }
+  .video > video[data-forceaspect="none"] {
+    object-fit: contain;
+  }
+  .video > video[data-forceaspect="both"] {
+    object-fit: fill;
+  }
+  .video > video[data-overlaybelow="true"] {
+    z-index: 2;
   }
   .video > .border1,
   .video > .border2,
@@ -58,17 +74,18 @@ class USThemeForegroundElement extends HTMLElement {
     width: 100%;
     height: 100%;
     transform: translate3d(0, 0, 0);
+    z-index: 1;
   }
 </style>
 <div class="theme">
+  <div class="artwork1"></div>
   <div class="video">
+    <video autoplay loop></video>
     <div class="border3"></div>
     <div class="border2"></div>
     <div class="border1"></div>
-    <video></video>
     <div class="artwork"></div>
   </div>
-  <div class="artwork1"></div>
   <div class="artwork2"></div>
   <div class="artwork3"></div>
   <div class="artwork4"></div>
@@ -89,23 +106,38 @@ class USThemeForegroundElement extends HTMLElement {
       video: shadowRoot.querySelector('.video')
     });
 
-    _name.set(this, null);
+    _system.set(this, null);
+    _game.set(this, null);
   }
 
-  get name() {
-    return _name.get(this);
+  get game() {
+    return _game.get(this);
   }
 
-  set name(value) {
-    _name.set(this, value);
+  set game(value) {
+    _game.set(this, value);
+    this.render();
+  }
+
+  get system() {
+    return _system.get(this);
+  }
+
+  set system(value) {
+    _system.set(this, value);
     this.render();
   }
 
   render() {
-    let componentEls = _componentEls.get(this);
-    let name = this.name;
+    let system = this.system;
+    let game = this.game;
 
-    getThemeData(name).then((theme) => {
+    if (!system || !game) {
+      return;
+    }
+
+    let componentEls = _componentEls.get(this);
+    getThemeData(system, game).then((theme) => {
       for (let component in componentEls) {
         let componentEl = componentEls[component];
 
@@ -116,9 +148,9 @@ class USThemeForegroundElement extends HTMLElement {
         let attrs = theme[component];
         if (attrs) {
           if (component === 'video') {
-            renderVideo(componentEl, name, attrs);
+            renderVideo(componentEl, system, game, attrs);
           } else {
-            renderImage(componentEl, name, component, attrs);
+            renderImage(componentEl, system, game, component, attrs);
           }
         }
       }

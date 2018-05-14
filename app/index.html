@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1">
   <title>UltraSpin</title>
   <link rel="stylesheet" href="./style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/shadydom/1.0.14/shadydom.min.js"></script>
 </head>
 <body>
   <us-theme-background id="background"></us-theme-background>
@@ -13,73 +12,11 @@
   <us-theme-foreground id="foreground"></us-theme-foreground>
 
   <script>
-    require('./swf-image.js')
+    require('./swf-image.js');
     require('./us-theme-background.js');
     require('./us-theme-foreground.js');
     require('./us-wheel.js');
-  </script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      let wheel = document.getElementById('wheel');
-
-      let themes = [
-        'MAME',
-        'Atari 2600',
-        'Nintendo Entertainment System',
-        'Super Nintendo Entertainment System'
-      ];
-
-      wheel.addEventListener('render', function(evt) {
-        evt.detail.element.innerHTML = '<img src="./wheel/' + themes[evt.detail.index % 4] + '.png">';
-      });
-
-      let changeThemeTimeout = null;
-      let wheelActiveTimeout = null;
-
-      wheel.addEventListener('change', function(evt) {
-        clearTimeout(changeThemeTimeout);
-        clearTimeout(wheelActiveTimeout);
-
-        wheel.classList.add('active');
-
-        changeThemeTimeout = setTimeout(function() {
-          requestAnimationFrame(function() {
-            let oldBackground = document.getElementById('background');
-            oldBackground.style.opacity = 0;
-            oldBackground.remove();
-
-            let oldForeground = document.getElementById('foreground');
-            oldForeground.style.opacity = 0;
-            oldForeground.remove();
-
-            let background = document.createElement('us-theme-background');
-            background.id = 'background';
-            background.name = themes[evt.detail.selectedIndex % 4];
-            background.style.opacity = 0;
-
-            document.body.prepend(background);
-
-            let foreground = document.createElement('us-theme-foreground');
-            foreground.id = 'foreground';
-            foreground.name = themes[evt.detail.selectedIndex % 4];
-            foreground.style.opacity = 0;
-
-            document.body.append(foreground);
-
-            requestAnimationFrame(function() {
-              background.style.opacity = 1;
-              foreground.style.opacity = 1;
-
-              wheelActiveTimeout = setTimeout(function() {
-                wheel.classList.remove('active');
-              }, 500);
-            });
-          });
-        }, 500);
-      });
-
-      wheel.itemCount = 24;
-    });
+    require('./app.js');
   </script>
 </body>
 </html>

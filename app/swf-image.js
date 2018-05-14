@@ -20,10 +20,14 @@ function createSWFObject(src, callback) {
       object.width  = swf.frameSize.width;
       object.height = swf.frameSize.height;
 
+      let scaleParam = document.createElement('param');
+      scaleParam.name = 'scale';
+      scaleParam.value = 'exactfit';
+      object.appendChild(scaleParam);
+
       let wmodeParam = document.createElement('param');
       wmodeParam.name = 'wmode';
       wmodeParam.value = 'transparent';
-
       object.appendChild(wmodeParam);
 
       resolve([object, swf]);
@@ -41,8 +45,14 @@ class SWFImage extends HTMLElement {
   :host {
     display: inline-block;
   }
+  .container {
+    width: 100%;
+    height: 100%;
+  }
   object {
     display: block;
+    width: 100%;
+    height: 100%;
   }
 </style>
 <div class="container"></div>

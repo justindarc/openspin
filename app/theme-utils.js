@@ -3,6 +3,10 @@ const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
 
+const ROOT_PATH = path.join(process.cwd(), 'HyperSpin');
+const DATABASES_PATH = path.join(ROOT_PATH, 'Databases');
+const MEDIA_PATH = path.join(ROOT_PATH, 'Media');
+
 tmp.setGracefulCleanup();
 
 function fetchXml(url) {
@@ -17,8 +21,9 @@ function fetchXml(url) {
 
 exports.fetchXml = fetchXml;
 
-function getThemeData(name) {
-  return getTempFileFromZip(name, 'theme.xml')
+function getThemeData(system, game) {
+  let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
+  return getTempFileFromZip(zipPath, 'theme.xml')
     .then((tmpPath) => fetchXml('../' + tmpPath))
     .then((xmlDoc) => {
       let result = {};
@@ -28,13 +33,16 @@ function getThemeData(name) {
       });
 
       return result;
+    })
+    .catch((error) => {
+      console.error(error);
     });
 }
 
 exports.getThemeData = getThemeData;
 
-function parseColor(base10) {
-  let string = base10.toString(16);
+function parseColor(color) {
+  let string = color.toString(16);
 
   while (string.length < 6) {
     string = '0' + string;
@@ -49,7 +57,7 @@ function parseElement(element) {
   let result = {};
 
   for (let attr of element.attributes) {
-    let numericValue = parseFloat(attr.value)
+    let numericValue = attr.value.startsWith('0x') ? parseInt(attr.value, 16) : parseFloat(attr.value);
     result[attr.name] = isNaN(numericValue) ? attr.value : numericValue;
   }
 
@@ -58,19 +66,19 @@ function parseElement(element) {
 
 exports.parseElement = parseElement;
 
-function getTempFileFromZip(themeName, prefix) {
+function getTempFileFromZip(zipPath, prefix) {
   return new Promise((resolve, reject) => {
     let zip = new StreamZip({
-      file: './app/' + themeName + '.zip',
+      file: zipPath,
       storeEntries: true
     });
 
     zip.on('ready', () => {
       let zipEntries = zip.entries();
-      for (let zipFilename in zipEntries) {
-        if (zipFilename.toLowerCase().startsWith(prefix)) {
-          let zipEntry = zipEntries[zipFilename];
-          let extension = path.extname(zipFilename);
+      for (let filename in zipEntries) {
+        if (path.basename(filename).toLowerCase().startsWith(prefix)) {
+          let zipEntry = zipEntries[filename];
+          let extension = path.extname(filename);
 
           tmp.tmpName({ template: './tmp/theme-XXXXXX' + extension }, (error, tmpPath) => {
             if (error) {
@@ -78,7 +86,7 @@ function getTempFileFromZip(themeName, prefix) {
               return;
             }
 
-            zip.extract(zipFilename, tmpPath, (error) => {
+            zip.extract(filename, tmpPath, (error) => {
               if (error) {
                 reject(error);
                 return;
@@ -104,8 +112,9 @@ function getTempFileFromZip(themeName, prefix) {
   });
 }
 
-function renderImage(el, name, component, attrs) {
-  getTempFileFromZip(name, component).then((tmpPath) => {
+function renderImage(el, system, game, component, attrs) {
+  let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
+  getTempFileFromZip(zipPath, component).then((tmpPath) => {
     let extension = path.extname(tmpPath).toLowerCase();
     if (extension === '.swf') {
       let swfImage = document.createElement('swf-image');
@@ -118,6 +127,7 @@ function renderImage(el, name, component, attrs) {
             let height = swfImage.naturalHeight * scaleY;
             let x = (attrs.x * scaleX) - (width  / 2);
             let y = (attrs.y * scaleY) - (height / 2);
+            let rotate = attrs.r || 0;
 
             attrs.w = width;
             attrs.h = height;
@@ -126,7 +136,7 @@ function renderImage(el, name, component, attrs) {
             el.style.height = height + 'px';
             el.style.left = x + 'px';
             el.style.top  = y + 'px';
-            el.style.transform = 'translate3d(0,0,0)';
+            el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
 
             renderTransition(el, attrs);
           }
@@ -147,6 +157,7 @@ function renderImage(el, name, component, attrs) {
             let height = img.naturalHeight * scaleY;
             let x = (attrs.x * scaleX) - (width  / 2);
             let y = (attrs.y * scaleY) - (height / 2);
+            let rotate = attrs.r || 0;
 
             attrs.w = width;
             attrs.h = height;
@@ -155,7 +166,7 @@ function renderImage(el, name, component, attrs) {
             el.style.height = height + 'px';
             el.style.left = x + 'px';
             el.style.top  = y + 'px';
-            el.style.transform = 'translate3d(0,0,0)';
+            el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
 
             renderTransition(el, attrs);
           }
@@ -171,7 +182,8 @@ function renderImage(el, name, component, attrs) {
 
 exports.renderImage = renderImage;
 
-function renderVideo(el, name, attrs) {
+function renderVideo(el, system, game, attrs) {
+  console.log(el, system, game, attrs);
   let scaleX = window.innerWidth  / 1024;
   let scaleY = window.innerHeight / 768;
   let width  = attrs.w * scaleX;
@@ -185,18 +197,27 @@ function renderVideo(el, name, attrs) {
   el.style.left = x + 'px';
   el.style.top  = y + 'px';
   el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
+  el.dataset.below = attrs.below;
+
+  let videoEl = window.vid = el.querySelector('video');
+  videoEl.src = path.join(MEDIA_PATH, system, 'Video', game + '.mp4');
+  videoEl.dataset.forceaspect = attrs.forceaspect || 'none';
+  videoEl.dataset.overlaybelow = attrs.overlaybelow;
 
   let artworkEl = el.querySelector('.artwork');
   artworkEl.innerHTML = '';
 
-  getTempFileFromZip(name, 'video').then((tmpPath) => {
+  let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
+  getTempFileFromZip(zipPath, 'video').then((tmpPath) => {
     let img = document.createElement('img');
     img.onload = () => {
       requestAnimationFrame(() => {
         let width  = img.naturalWidth  * scaleX;
         let height = img.naturalHeight * scaleY;
-        let imgX = (attrs.x * scaleX) - (width  / 2) - x;
-        let imgY = (attrs.y * scaleY) - (height / 2) - y;
+        let overlayOffsetX = attrs.overlayoffsetx || 0;
+        let overlayOffsetY = attrs.overlayoffsety || 0;
+        let imgX = ((attrs.x + overlayOffsetX) * scaleX) - (width  / 2) - x;
+        let imgY = ((attrs.y + overlayOffsetY) * scaleY) - (height / 2) - y;
 
         artworkEl.style.width  = width  + 'px';
         artworkEl.style.height = height + 'px';

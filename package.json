@@ -34,6 +34,7 @@
   "dependencies": {
     "node-stream-zip": "^1.7.0",
     "swf-reader": "^1.0.0",
-    "tmp": "0.0.33"
+    "tmp": "0.0.33",
+    "xml2js": "^0.4.19"
   }
 }

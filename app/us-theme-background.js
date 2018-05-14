@@ -1,7 +1,8 @@
 const { renderImage } = require('./theme-utils.js');
 
 let _backgroundEl = new WeakMap();
-let _name = new WeakMap();
+let _system = new WeakMap();
+let _game = new WeakMap();
 
 class USThemeBackgroundElement extends HTMLElement {
   constructor() {
@@ -41,23 +42,38 @@ class USThemeBackgroundElement extends HTMLElement {
 
     _backgroundEl.set(this, shadowRoot.querySelector('.background'));
 
-    _name.set(this, null);
+    _system.set(this, null);
+    _game.set(this, null);
   }
 
-  get name() {
-    return _name.get(this);
+  get game() {
+    return _game.get(this);
   }
 
-  set name(value) {
-    _name.set(this, value);
+  set game(value) {
+    _game.set(this, value);
+    this.render();
+  }
+
+  get system() {
+    return _system.get(this);
+  }
+
+  set system(value) {
+    _system.set(this, value);
     this.render();
   }
 
   render() {
-    let backgroundEl = _backgroundEl.get(this);
-    let name = this.name;
+    let system = this.system;
+    let game = this.game;
 
-    renderImage(backgroundEl, name, 'background');
+    if (!system || !game) {
+      return;
+    }
+
+    let backgroundEl = _backgroundEl.get(this);
+    renderImage(backgroundEl, system, game, 'background');
   }
 }
 
