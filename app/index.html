@@ -4,19 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1">
   <title>UltraSpin</title>
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./css/app.css">
 </head>
 <body>
+
+
   <us-theme-background id="background"></us-theme-background>
   <us-wheel id="wheel"></us-wheel>
   <us-theme-foreground id="foreground"></us-theme-foreground>
 
+
   <script>
-    require('./swf-image.js');
-    require('./us-theme-background.js');
-    require('./us-theme-foreground.js');
-    require('./us-wheel.js');
-    require('./app.js');
+    require('./components/swf-image.js');
+    require('./components/us-theme-background.js');
+    require('./components/us-theme-foreground.js');
+    require('./components/us-wheel.js');
+    require('./components/view-stack.js');
+    require('./js/app.js');
   </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const { renderImage } = require('./theme-utils.js');
+const { renderImage } = require('./common/theme-utils.js');
 
 let _backgroundEl = new WeakMap();
 let _system = new WeakMap();

@@ -1,4 +1,4 @@
-const { getThemeData, renderImage, renderVideo } = require('./theme-utils.js');
+const { getThemeData, renderImage, renderVideo } = require('./common/theme-utils.js');
 
 let _componentEls = new WeakMap();
 let _system = new WeakMap();
@@ -80,7 +80,7 @@ class USThemeForegroundElement extends HTMLElement {
 <div class="theme">
   <div class="artwork1"></div>
   <div class="video">
-    <video autoplay loop></video>
+    <video autoplay loop muted></video>
     <div class="border3"></div>
     <div class="border2"></div>
     <div class="border1"></div>
