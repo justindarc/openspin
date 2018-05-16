@@ -80,7 +80,7 @@ class USThemeForegroundElement extends HTMLElement {
 <div class="theme">
   <div class="artwork1"></div>
   <div class="video">
-    <video autoplay loop muted></video>
+    <video autoplay loop></video>
     <div class="border3"></div>
     <div class="border2"></div>
     <div class="border1"></div>
