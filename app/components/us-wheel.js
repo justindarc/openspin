@@ -2,6 +2,7 @@ let _wheelEl = new WeakMap();
 let _itemCount = new WeakMap();
 let _selectedIndex = new WeakMap();
 let _isTransitioning = new WeakMap();
+let _onKeyDown = new WeakMap();
 
 function normalizeIndex(index, itemCount) {
   if (itemCount === 0) {
@@ -129,14 +130,30 @@ class USWheelElement extends HTMLElement {
     _itemCount.set(this, 0);
     _selectedIndex.set(this, -1);
     _isTransitioning.set(this, false);
+    _onKeyDown.set(this, (evt) => {
+      // If we're not visible, ignore key events.
+      if (!this.offsetParent) {
+        return;
+      }
 
-    window.addEventListener('keydown', (evt) => {
       if (evt.key === 'ArrowUp') {
         this.previous();
       } else if (evt.key === 'ArrowDown') {
         this.next();
+      } else if (evt.key === 'Enter') {
+        this.select();
+      } else if (evt.key === 'Escape') {
+        this.exit();
       }
     });
+  }
+
+  connectedCallback() {
+    window.addEventListener('keydown', _onKeyDown.get(this));
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('keydown', _onKeyDown.get(this));
   }
 
   get itemCount() {
@@ -255,6 +272,18 @@ class USWheelElement extends HTMLElement {
     });
 
     _isTransitioning.set(this, true);
+  }
+
+  select() {
+    this.dispatchEvent(new CustomEvent('select', {
+      detail: {
+        selectedIndex: this.selectedIndex
+      }
+    }));
+  }
+
+  exit() {
+    this.dispatchEvent(new CustomEvent('exit'));
   }
 }
 

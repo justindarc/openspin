@@ -49,7 +49,7 @@ class WheelViewController extends ViewController {
     let wheelActiveTimeout = null;
 
     this.wheel.addEventListener('render', (evt) => {
-      let src = path.join(MEDIA_PATH, 'Main Menu', 'Images', 'Wheel', this.gameList[evt.detail.index].name + '.png');
+      let src = path.join(MEDIA_PATH, this.system, 'Images', 'Wheel', this.gameList[evt.detail.index].name + '.png');
       evt.detail.element.innerHTML = '<img src="' + src + '">';
     });
 
@@ -72,14 +72,14 @@ class WheelViewController extends ViewController {
           oldForeground.remove();
 
           this.background = document.createElement('us-theme-background');
-          this.background.system = 'Main Menu';
+          this.background.system = this.system;
           this.background.game = game;
           this.background.style.opacity = 0;
 
           this.view.prepend(this.background);
 
           this.foreground = document.createElement('us-theme-foreground');
-          this.foreground.system = 'Main Menu';
+          this.foreground.system = this.system;
           this.foreground.game = game;
           this.foreground.style.opacity = 0;
 
@@ -97,11 +97,26 @@ class WheelViewController extends ViewController {
       }, 500);
     });
 
+    this.wheel.addEventListener('select', (evt) => {
+      let game = this.gameList[evt.detail.selectedIndex].name;
+      // TODO: Determine if the selected item is another system or a game.
+      this.onGameSelect(game);
+      this.onSystemSelect(game);
+    });
+
+    this.wheel.addEventListener('exit', () => {
+      this.onExit();
+    });
+
     getGameList(this.system).then((gameList) => {
       this.gameList = gameList;
       this.wheel.itemCount = this.gameList.length;
     });
   }
+
+  onGameSelect(game) {}
+  onSystemSelect(system) {}
+  onExit() {}
 }
 
 module.exports = WheelViewController;
