@@ -132,6 +132,21 @@ class ViewStack extends HTMLElement {
     _slotEl.set(this, shadowRoot.querySelector('slot'));
     _transitionDuration.set(this, shadowRoot.querySelector('#transition-duration'));
     _lastOperation.set(this, null);
+
+    setTimeout(() => {
+      let activeView = this.activeView;
+      if (activeView) {
+        if (activeView.onwillshow) {
+          activeView.onwillshow();
+        }
+
+        requestAnimationFrame(() => {
+          if (activeView.ondidshow) {
+            activeView.ondidshow();
+          }
+        });
+      }
+    });
   }
 
   get views() {
@@ -154,7 +169,6 @@ class ViewStack extends HTMLElement {
       let views = this.views;
       let count = views.length;
       if (count < 2) {
-        _lastOperation.set(this, null);
         reject();
         return;
       }
@@ -206,6 +220,8 @@ class ViewStack extends HTMLElement {
       });
     });
 
+    operation.catch(() => _lastOperation.set(this, null));
+
     _lastOperation.set(this, operation);
     return operation;
   }
@@ -218,7 +234,6 @@ class ViewStack extends HTMLElement {
     let operation = new Promise((resolve, reject) => {
       let oldActiveView = this.activeView;
       if (!oldActiveView || !newActiveView) {
-        _lastOperation.set(this, null);
         reject();
         return;
       }
@@ -268,9 +283,13 @@ class ViewStack extends HTMLElement {
       });
     });
 
+    operation.catch(() => _lastOperation.set(this, null));
+
     _lastOperation.set(this, operation);
     return operation;
   }
 }
+
+exports.ViewStack = ViewStack;
 
 customElements.define('view-stack', ViewStack);

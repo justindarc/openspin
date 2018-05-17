@@ -99,4 +99,24 @@ class ViewElement extends HTMLElement {
   }
 }
 
+exports.ViewElement = ViewElement;
+
 customElements.define('view-element', ViewElement);
+
+class ViewController {
+  constructor(view) {
+    this.view = view;
+
+    view.onwillshow = this.onWillShow;
+    view.ondidshow = this.onDidShow;
+    view.onwillhide = this.onWillHide;
+    view.ondidhide = this.onDidHide;
+  }
+
+  onWillShow() {}
+  onDidShow() {}
+  onWillHide() {}
+  onDidHide() {}
+}
+
+exports.ViewController = ViewController;

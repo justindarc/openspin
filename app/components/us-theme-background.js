@@ -77,4 +77,6 @@ class USThemeBackgroundElement extends HTMLElement {
   }
 }
 
+exports.USThemeBackgroundElement = USThemeBackgroundElement;
+
 customElements.define('us-theme-background', USThemeBackgroundElement);

@@ -80,7 +80,7 @@ class USThemeForegroundElement extends HTMLElement {
 <div class="theme">
   <div class="artwork1"></div>
   <div class="video">
-    <video autoplay loop></video>
+    <video autoplay loop muted></video>
     <div class="border3"></div>
     <div class="border2"></div>
     <div class="border1"></div>
@@ -157,5 +157,7 @@ class USThemeForegroundElement extends HTMLElement {
     });
   }
 }
+
+exports.USThemeForegroundElement = USThemeForegroundElement;
 
 customElements.define('us-theme-foreground', USThemeForegroundElement);

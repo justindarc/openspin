@@ -258,4 +258,6 @@ class USWheelElement extends HTMLElement {
   }
 }
 
+exports.USWheelElement = USWheelElement;
+
 customElements.define('us-wheel', USWheelElement);

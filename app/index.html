@@ -7,32 +7,13 @@
   <link rel="stylesheet" href="./css/app.css">
 </head>
 <body>
-  <us-theme-background id="background"></us-theme-background>
-  <us-wheel id="wheel"></us-wheel>
-  <us-theme-foreground id="foreground"></us-theme-foreground>
-
-  <!--
   <view-stack id="stack">
-    <view-element style="background: #f00;" transition="fade">
-      <h1>View 1</h1>
-    </view-element>
-    <view-element style="background: #0f0;" transition="fade">
-      <h1>View 2</h1>
-    </view-element>
-    <view-element style="background: #00f;" transition="fade-black">
-      <h1>View 3</h1>
-    </view-element>
-    <view-element style="background: #ff0;" transition="fade-black">
-      <h1>View 4</h1>
-    </view-element>
-    <view-element style="background: #0ff;" transition="slide-horizontal">
-      <h1>View 5</h1>
-    </view-element>
-    <view-element style="background: #f0f;" transition="slide-horizontal">
-      <h1>View 6</h1>
+    <view-element id="main-menu-view">
+      <us-theme-background></us-theme-background>
+      <us-wheel></us-wheel>
+      <us-theme-foreground></us-theme-foreground>
     </view-element>
   </view-stack>
-  -->
 
   <script>
     require('./components/swf-image.js');
@@ -42,14 +23,6 @@
     require('./components/view-element.js');
     require('./components/view-stack.js');
     require('./js/app.js');
-
-    function pushNewView() {
-      let view = document.createElement('view-element');
-      view.style.background = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
-      view.transition = 'fade-black';
-      view.innerHTML = '<h1>NEW VIEW</h1>';
-      stack.push(view);
-    }
   </script>
 </body>
 </html>

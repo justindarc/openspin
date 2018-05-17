@@ -1,4 +1,5 @@
 const SWFReader = require('swf-reader');
+
 const path = require('path');
 
 let _containerEl = new WeakMap();
@@ -118,5 +119,7 @@ class SWFImage extends HTMLElement {
     return _naturalHeight.get(this);
   }
 }
+
+exports.SWFImage = SWFImage;
 
 customElements.define('swf-image', SWFImage);
