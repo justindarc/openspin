@@ -39,13 +39,27 @@ us-wheel {
   opacity: .25;
   z-index: 2;
   transform: translate3d(0, 0, 0);
-  transition: opacity 500ms ease 200ms, z-index 0ms linear 700ms;
+  transition: opacity 500ms ease 200ms, z-index 0ms linear 700ms, transform 400ms ease-in-out 0ms;
 }
 
+view-element[push] us-wheel,
+view-element[pop] us-wheel,
 us-wheel.active {
   opacity: 1;
   z-index: 100;
-  transform: none;
-  transition-duration: 0ms, 0ms;
-  transition-delay: 0ms, 0ms;
+  transition-duration: 0ms, 0ms, 400ms;
+  transition-delay: 0ms, 0ms, 0ms;
+}
+
+view-element[push] us-wheel,
+view-element[pop] us-wheel {
+  transform: translate3d(100%, 0, 0);
+}
+
+us-wheel.willshow {
+  opacity: 1;
+  z-index: 100;
+  transform: translate3d(100%, 0, 0);
+  transition-duration: 0ms, 0ms, 0ms;
+  transition-delay: 0ms, 0ms, 0ms;
 }

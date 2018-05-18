@@ -185,39 +185,41 @@ class ViewStack extends HTMLElement {
         newActiveView.onwillshow();
       }
 
-      requestAnimationFrame(() => {
-        let containerEl = _containerEl.get(this);
-        containerEl.dataset.transition = oldActiveView.transition;
-        _transitionDuration.get(this).innerHTML = '::slotted(*){--transition-duration:' + oldActiveView.transitionDuration + 'ms;}';
-
+      setTimeout(() => {
         requestAnimationFrame(() => {
-          let onTransitionEnd = () => {
-            newActiveView.removeEventListener('transitionend', onTransitionEnd);
+          let containerEl = _containerEl.get(this);
+          containerEl.dataset.transition = oldActiveView.transition;
+          _transitionDuration.get(this).innerHTML = '::slotted(*){--transition-duration:' + oldActiveView.transitionDuration + 'ms;}';
 
-            oldActiveView.remove();
+          requestAnimationFrame(() => {
+            let onTransitionEnd = () => {
+              newActiveView.removeEventListener('transitionend', onTransitionEnd);
 
-            delete containerEl.dataset.transition;
-            delete containerEl.dataset.go;
+              oldActiveView.remove();
 
-            newActiveView.removeAttribute('pop');
-            if (newActiveView.ondidshow) {
-              newActiveView.ondidshow();
-            }
+              delete containerEl.dataset.transition;
+              delete containerEl.dataset.go;
 
-            oldActiveView.removeAttribute('pop');
-            if (oldActiveView.ondidhide) {
-              oldActiveView.ondidhide();
-            }
+              newActiveView.removeAttribute('pop');
+              if (newActiveView.ondidshow) {
+                newActiveView.ondidshow();
+              }
 
-            _lastOperation.set(this, null);
-            resolve();
-          };
+              oldActiveView.removeAttribute('pop');
+              if (oldActiveView.ondidhide) {
+                oldActiveView.ondidhide();
+              }
 
-          newActiveView.addEventListener('transitionend', onTransitionEnd);
+              _lastOperation.set(this, null);
+              resolve();
+            };
 
-          containerEl.dataset.go = true;
+            newActiveView.addEventListener('transitionend', onTransitionEnd);
+
+            containerEl.dataset.go = true;
+          });
         });
-      });
+      }, oldActiveView.transitionDelay);
     });
 
     operation.catch(() => _lastOperation.set(this, null));
@@ -248,39 +250,41 @@ class ViewStack extends HTMLElement {
         newActiveView.onwillshow();
       }
 
-      requestAnimationFrame(() => {
-        this.appendChild(newActiveView);
-
-        let containerEl = _containerEl.get(this);
-        containerEl.dataset.transition = newActiveView.transition;
-        _transitionDuration.get(this).innerHTML = '::slotted(*){--transition-duration:' + newActiveView.transitionDuration + 'ms;}';
-
+      setTimeout(() => {
         requestAnimationFrame(() => {
-          let onTransitionEnd = () => {
-            newActiveView.removeEventListener('transitionend', onTransitionEnd);
+          this.appendChild(newActiveView);
 
-            delete containerEl.dataset.transition;
-            delete containerEl.dataset.go;
+          let containerEl = _containerEl.get(this);
+          containerEl.dataset.transition = newActiveView.transition;
+          _transitionDuration.get(this).innerHTML = '::slotted(*){--transition-duration:' + newActiveView.transitionDuration + 'ms;}';
 
-            newActiveView.removeAttribute('push');
-            if (newActiveView.ondidshow) {
-              newActiveView.ondidshow();
-            }
+          requestAnimationFrame(() => {
+            let onTransitionEnd = () => {
+              newActiveView.removeEventListener('transitionend', onTransitionEnd);
 
-            oldActiveView.removeAttribute('push');
-            if (oldActiveView.ondidhide) {
-              oldActiveView.ondidhide();
-            }
+              delete containerEl.dataset.transition;
+              delete containerEl.dataset.go;
 
-            _lastOperation.set(this, null);
-            resolve();
-          };
+              newActiveView.removeAttribute('push');
+              if (newActiveView.ondidshow) {
+                newActiveView.ondidshow();
+              }
 
-          newActiveView.addEventListener('transitionend', onTransitionEnd);
+              oldActiveView.removeAttribute('push');
+              if (oldActiveView.ondidhide) {
+                oldActiveView.ondidhide();
+              }
 
-          containerEl.dataset.go = true;
+              _lastOperation.set(this, null);
+              resolve();
+            };
+
+            newActiveView.addEventListener('transitionend', onTransitionEnd);
+
+            containerEl.dataset.go = true;
+          });
         });
-      });
+      }, newActiveView.transitionDelay);
     });
 
     operation.catch(() => _lastOperation.set(this, null));

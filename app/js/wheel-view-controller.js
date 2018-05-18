@@ -89,6 +89,8 @@ class WheelViewController extends ViewController {
             this.background.style.opacity = 1;
             this.foreground.style.opacity = 1;
 
+            this.foreground.play();
+
             wheelActiveTimeout = setTimeout(() => {
               this.wheel.classList.remove('active');
             }, 500);
@@ -105,12 +107,47 @@ class WheelViewController extends ViewController {
     });
 
     this.wheel.addEventListener('exit', () => {
-      this.onExit();
+      requestAnimationFrame(() => {
+        this.wheel.classList.add('active');
+
+        setTimeout(() => {
+          this.wheel.classList.remove('active');
+        }, 800);
+
+        requestAnimationFrame(() => {
+          this.onExit();
+        });
+      });
     });
 
     getGameList(this.system).then((gameList) => {
       this.gameList = gameList;
       this.wheel.itemCount = this.gameList.length;
+    });
+  }
+
+  onWillHide() {
+    this.foreground.pause();
+  }
+
+  onWillShow() {
+    requestAnimationFrame(() => {
+      this.wheel.classList.add('willshow');
+    });
+  }
+
+  onDidShow() {
+    this.foreground.play();
+
+    // Trigger re-flow.
+    this.wheel.offsetHeight;
+
+    requestAnimationFrame(() => {
+      this.wheel.classList.remove('willshow');
+      this.wheel.classList.add('active');
+      setTimeout(() => {
+        this.wheel.classList.remove('active');
+      }, 800);
     });
   }
 

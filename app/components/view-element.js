@@ -48,6 +48,16 @@ class ViewElement extends HTMLElement {
     this.setAttribute('transition', value);
   }
 
+  get transitionDelay() {
+    return parseInt(this.getAttribute('transition-delay') || '400', 10);
+  }
+
+  set transitionDelay(value) {
+    if (typeof value === 'number') {
+      this.setAttribute('transition-delay', value);
+    }
+  }
+
   get transitionDuration() {
     return parseInt(this.getAttribute('transition-duration') || '800', 10);
   }
@@ -107,10 +117,10 @@ class ViewController {
   constructor(view) {
     this.view = view;
 
-    view.onwillshow = this.onWillShow;
-    view.ondidshow = this.onDidShow;
-    view.onwillhide = this.onWillHide;
-    view.ondidhide = this.onDidHide;
+    view.onwillshow = () => this.onWillShow();
+    view.ondidshow = () => this.onDidShow();
+    view.onwillhide = () => this.onWillHide();
+    view.ondidhide = () => this.onDidHide();
   }
 
   onWillShow() {}

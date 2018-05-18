@@ -80,7 +80,7 @@ class USThemeForegroundElement extends HTMLElement {
 <div class="theme">
   <div class="artwork1"></div>
   <div class="video">
-    <video autoplay loop muted></video>
+    <video loop muted></video>
     <div class="border3"></div>
     <div class="border2"></div>
     <div class="border1"></div>
@@ -126,6 +126,16 @@ class USThemeForegroundElement extends HTMLElement {
   set system(value) {
     _system.set(this, value);
     this.render();
+  }
+
+  play() {
+    let video = _componentEls.get(this).video.querySelector('video');
+    video.play();
+  }
+
+  pause() {
+    let video = _componentEls.get(this).video.querySelector('video');
+    video.pause();
   }
 
   render() {
