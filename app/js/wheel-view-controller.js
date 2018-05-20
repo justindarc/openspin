@@ -1,37 +1,7 @@
 const { ViewController } = require('../components/view-element.js');
+const { debounce, getGameList, getWheelImagePath } = require('../components/common/theme-utils.js');
 
-const fs = require('fs');
-const path = require('path');
-const xml2js = require('xml2js');
-
-const ROOT_PATH = path.join(process.cwd(), 'HyperSpin');
-const DATABASES_PATH = path.join(ROOT_PATH, 'Databases');
-const MEDIA_PATH = path.join(ROOT_PATH, 'Media');
-
-function getGameList(system) {
-  return new Promise((resolve, reject) => {
-    const dbPath = path.join(DATABASES_PATH, system, system + '.xml');
-
-    fs.readFile(dbPath, 'utf8', (error, string) => {
-      if (error) {
-        console.error(error);
-        reject(error);
-        return;
-      }
-
-      xml2js.parseString(string, (error, json) => {
-        if (error) {
-          console.error(error);
-          reject(error);
-          return;
-        }
-
-        let gameList = json.menu.game.map(game => game.$);
-        resolve(gameList);
-      });
-    });
-  });
-}
+let _wheelActiveTimeout = new WeakMap();
 
 class WheelViewController extends ViewController {
   constructor(view, system) {
@@ -39,64 +9,38 @@ class WheelViewController extends ViewController {
 
     this.system = system;
 
+    this.game = null;
+    this.gameList = [];
+
     this.background = view.querySelector('us-theme-background');
     this.foreground = view.querySelector('us-theme-foreground');
     this.wheel = view.querySelector('us-wheel');
 
-    this.gameList = [];
+    let onChange = debounce((evt) => {
+      this.game = this.gameList[evt.detail.selectedIndex].name;
 
-    let changeThemeTimeout = null;
-    let wheelActiveTimeout = null;
+      this.view.addEventListener('transitionend', onHideThemeTransitionEnd);
+      this.view.classList.add('hide-theme');
+    }, 500, this);
+
+    let onHideThemeTransitionEnd = () => {
+      this.view.removeEventListener('transitionend', onHideThemeTransitionEnd);
+
+      requestAnimationFrame(() => {
+        this.renderTheme();
+      });
+    };
 
     this.wheel.addEventListener('render', (evt) => {
-      let src = path.join(MEDIA_PATH, this.system, 'Images', 'Wheel', this.gameList[evt.detail.index].name + '.png');
-      evt.detail.element.innerHTML = '<img src="' + src + '">';
+      let game = this.gameList[evt.detail.index];
+      let src = getWheelImagePath(this.system, game.name);
+      let alt = game.description || game.name;
+      evt.detail.element.innerHTML = '<us-wheel-image src="' + src + '" alt="' + alt + '"></us-wheel-image>';
     });
 
     this.wheel.addEventListener('change', (evt) => {
-      let game = this.gameList[evt.detail.selectedIndex].name;
-
-      clearTimeout(changeThemeTimeout);
-      clearTimeout(wheelActiveTimeout);
-
-      this.wheel.classList.add('active');
-
-      changeThemeTimeout = setTimeout(() => {
-        requestAnimationFrame(() => {
-          let oldBackground = this.background;
-          oldBackground.style.opacity = 0;
-          oldBackground.remove();
-
-          let oldForeground = this.foreground;
-          oldForeground.style.opacity = 0;
-          oldForeground.remove();
-
-          this.background = document.createElement('us-theme-background');
-          this.background.system = this.system;
-          this.background.game = game;
-          this.background.style.opacity = 0;
-
-          this.view.prepend(this.background);
-
-          this.foreground = document.createElement('us-theme-foreground');
-          this.foreground.system = this.system;
-          this.foreground.game = game;
-          this.foreground.style.opacity = 0;
-
-          this.view.append(this.foreground);
-
-          requestAnimationFrame(() => {
-            this.background.style.opacity = 1;
-            this.foreground.style.opacity = 1;
-
-            this.foreground.play();
-
-            wheelActiveTimeout = setTimeout(() => {
-              this.wheel.classList.remove('active');
-            }, 500);
-          });
-        });
-      }, 500);
+      this.activateWheel();
+      onChange(evt);
     });
 
     this.wheel.addEventListener('select', (evt) => {
@@ -107,16 +51,10 @@ class WheelViewController extends ViewController {
     });
 
     this.wheel.addEventListener('exit', () => {
+      this.activateWheel();
+
       requestAnimationFrame(() => {
-        this.wheel.classList.add('active');
-
-        setTimeout(() => {
-          this.wheel.classList.remove('active');
-        }, 800);
-
-        requestAnimationFrame(() => {
-          this.onExit();
-        });
+        this.onExit();
       });
     });
 
@@ -130,25 +68,59 @@ class WheelViewController extends ViewController {
     this.foreground.pause();
   }
 
+  onDidHide() {
+    this.background.remove();
+    this.foreground.remove();
+  }
+
   onWillShow() {
-    requestAnimationFrame(() => {
-      this.wheel.classList.add('willshow');
-    });
+    this.view.classList.add('hide-wheel');
   }
 
   onDidShow() {
-    this.foreground.play();
+    this.view.classList.add('hide-theme');
 
-    // Trigger re-flow.
-    this.wheel.offsetHeight;
+    this.renderTheme();
 
     requestAnimationFrame(() => {
-      this.wheel.classList.remove('willshow');
-      this.wheel.classList.add('active');
-      setTimeout(() => {
-        this.wheel.classList.remove('active');
-      }, 800);
+      // Trigger re-flow.
+      this.wheel.offsetHeight;
+      this.view.classList.remove('hide-wheel');
+
+      this.activateWheel();
     });
+  }
+
+  activateWheel(timeout = 1000) {
+    clearTimeout(_wheelActiveTimeout.get(this));
+
+    this.wheel.classList.add('active');
+
+    _wheelActiveTimeout.set(this, setTimeout(() => {
+      this.wheel.classList.remove('active');
+    }, timeout));
+  }
+
+  renderTheme() {
+    this.background.remove();
+    this.foreground.remove();
+
+    this.background = document.createElement('us-theme-background');
+    this.view.prepend(this.background);
+
+    this.background.system = this.system;
+    this.background.game = this.game;
+
+    this.foreground = document.createElement('us-theme-foreground');
+    this.view.append(this.foreground);
+
+    this.foreground.addEventListener('render', () => {
+      this.view.classList.remove('hide-theme');
+      this.foreground.play();
+    });
+
+    this.foreground.system = this.system;
+    this.foreground.game = this.game;
   }
 
   onGameSelect(game) {}

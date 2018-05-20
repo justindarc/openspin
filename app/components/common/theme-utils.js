@@ -3,12 +3,24 @@ const StreamZip = require('node-stream-zip');
 const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
+const xml2js = require('xml2js');
 
 const ROOT_PATH = path.join(process.cwd(), 'HyperSpin');
 const DATABASES_PATH = path.join(ROOT_PATH, 'Databases');
 const MEDIA_PATH = path.join(ROOT_PATH, 'Media');
 
 tmp.setGracefulCleanup();
+
+function debounce(fn, delay, scope) {
+  let timeout = null;
+
+  return function() {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn.apply(scope || this, arguments), delay);
+  }
+}
+
+exports.debounce = debounce;
 
 function fetchXml(url) {
   return new Promise((resolve, reject) => {
@@ -36,11 +48,49 @@ function getThemeData(system, game) {
       return result;
     })
     .catch((error) => {
-      console.error(error);
+      if (game !== 'default') {
+        return getThemeData(system, 'default');
+      } else {
+        console.error(error);
+      }
     });
 }
 
 exports.getThemeData = getThemeData;
+
+function getGameList(system) {
+  return new Promise((resolve, reject) => {
+    const dbPath = path.join(DATABASES_PATH, system, system + '.xml');
+
+    fs.readFile(dbPath, 'utf8', (error, string) => {
+      if (error) {
+        console.error(error);
+        reject(error);
+        return;
+      }
+
+      xml2js.parseString(string, (error, json) => {
+        if (error) {
+          console.error(error);
+          reject(error);
+          return;
+        }
+
+        let gameList = json.menu.game.map((node) => {
+          let game = node.$ || {};
+          if (node.description) {
+            game.description = node.description;
+          }
+          return game;
+        });
+
+        resolve(gameList);
+      });
+    });
+  });
+}
+
+exports.getGameList = getGameList;
 
 function parseColor(color) {
   let string = color.toString(16);
@@ -66,6 +116,12 @@ function parseElement(element) {
 }
 
 exports.parseElement = parseElement;
+
+function getWheelImagePath(system, name) {
+  return path.join(MEDIA_PATH, system, 'Images', 'Wheel', name + '.png');
+}
+
+exports.getWheelImagePath = getWheelImagePath;
 
 function getTempFileFromZip(zipPath, prefix) {
   return new Promise((resolve, reject) => {
@@ -106,138 +162,169 @@ function getTempFileFromZip(zipPath, prefix) {
             });
           });
 
-          break;
+          return;
         }
       }
+
+      let error = new Error('File not found in zip: ' + prefix);
+      error.name = 'FileNotFoundInZipError';
+      reject(error);
+    });
+
+    zip.on('error', (error) => {
+      reject(error);
     });
   });
 }
 
+exports.getTempFileFromZip = getTempFileFromZip;
+
 function renderImage(el, system, game, component, attrs) {
-  let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
-  getTempFileFromZip(zipPath, component).then((tmpPath) => {
-    let extension = path.extname(tmpPath).toLowerCase();
-    if (extension === '.swf') {
-      let swfImage = document.createElement('swf-image');
-      swfImage.onload = () => {
-        requestAnimationFrame(() => {
-          if (attrs) {
-            let scaleX = window.innerWidth  / 1024;
-            let scaleY = window.innerHeight / 768;
-            let width  = swfImage.naturalWidth  * scaleX;
-            let height = swfImage.naturalHeight * scaleY;
-            let x = (attrs.x * scaleX) - (width  / 2);
-            let y = (attrs.y * scaleY) - (height / 2);
-            let rotate = attrs.r || 0;
+  return new Promise((resolve) => {
+    let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
+    getTempFileFromZip(zipPath, component).then((tmpPath) => {
+      let extension = path.extname(tmpPath).toLowerCase();
+      if (extension === '.swf') {
+        let swfImage = document.createElement('swf-image');
+        swfImage.onload = () => {
+          requestAnimationFrame(() => {
+            if (attrs) {
+              let scaleX = window.innerWidth  / 1024;
+              let scaleY = window.innerHeight / 768;
+              let width  = swfImage.naturalWidth  * scaleX;
+              let height = swfImage.naturalHeight * scaleY;
+              let x = (attrs.x * scaleX) - (width  / 2);
+              let y = (attrs.y * scaleY) - (height / 2);
+              let rotate = attrs.r || 0;
 
-            attrs.w = width;
-            attrs.h = height;
+              attrs.w = width;
+              attrs.h = height;
 
-            el.style.width  = width  + 'px';
-            el.style.height = height + 'px';
-            el.style.left = x + 'px';
-            el.style.top  = y + 'px';
-            el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
+              el.style.width  = width  + 'px';
+              el.style.height = height + 'px';
+              el.style.left = x + 'px';
+              el.style.top  = y + 'px';
+              el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
 
-            renderTransition(el, attrs);
-          }
+              renderTransition(el, attrs);
+            }
 
-          el.appendChild(swfImage);
-        });
-      };
+            el.appendChild(swfImage);
+            resolve();
+          });
+        };
 
-      swfImage.src = tmpPath;
-    } else {
-      let img = document.createElement('img');
-      img.onload = () => {
-        requestAnimationFrame(() => {
-          if (attrs) {
-            let scaleX = window.innerWidth  / 1024;
-            let scaleY = window.innerHeight / 768;
-            let width  = img.naturalWidth  * scaleX;
-            let height = img.naturalHeight * scaleY;
-            let x = (attrs.x * scaleX) - (width  / 2);
-            let y = (attrs.y * scaleY) - (height / 2);
-            let rotate = attrs.r || 0;
+        swfImage.onerror = (error) => {
+          reject(error);
+        };
 
-            attrs.w = width;
-            attrs.h = height;
+        swfImage.src = tmpPath;
+      } else {
+        let img = document.createElement('img');
+        img.onload = () => {
+          requestAnimationFrame(() => {
+            if (attrs) {
+              let scaleX = window.innerWidth  / 1024;
+              let scaleY = window.innerHeight / 768;
+              let width  = img.naturalWidth  * scaleX;
+              let height = img.naturalHeight * scaleY;
+              let x = (attrs.x * scaleX) - (width  / 2);
+              let y = (attrs.y * scaleY) - (height / 2);
+              let rotate = attrs.r || 0;
 
-            el.style.width  = width  + 'px';
-            el.style.height = height + 'px';
-            el.style.left = x + 'px';
-            el.style.top  = y + 'px';
-            el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
+              attrs.w = width;
+              attrs.h = height;
 
-            renderTransition(el, attrs);
-          }
+              el.style.width  = width  + 'px';
+              el.style.height = height + 'px';
+              el.style.left = x + 'px';
+              el.style.top  = y + 'px';
+              el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
 
-          el.appendChild(img);
-        });
-      };
+              renderTransition(el, attrs);
+            }
 
-      img.src = '../' + tmpPath;
-    }
+            el.appendChild(img);
+            resolve();
+          });
+        };
+
+        img.onerror = (error) => {
+          reject(error);
+        };
+
+        img.src = '../' + tmpPath;
+      }
+    }).catch((error) => {
+      if (game !== 'default') {
+        resolve(renderImage(el, system, 'default', component, attrs));
+      } else {
+        console.error(error);
+        resolve();
+      }
+    });
   });
 }
 
 exports.renderImage = renderImage;
 
 function renderVideo(el, system, game, attrs) {
-  console.log(el, system, game, attrs);
-  let scaleX = window.innerWidth  / 1024;
-  let scaleY = window.innerHeight / 768;
-  let width  = attrs.w * scaleX;
-  let height = attrs.h * scaleY;
-  let x = (attrs.x * scaleX) - (width  / 2);
-  let y = (attrs.y * scaleY) - (height / 2);
-  let rotate = attrs.r || 0;
+  return new Promise((resolve) => {
+    let scaleX = window.innerWidth  / 1024;
+    let scaleY = window.innerHeight / 768;
+    let width  = attrs.w * scaleX;
+    let height = attrs.h * scaleY;
+    let x = (attrs.x * scaleX) - (width  / 2);
+    let y = (attrs.y * scaleY) - (height / 2);
+    let rotate = attrs.r || 0;
 
-  el.style.width  = width  + 'px';
-  el.style.height = height + 'px';
-  el.style.left = x + 'px';
-  el.style.top  = y + 'px';
-  el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
-  el.dataset.below = attrs.below;
+    el.style.width  = width  + 'px';
+    el.style.height = height + 'px';
+    el.style.left = x + 'px';
+    el.style.top  = y + 'px';
+    el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
+    el.dataset.below = attrs.below;
 
-  let videoEl = window.vid = el.querySelector('video');
-  videoEl.src = path.join(MEDIA_PATH, system, 'Video', game + '.mp4');
-  videoEl.dataset.forceaspect = attrs.forceaspect || 'none';
-  videoEl.dataset.overlaybelow = attrs.overlaybelow;
+    let videoEl = window.vid = el.querySelector('video');
+    videoEl.src = path.join(MEDIA_PATH, system, 'Video', game + '.mp4');
+    videoEl.dataset.forceaspect = attrs.forceaspect || 'none';
+    videoEl.dataset.overlaybelow = attrs.overlaybelow;
 
-  let artworkEl = el.querySelector('.artwork');
-  artworkEl.innerHTML = '';
+    let artworkEl = el.querySelector('.artwork');
+    artworkEl.innerHTML = '';
 
-  let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
-  getTempFileFromZip(zipPath, 'video').then((tmpPath) => {
-    let img = document.createElement('img');
-    img.onload = () => {
-      requestAnimationFrame(() => {
-        let width  = img.naturalWidth  * scaleX;
-        let height = img.naturalHeight * scaleY;
-        let overlayOffsetX = attrs.overlayoffsetx || 0;
-        let overlayOffsetY = attrs.overlayoffsety || 0;
-        let imgX = ((attrs.x + overlayOffsetX) * scaleX) - (width  / 2) - x;
-        let imgY = ((attrs.y + overlayOffsetY) * scaleY) - (height / 2) - y;
+    let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
+    getTempFileFromZip(zipPath, 'video').then((tmpPath) => {
+      let img = document.createElement('img');
+      img.onload = () => {
+        requestAnimationFrame(() => {
+          let width  = img.naturalWidth  * scaleX;
+          let height = img.naturalHeight * scaleY;
+          let overlayOffsetX = attrs.overlayoffsetx || 0;
+          let overlayOffsetY = attrs.overlayoffsety || 0;
+          let imgX = ((attrs.x + overlayOffsetX) * scaleX) - (width  / 2) - x;
+          let imgY = ((attrs.y + overlayOffsetY) * scaleY) - (height / 2) - y;
 
-        artworkEl.style.width  = width  + 'px';
-        artworkEl.style.height = height + 'px';
-        artworkEl.style.left = imgX + 'px';
-        artworkEl.style.top  = imgY + 'px';
-        artworkEl.style.transform = 'translate3d(0,0,0)';
+          artworkEl.style.width  = width  + 'px';
+          artworkEl.style.height = height + 'px';
+          artworkEl.style.left = imgX + 'px';
+          artworkEl.style.top  = imgY + 'px';
+          artworkEl.style.transform = 'translate3d(0,0,0)';
 
-        artworkEl.appendChild(img);
-      });
-    };
+          artworkEl.appendChild(img);
+          resolve();
+        });
+      };
 
-    img.src = '../' + tmpPath;
+      img.src = '../' + tmpPath;
+    }).catch(() => resolve());
+
+    renderTransition(el, attrs);
+
+    renderBorder(el.querySelector('.border1'), attrs.bshape, attrs.bsize,  attrs.bcolor);
+    renderBorder(el.querySelector('.border2'), attrs.bshape, attrs.bsize2, attrs.bcolor2);
+    renderBorder(el.querySelector('.border3'), attrs.bshape, attrs.bsize3, attrs.bcolor3);
   });
-
-  renderTransition(el, attrs);
-
-  renderBorder(el.querySelector('.border1'), attrs.bshape, attrs.bsize,  attrs.bcolor);
-  renderBorder(el.querySelector('.border2'), attrs.bshape, attrs.bsize2, attrs.bcolor2);
-  renderBorder(el.querySelector('.border3'), attrs.bshape, attrs.bsize3, attrs.bcolor3);
 }
 
 exports.renderVideo = renderVideo;

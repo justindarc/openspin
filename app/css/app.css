@@ -9,13 +9,29 @@ body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  transform-style: preserve-3d;
-  perspective: 1000px;
+}
+
+view-element:before {
+  content: '';
+  background: #000;
+  opacity: 0;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  transition: opacity 200ms ease 200ms;
+}
+
+view-element.hide-theme:before {
+  opacity: 1;
+  transition-delay: 0ms;
 }
 
 us-theme-background {
   z-index: 1;
-  transform: translate3d(0, 0, 0);
 }
 
 us-theme-background,
@@ -39,7 +55,7 @@ us-wheel {
   opacity: .25;
   z-index: 2;
   transform: translate3d(0, 0, 0);
-  transition: opacity 500ms ease 200ms, z-index 0ms linear 700ms, transform 400ms ease-in-out 0ms;
+  transition: opacity 500ms ease 500ms, z-index 0ms linear 1000ms, transform 500ms ease-in-out 0ms;
 }
 
 view-element[push] us-wheel,
@@ -47,7 +63,7 @@ view-element[pop] us-wheel,
 us-wheel.active {
   opacity: 1;
   z-index: 100;
-  transition-duration: 0ms, 0ms, 400ms;
+  transition-duration: 0ms, 0ms, 500ms;
   transition-delay: 0ms, 0ms, 0ms;
 }
 
@@ -56,10 +72,11 @@ view-element[pop] us-wheel {
   transform: translate3d(100%, 0, 0);
 }
 
-us-wheel.willshow {
+view-element[push="enter"] us-wheel,
+view-element[pop="enter"] us-wheel,
+view-element.hide-wheel us-wheel {
   opacity: 1;
   z-index: 100;
   transform: translate3d(100%, 0, 0);
-  transition-duration: 0ms, 0ms, 0ms;
-  transition-delay: 0ms, 0ms, 0ms;
+  transition: none;
 }

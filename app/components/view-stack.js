@@ -185,35 +185,38 @@ class ViewStack extends HTMLElement {
         newActiveView.onwillshow();
       }
 
+      let containerEl = _containerEl.get(this);
+
+      let onTransitionEnd = () => {
+        newActiveView.removeEventListener('transitionend', onTransitionEnd);
+
+        requestAnimationFrame(() => {
+          oldActiveView.remove();
+
+          delete containerEl.dataset.transition;
+          delete containerEl.dataset.go;
+
+          newActiveView.removeAttribute('pop');
+          if (newActiveView.ondidshow) {
+            newActiveView.ondidshow();
+          }
+
+          oldActiveView.removeAttribute('pop');
+          if (oldActiveView.ondidhide) {
+            oldActiveView.ondidhide();
+          }
+
+          _lastOperation.set(this, null);
+          resolve();
+        });
+      };
+
       setTimeout(() => {
         requestAnimationFrame(() => {
-          let containerEl = _containerEl.get(this);
           containerEl.dataset.transition = oldActiveView.transition;
           _transitionDuration.get(this).innerHTML = '::slotted(*){--transition-duration:' + oldActiveView.transitionDuration + 'ms;}';
 
           requestAnimationFrame(() => {
-            let onTransitionEnd = () => {
-              newActiveView.removeEventListener('transitionend', onTransitionEnd);
-
-              oldActiveView.remove();
-
-              delete containerEl.dataset.transition;
-              delete containerEl.dataset.go;
-
-              newActiveView.removeAttribute('pop');
-              if (newActiveView.ondidshow) {
-                newActiveView.ondidshow();
-              }
-
-              oldActiveView.removeAttribute('pop');
-              if (oldActiveView.ondidhide) {
-                oldActiveView.ondidhide();
-              }
-
-              _lastOperation.set(this, null);
-              resolve();
-            };
-
             newActiveView.addEventListener('transitionend', onTransitionEnd);
 
             containerEl.dataset.go = true;
@@ -250,35 +253,38 @@ class ViewStack extends HTMLElement {
         newActiveView.onwillshow();
       }
 
+      let containerEl = _containerEl.get(this);
+
+      let onTransitionEnd = () => {
+        newActiveView.removeEventListener('transitionend', onTransitionEnd);
+
+        requestAnimationFrame(() => {
+          delete containerEl.dataset.transition;
+          delete containerEl.dataset.go;
+
+          newActiveView.removeAttribute('push');
+          if (newActiveView.ondidshow) {
+            newActiveView.ondidshow();
+          }
+
+          oldActiveView.removeAttribute('push');
+          if (oldActiveView.ondidhide) {
+            oldActiveView.ondidhide();
+          }
+
+          _lastOperation.set(this, null);
+          resolve();
+        });
+      };
+
       setTimeout(() => {
         requestAnimationFrame(() => {
           this.appendChild(newActiveView);
 
-          let containerEl = _containerEl.get(this);
           containerEl.dataset.transition = newActiveView.transition;
           _transitionDuration.get(this).innerHTML = '::slotted(*){--transition-duration:' + newActiveView.transitionDuration + 'ms;}';
 
           requestAnimationFrame(() => {
-            let onTransitionEnd = () => {
-              newActiveView.removeEventListener('transitionend', onTransitionEnd);
-
-              delete containerEl.dataset.transition;
-              delete containerEl.dataset.go;
-
-              newActiveView.removeAttribute('push');
-              if (newActiveView.ondidshow) {
-                newActiveView.ondidshow();
-              }
-
-              oldActiveView.removeAttribute('push');
-              if (oldActiveView.ondidhide) {
-                oldActiveView.ondidhide();
-              }
-
-              _lastOperation.set(this, null);
-              resolve();
-            };
-
             newActiveView.addEventListener('transitionend', onTransitionEnd);
 
             containerEl.dataset.go = true;

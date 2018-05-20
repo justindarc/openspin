@@ -73,7 +73,11 @@ class USThemeBackgroundElement extends HTMLElement {
     }
 
     let backgroundEl = _backgroundEl.get(this);
-    renderImage(backgroundEl, system, game, 'background');
+    backgroundEl.innerHTML = '';
+
+    renderImage(backgroundEl, system, game, 'background').then(() => {
+      this.dispatchEvent(new CustomEvent('render'));
+    });
   }
 }
 

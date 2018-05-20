@@ -10,7 +10,7 @@ function normalizeIndex(index, itemCount) {
   }
 
   if (index < 0) {
-    return (index % itemCount) + itemCount;
+    return ((index % itemCount) + itemCount) % itemCount;
   }
 
   return index % itemCount;
@@ -47,13 +47,13 @@ class USWheelElement extends HTMLElement {
     height: 7.5%;
     transform-origin: 100vw 50%;
   }
-  .wheel > .item > img {
-    max-width: 100%;
-    max-height: 100%;
+  .wheel > .item > us-wheel-image {
+    width: 100%;
+    height: 100%;
   }
   .wheel.previous > .item,
   .wheel.next > .item {
-    transition: all 200ms;
+    transition: all 100ms;
   }
   .wheel > .item:nth-child(1)  { transform: translate3d(0, 0, 0) rotate( 35deg); }
   .wheel > .item:nth-child(2)  { transform: translate3d(0, 0, 0) rotate( 30deg); }
@@ -126,7 +126,8 @@ class USWheelElement extends HTMLElement {
     const shadowRoot = this.attachShadow({ mode: 'closed' });
     shadowRoot.appendChild(template.content.cloneNode(true));
 
-    _wheelEl.set(this, shadowRoot.querySelector('.wheel'));
+    let wheelEl = shadowRoot.querySelector('.wheel');
+    _wheelEl.set(this, wheelEl);
     _itemCount.set(this, 0);
     _selectedIndex.set(this, -1);
     _isTransitioning.set(this, false);

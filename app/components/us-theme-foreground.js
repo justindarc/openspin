@@ -148,8 +148,10 @@ class USThemeForegroundElement extends HTMLElement {
 
     let componentEls = _componentEls.get(this);
     getThemeData(system, game).then((theme) => {
+      let promises = [];
       for (let component in componentEls) {
         let componentEl = componentEls[component];
+        componentEl.removeAttribute('style');
 
         if (component !== 'video') {
           componentEl.innerHTML = '';
@@ -158,12 +160,18 @@ class USThemeForegroundElement extends HTMLElement {
         let attrs = theme[component];
         if (attrs) {
           if (component === 'video') {
-            renderVideo(componentEl, system, game, attrs);
+            promises.push(renderVideo(componentEl, system, game, attrs));
           } else {
-            renderImage(componentEl, system, game, component, attrs);
+            promises.push(renderImage(componentEl, system, game, component, attrs));
           }
         }
       }
+
+      Promise.all(promises).then(() => {
+        this.dispatchEvent(new CustomEvent('render'));
+      }).catch((error) => {
+        console.error('Unable to render theme', error);
+      });
     });
   }
 }
