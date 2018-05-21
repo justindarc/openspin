@@ -7,7 +7,7 @@ let _src = new WeakMap();
 let _naturalWidth = new WeakMap();
 let _naturalHeight = new WeakMap();
 
-function createSWFObject(src, callback) {
+function createSWFObject(src) {
   let absolutePath = path.join(process.cwd(), src);
   return new Promise((resolve, reject) => {
     SWFReader.read(absolutePath, (error, swf) => {

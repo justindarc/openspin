@@ -1,5 +1,5 @@
-const { ViewController } = require('../components/view-element.js');
-const { debounce, getGameList, getWheelImagePath } = require('../components/common/theme-utils.js');
+const { ViewController } = require('../../components/view-element.js');
+const { debounce, getGameList, getWheelImagePath } = require('../../components/common/theme-utils.js');
 
 let _wheelActiveTimeout = new WeakMap();
 
@@ -51,8 +51,6 @@ class WheelViewController extends ViewController {
     });
 
     this.wheel.addEventListener('exit', () => {
-      this.activateWheel();
-
       requestAnimationFrame(() => {
         this.onExit();
       });
@@ -89,6 +87,14 @@ class WheelViewController extends ViewController {
 
       this.activateWheel();
     });
+  }
+
+  onBlur() {
+    this.wheel.disabled = true;
+  }
+
+  onFocus() {
+    this.wheel.disabled = false;
   }
 
   activateWheel(timeout = 1000) {

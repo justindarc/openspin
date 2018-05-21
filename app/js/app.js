@@ -1,9 +1,16 @@
-const WheelViewController = require('./wheel-view-controller.js');
+const WheelViewController = require('./controllers/wheel-view-controller.js');
+const ModalMenuViewController = require('./controllers/modal-menu-view-controller.js');
 
-const newViewHtml = `
+const { getFrontendImagePath } = require('../components/common/theme-utils.js');
+
+const wheelViewHtml = `
 <us-theme-background></us-theme-background>
 <us-wheel></us-wheel>
 <us-theme-foreground></us-theme-foreground>
+`;
+
+const exitMenuViewHtml = `
+  <img class="menu-background">
 `;
 
 let viewStack = document.getElementById('view-stack');
@@ -13,16 +20,44 @@ let viewControllers = [];
 function setupWheelViewController(view, system) {
   let wheelViewController = new WheelViewController(view, system);
   wheelViewController.onSystemSelect = (system) => {
+    if (viewStack.modalView) {
+      return;
+    }
+
     let view = document.createElement('view-element');
     view.transition = 'fade-black';
-    view.innerHTML = newViewHtml;
+    view.innerHTML = wheelViewHtml;
 
     setupWheelViewController(view, system);
     viewStack.push(view);
   };
 
   wheelViewController.onExit = () => {
-    viewStack.pop();
+    if (viewStack.modalView) {
+      return;
+    }
+
+    if (viewStack.views.length > 1) {
+      viewStack.pop();
+      return;
+    }
+
+    let exitMenuView = document.createElement('view-element');
+    exitMenuView.transitionDelay = 0;
+    exitMenuView.innerHTML = exitMenuViewHtml;
+
+    let exitMenuViewController = new ModalMenuViewController(exitMenuView);
+    exitMenuViewController.background.src = getFrontendImagePath('Menu_Exit_Background');
+
+    exitMenuViewController.onExit = () => {
+      viewStack.dismissModal();
+    };
+
+    exitMenuViewController.onMenuItemSelect = (menuItem) => {
+      viewStack.dismissModal();
+    };
+
+    viewStack.presentModal(exitMenuView);
   };
 
   viewControllers.push(wheelViewController);

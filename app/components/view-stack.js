@@ -25,8 +25,13 @@ class ViewStack extends HTMLElement {
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 1;
+  }
+  ::slotted(view-element[modal]) {
+    z-index: 10;
   }
   ::slotted(view-element:last-child),
+  ::slotted(view-element[modal]),
   ::slotted(view-element[pop]),
   ::slotted(view-element[push]) {
     display: block;
@@ -35,6 +40,36 @@ class ViewStack extends HTMLElement {
     position: relative;
     width: 100%;
     height: 100%;
+  }
+  .container[data-modal]:before {
+    content: '';
+    background: #000;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    transition: visibility 0ms linear 200ms, opacity 200ms ease 0ms;
+    visibility: hidden;
+    opacity: 0;
+  }
+  .container[data-modal][data-in]:before {
+    transition-delay: 0ms, 0ms;
+    visibility: visible;
+    opacity: .9;
+  }
+
+  /* [modal] */
+  ::slotted(view-element[modal]) {
+    transition: transform 200ms ease 0ms, opacity 200ms ease 0ms;
+    transform: scale(2);
+    opacity: 0;
+  }
+  .container[data-modal][data-in] ::slotted(view-element[modal]) {
+    transform: scale(1);
+    opacity: 1;
   }
 
   /* [transition="fade"] */
@@ -144,6 +179,10 @@ class ViewStack extends HTMLElement {
           if (activeView.ondidshow) {
             activeView.ondidshow();
           }
+
+          if (activeView.onfocus) {
+            activeView.onfocus();
+          }
         });
       }
     });
@@ -151,13 +190,20 @@ class ViewStack extends HTMLElement {
 
   get views() {
     return _slotEl.get(this).assignedNodes().filter((node) => {
-      return node.nodeType === Node.ELEMENT_NODE && node.matches('view-element');
+      return node.nodeType === Node.ELEMENT_NODE && node.matches('view-element') && !node.hasAttribute('modal');
     });
   }
 
   get activeView() {
     let views = this.views;
     return views[views.length - 1] || null;
+  }
+
+  get modalView() {
+    let modalViews = _slotEl.get(this).assignedNodes().filter((node) => {
+      return node.nodeType === Node.ELEMENT_NODE && node.matches('view-element') && node.hasAttribute('modal');
+    })
+    return modalViews[modalViews.length - 1] || null;
   }
 
   pop() {
@@ -201,9 +247,17 @@ class ViewStack extends HTMLElement {
             newActiveView.ondidshow();
           }
 
+          if (newActiveView.onfocus) {
+            newActiveView.onfocus();
+          }
+
           oldActiveView.removeAttribute('pop');
           if (oldActiveView.ondidhide) {
             oldActiveView.ondidhide();
+          }
+
+          if (oldActiveView.onblur) {
+            oldActiveView.onblur();
           }
 
           _lastOperation.set(this, null);
@@ -267,9 +321,17 @@ class ViewStack extends HTMLElement {
             newActiveView.ondidshow();
           }
 
+          if (newActiveView.onfocus) {
+            newActiveView.onfocus();
+          }
+
           oldActiveView.removeAttribute('push');
           if (oldActiveView.ondidhide) {
             oldActiveView.ondidhide();
+          }
+
+          if (oldActiveView.onblur) {
+            oldActiveView.onblur();
           }
 
           _lastOperation.set(this, null);
@@ -291,6 +353,100 @@ class ViewStack extends HTMLElement {
           });
         });
       }, newActiveView.transitionDelay);
+    });
+
+    operation.catch(() => _lastOperation.set(this, null));
+
+    _lastOperation.set(this, operation);
+    return operation;
+  }
+
+  dismissModal() {
+    if (_lastOperation.get(this)) {
+      return Promise.reject();
+    }
+
+    let operation = new Promise((resolve, reject) => {
+      let modalView = this.modalView;
+      if (!modalView) {
+        reject();
+        return;
+      }
+
+      let containerEl = _containerEl.get(this);
+
+      let onTransitionEnd = () => {
+        requestAnimationFrame(() => {
+          modalView.removeEventListener('transitionend', onTransitionEnd);
+          modalView.removeAttribute('modal');
+          modalView.remove();
+
+          delete containerEl.dataset.modal;
+
+          let activeView = this.activeView;
+          if (activeView) {
+            if (activeView.onfocus) {
+              activeView.onfocus();
+            }
+          }
+
+          _lastOperation.set(this, null);
+          resolve();
+        });
+      };
+
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          modalView.addEventListener('transitionend', onTransitionEnd);
+
+          delete containerEl.dataset.in;
+        });
+      }, modalView.transitionDelay);
+    });
+
+    operation.catch(() => _lastOperation.set(this, null));
+
+    _lastOperation.set(this, operation);
+    return operation;
+  }
+
+  presentModal(modalView) {
+    if (_lastOperation.get(this)) {
+      return Promise.reject();
+    }
+
+    let operation = new Promise((resolve) => {
+      let onTransitionEnd = () => {
+        modalView.removeEventListener('transitionend', onTransitionEnd);
+
+        let activeView = this.activeView;
+        if (activeView) {
+          if (activeView.onblur) {
+            activeView.onblur();
+          }
+        }
+
+        _lastOperation.set(this, null);
+        resolve();
+      };
+
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          let containerEl = _containerEl.get(this);
+          containerEl.dataset.modal = true;
+
+          requestAnimationFrame(() => {
+            modalView.setAttribute('modal', true);
+            this.prepend(modalView);
+
+            requestAnimationFrame(() => {
+              modalView.addEventListener('transitionend', onTransitionEnd);
+
+              containerEl.dataset.in = true;
+            });
+          });
+        });
+      }, modalView.transitionDelay);
     });
 
     operation.catch(() => _lastOperation.set(this, null));

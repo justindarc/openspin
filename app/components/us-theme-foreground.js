@@ -30,6 +30,7 @@ class USThemeForegroundElement extends HTMLElement {
   .artwork3,
   .artwork4 {
     position: absolute;
+    transform: translate3d(0, 0, 0);
     z-index: 2;
   }
   .video[data-below="true"],
@@ -73,7 +74,6 @@ class USThemeForegroundElement extends HTMLElement {
     left: 0;
     width: 100%;
     height: 100%;
-    transform: translate3d(0, 0, 0);
     z-index: 1;
   }
 </style>

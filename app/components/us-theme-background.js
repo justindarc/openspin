@@ -18,9 +18,6 @@ class USThemeBackgroundElement extends HTMLElement {
     -webkit-user-drag: none;
     user-select: none;
   }
-  .theme {
-    background: #000;
-  }
   .theme,
   .background,
   .background > img,

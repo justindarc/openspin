@@ -1,7 +1,11 @@
+let _onconnected = new WeakMap();
+let _ondisconnected = new WeakMap();
 let _onwillshow = new WeakMap();
 let _ondidshow = new WeakMap();
 let _onwillhide = new WeakMap();
 let _ondidhide = new WeakMap();
+let _onblur = new WeakMap();
+let _onfocus = new WeakMap();
 
 class ViewElement extends HTMLElement {
   constructor() {
@@ -23,6 +27,14 @@ class ViewElement extends HTMLElement {
     let shadowRoot = this.attachShadow({ mode: 'closed' });
     shadowRoot.appendChild(template.content.cloneNode(true));
 
+    if (this.hasAttribute('onconnected')) {
+      this.onconnected = new Function(this.getAttribute('onconnected'));
+    }
+
+    if (this.hasAttribute('ondisconnected')) {
+      this.ondisconnected = new Function(this.getAttribute('ondisconnected'));
+    }
+
     if (this.hasAttribute('onwillshow')) {
       this.onwillshow = new Function(this.getAttribute('onwillshow'));
     }
@@ -37,6 +49,28 @@ class ViewElement extends HTMLElement {
 
     if (this.hasAttribute('ondidhide')) {
       this.ondidhide = new Function(this.getAttribute('ondidhide'));
+    }
+
+    if (this.hasAttribute('onblur')) {
+      this.onblur = new Function(this.getAttribute('onblur'));
+    }
+
+    if (this.hasAttribute('onfocus')) {
+      this.onfocus = new Function(this.getAttribute('onfocus'));
+    }
+  }
+
+  connectedCallback() {
+    let onconnected = this.onconnected;
+    if (onconnected) {
+      onconnected.call(this);
+    }
+  }
+
+  disconnectedCallback() {
+    let ondisconnected = this.ondisconnected;
+    if (ondisconnected) {
+      ondisconnected.call(this);
     }
   }
 
@@ -65,6 +99,26 @@ class ViewElement extends HTMLElement {
   set transitionDuration(value) {
     if (typeof value === 'number') {
       this.setAttribute('transition-duration', value);
+    }
+  }
+
+  get onconnected() {
+    return _onconnected.get(this) || null;
+  }
+
+  set onconnected(value) {
+    if (typeof value === 'function' || value === null) {
+      _onconnected.set(this, value);
+    }
+  }
+
+  get ondisconnected() {
+    return _ondisconnected.get(this) || null;
+  }
+
+  set ondisconnected(value) {
+    if (typeof value === 'function' || value === null) {
+      _ondisconnected.set(this, value);
     }
   }
 
@@ -107,6 +161,26 @@ class ViewElement extends HTMLElement {
       _ondidhide.set(this, value);
     }
   }
+
+  get onblur() {
+    return _onblur.get(this) || null;
+  }
+
+  set onblur(value) {
+    if (typeof value === 'function' || value === null) {
+      _onblur.set(this, value);
+    }
+  }
+
+  get onfocus() {
+    return _onfocus.get(this) || null;
+  }
+
+  set onfocus(value) {
+    if (typeof value === 'function' || value === null) {
+      _onfocus.set(this, value);
+    }
+  }
 }
 
 exports.ViewElement = ViewElement;
@@ -121,12 +195,16 @@ class ViewController {
     view.ondidshow = () => this.onDidShow();
     view.onwillhide = () => this.onWillHide();
     view.ondidhide = () => this.onDidHide();
+    view.onblur = () => this.onBlur();
+    view.onfocus = () => this.onFocus();
   }
 
   onWillShow() {}
   onDidShow() {}
   onWillHide() {}
   onDidHide() {}
+  onBlur() {}
+  onFocus() {}
 }
 
 exports.ViewController = ViewController;

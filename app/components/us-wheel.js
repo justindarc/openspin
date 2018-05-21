@@ -132,8 +132,8 @@ class USWheelElement extends HTMLElement {
     _selectedIndex.set(this, -1);
     _isTransitioning.set(this, false);
     _onKeyDown.set(this, (evt) => {
-      // If we're not visible, ignore key events.
-      if (!this.offsetParent) {
+      // If we're disabled, ignore key events.
+      if (this.disabled) {
         return;
       }
 
@@ -155,6 +155,18 @@ class USWheelElement extends HTMLElement {
 
   disconnectedCallback() {
     window.removeEventListener('keydown', _onKeyDown.get(this));
+  }
+
+  get disabled() {
+    return this.hasAttribute('disabled');
+  }
+
+  set disabled(value) {
+    if (!value) {
+      this.removeAttribute('disabled');
+    } else {
+      this.setAttribute('disabled', true);
+    }
   }
 
   get itemCount() {

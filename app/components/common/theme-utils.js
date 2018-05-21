@@ -123,6 +123,12 @@ function getWheelImagePath(system, name) {
 
 exports.getWheelImagePath = getWheelImagePath;
 
+function getFrontendImagePath(name) {
+  return path.join(MEDIA_PATH, 'Frontend', 'Images', name + '.png');
+}
+
+exports.getFrontendImagePath = getFrontendImagePath;
+
 function getTempFileFromZip(zipPath, prefix) {
   return new Promise((resolve, reject) => {
     let zip = new StreamZip({
