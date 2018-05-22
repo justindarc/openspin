@@ -88,3 +88,36 @@ view-element.hide-wheel us-wheel {
   max-width: 100%;
   max-height: 100%;
 }
+
+.menu-container {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.menu-text {
+  margin-top: 4em;
+}
+
+.menu-items {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-top: 2em;
+  width: 50%;
+}
+
+.menu-items > li {
+  position: relative;
+}
+
+.menu-items > li > .menu-arrow {
+  position: absolute;
+  left: -100%;
+}

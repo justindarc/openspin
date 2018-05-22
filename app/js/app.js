@@ -11,6 +11,10 @@ const wheelViewHtml = `
 
 const exitMenuViewHtml = `
   <img class="menu-background">
+  <div class="menu-container">
+    <img class="menu-text">
+    <ul class="menu-items"></ul>
+  </div>
 `;
 
 let viewStack = document.getElementById('view-stack');
@@ -48,6 +52,11 @@ function setupWheelViewController(view, system) {
 
     let exitMenuViewController = new ModalMenuViewController(exitMenuView);
     exitMenuViewController.background.src = getFrontendImagePath('Menu_Exit_Background');
+    exitMenuViewController.text.src = getFrontendImagePath('Text_Exit_WouldYouLikeToExit');
+    exitMenuViewController.menuArrow.src = getFrontendImagePath('Menu_Exit_Arrow');
+
+    exitMenuViewController.addMenuItem('yes', getFrontendImagePath('Text_Exit_Yes'));
+    exitMenuViewController.addMenuItem('no', getFrontendImagePath('Text_Exit_No'));
 
     exitMenuViewController.onExit = () => {
       viewStack.dismissModal();
