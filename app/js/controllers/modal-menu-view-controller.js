@@ -1,7 +1,6 @@
 const { ViewController } = require('../../components/view-element.js');
 
 let _menuItems = new WeakMap();
-let _menuItemsEl = new WeakMap();
 
 class ModalMenuViewController extends ViewController {
   constructor(view) {
@@ -9,11 +8,7 @@ class ModalMenuViewController extends ViewController {
 
     this.background = view.querySelector('.menu-background');
     this.text = view.querySelector('.menu-text');
-    this.menuArrow = document.createElement('img');
-
-    this.menuArrow.classList.add('menu-arrow');
-
-    _menuItemsEl.set(this, view.querySelector('.menu-items'));
+    this.menu = view.querySelector('us-menu');
 
     let onKeyDown = (evt) => {
       // If we're not visible, ignore key events.
@@ -21,12 +16,16 @@ class ModalMenuViewController extends ViewController {
         return;
       }
 
-      if (evt.key === 'ArrowUp') {
-        // this.previous();
-      } else if (evt.key === 'ArrowDown') {
-        // this.next();
+      if (evt.key === 'ArrowLeft') {
+        this.menu.previous();
+      } else if (evt.key === 'ArrowRight') {
+        this.menu.next();
       } else if (evt.key === 'Enter') {
-        // this.onMenuItemSelect();
+        let selectedItem = this.menu.selectedItem;
+        let selectedIndex = this.menu.selectedIndex;
+        if (selectedItem && selectedIndex !== -1) {
+          this.onMenuItemSelected(selectedItem, selectedIndex);
+        }
       } else if (evt.key === 'Escape') {
         this.onExit();
       }
@@ -41,29 +40,6 @@ class ModalMenuViewController extends ViewController {
     };
   }
 
-  get menuItems() {
-    return _menuItems.get(this) || [];
-  }
-
-  addMenuItem(value, src) {
-    let menuItems = this.menuItems;
-    menuItems.push(value);
-    _menuItems.set(this, menuItems);
-
-    let img = document.createElement('img');
-    img.src = src;
-
-    let li = document.createElement('li');
-    li.dataset.value = value;
-    li.appendChild(img);
-
-    if (menuItems.length === 1) {
-      // li.appendChild(this.menuArrow);
-    }
-
-    _menuItemsEl.get(this).appendChild(li);
-  }
-
   onWillHide() {}
   onDidHide() {}
   onWillShow() {}
@@ -72,7 +48,7 @@ class ModalMenuViewController extends ViewController {
   onFocus() {}
 
   onExit() {}
-  onMenuItemSelect(menuItem) {}
+  onMenuItemSelected(item, index) {}
 }
 
 module.exports = ModalMenuViewController;

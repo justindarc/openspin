@@ -105,19 +105,7 @@ view-element.hide-wheel us-wheel {
   margin-top: 4em;
 }
 
-.menu-items {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
+us-menu {
   margin-top: 2em;
   width: 50%;
-}
-
-.menu-items > li {
-  position: relative;
-}
-
-.menu-items > li > .menu-arrow {
-  position: absolute;
-  left: -100%;
 }

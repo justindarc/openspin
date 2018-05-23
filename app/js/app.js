@@ -13,7 +13,10 @@ const exitMenuViewHtml = `
   <img class="menu-background">
   <div class="menu-container">
     <img class="menu-text">
-    <ul class="menu-items"></ul>
+    <us-menu arrow-src="Menu_Exit_Arrow">
+      <us-menu-item value="yes" src="Text_Exit_Yes" selected></us-menu-item>
+      <us-menu-item value="no" src="Text_Exit_No"></us-menu-item>
+    </us-menu>
   </div>
 `;
 
@@ -53,17 +56,17 @@ function setupWheelViewController(view, system) {
     let exitMenuViewController = new ModalMenuViewController(exitMenuView);
     exitMenuViewController.background.src = getFrontendImagePath('Menu_Exit_Background');
     exitMenuViewController.text.src = getFrontendImagePath('Text_Exit_WouldYouLikeToExit');
-    exitMenuViewController.menuArrow.src = getFrontendImagePath('Menu_Exit_Arrow');
-
-    exitMenuViewController.addMenuItem('yes', getFrontendImagePath('Text_Exit_Yes'));
-    exitMenuViewController.addMenuItem('no', getFrontendImagePath('Text_Exit_No'));
 
     exitMenuViewController.onExit = () => {
       viewStack.dismissModal();
     };
 
-    exitMenuViewController.onMenuItemSelect = (menuItem) => {
-      viewStack.dismissModal();
+    exitMenuViewController.onMenuItemSelected = (item, index) => {
+      if (item.value === 'yes') {
+        window.close();
+      } else {
+        viewStack.dismissModal();
+      }
     };
 
     viewStack.presentModal(exitMenuView);
