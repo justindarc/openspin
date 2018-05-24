@@ -40,14 +40,19 @@ class USThemeForegroundElement extends HTMLElement {
   .video > video,
   .video > .artwork > img,
   .video > .artwork > swf-image,
+  .video > .artwork > swf-object,
   .artwork1 > img,
   .artwork1 > swf-image,
+  .artwork1 > swf-object,
   .artwork2 > img,
   .artwork2 > swf-image,
+  .artwork2 > swf-object,
   .artwork3 > img,
   .artwork3 > swf-image,
+  .artwork3 > swf-object,
   .artwork4 > img,
-  .artwork4 > swf-image {
+  .artwork4 > swf-image,
+  .artwork4 > swf-object {
     position: relative;
     width: 100%;
     height: 100%;

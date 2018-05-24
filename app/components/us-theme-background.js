@@ -21,7 +21,8 @@ class USThemeBackgroundElement extends HTMLElement {
   .theme,
   .background,
   .background > img,
-  .background > swf-image {
+  .background > swf-image,
+  .background > swf-object {
     width: 100%;
     height: 100%;
   }

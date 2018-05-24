@@ -120,7 +120,10 @@ class WheelViewController extends ViewController {
     this.foreground = document.createElement('us-theme-foreground');
     this.view.append(this.foreground);
 
-    this.foreground.addEventListener('render', () => {
+    Promise.all([
+      new Promise(resolve => this.background.addEventListener('render', resolve)),
+      new Promise(resolve => this.foreground.addEventListener('render', resolve))
+    ]).then(() => {
       this.view.classList.remove('hide-theme');
       this.foreground.play();
     });

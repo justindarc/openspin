@@ -199,8 +199,12 @@ function renderImage(el, system, game, component, attrs) {
               let scaleY = window.innerHeight / 768;
               let width  = swfImage.naturalWidth  * scaleX;
               let height = swfImage.naturalHeight * scaleY;
-              let x = (attrs.x * scaleX) - (width  / 2);
-              let y = (attrs.y * scaleY) - (height / 2);
+              let worldWidth  = swfImage.naturalWidth  * scaleX;
+              let worldHeight = swfImage.naturalHeight * scaleY;
+              // let worldWidth  = swfImage.worldWidth  * scaleX;
+              // let worldHeight = swfImage.worldHeight * scaleY;
+              let x = (attrs.x * scaleX) - (worldWidth  / 2);
+              let y = (attrs.y * scaleY) - (worldHeight / 2);
               let rotate = attrs.r || 0;
 
               attrs.w = width;
@@ -225,6 +229,10 @@ function renderImage(el, system, game, component, attrs) {
         };
 
         swfImage.src = tmpPath;
+
+        // <swf-object> cannot load until it is attached to DOM.
+        // el.appendChild(swfImage);
+        // swfImage.src = '../' + tmpPath;
       } else {
         let img = document.createElement('img');
         img.onload = () => {
