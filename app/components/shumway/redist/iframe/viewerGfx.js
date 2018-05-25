@@ -20,8 +20,7 @@ function createEasel() {
   var Easel = Shumway.GFX.Easel;
   var Canvas2DRenderer = Shumway.GFX.Canvas2DRenderer;
 
-  // Easel(element, hidpi, backgroundColor)
-  easel = new Easel(document.getElementById("easelContainer"), false, 0);
+  easel = new Easel(document.getElementById("easelContainer"));
   easel.startRendering();
   return easel;
 }

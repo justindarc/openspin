@@ -6149,9 +6149,26 @@ var Shumway;
             var loaded = 0;
             var total = 0;
             xhr.open(this.method || 'GET', url, true);
-            xhr.responseType = 'arraybuffer';
+            xhr.responseType = 'moz-chunked-arraybuffer';
+            var isNotProgressive = xhr.responseType !== 'moz-chunked-arraybuffer';
+            if (isNotProgressive) {
+                xhr.responseType = 'arraybuffer';
+            }
             xhr.onprogress = function (e) {
-                return;
+                if (isNotProgressive) {
+                    return;
+                }
+                loaded = e.loaded;
+                total = e.total;
+                var bytes = new Uint8Array(xhr.response);
+                // The event's `loaded` and `total` properties are sometimes lower than the actual
+                // number of loaded bytes. In that case, increase them to that value.
+                loaded = Math.max(loaded, bytes.byteLength);
+                total = Math.max(total, bytes.byteLength);
+                ondata(bytes, {
+                    loaded: loaded,
+                    total: total
+                });
             };
             xhr.onreadystatechange = function (event) {
                 if (xhr.readyState === 2 && onhttpstatus) {
@@ -6166,11 +6183,13 @@ var Shumway;
                         onerror(xhr.statusText);
                         return;
                     }
-                    var buffer = xhr.response;
-                    ondata(new Uint8Array(buffer), {
-                        loaded: buffer.byteLength,
-                        total: buffer.byteLength
-                    });
+                    if (isNotProgressive) {
+                        var buffer = xhr.response;
+                        ondata(new Uint8Array(buffer), {
+                            loaded: buffer.byteLength,
+                            total: buffer.byteLength
+                        });
+                    }
                 }
             };
             xhr.onload = function () {
@@ -7767,11 +7786,11 @@ var Shumway;
                     var w = rectangle.w;
                     var h = rectangle.h;
                     /*
-
+              
                      0---1
                      | / |
                      3---2
-
+              
                      */
                     points[0].x = a * x + c * y + tx;
                     points[0].y = b * x + d * y + ty;
@@ -7811,11 +7830,11 @@ var Shumway;
                     var w = rectangle.w;
                     var h = rectangle.h;
                     /*
-
+              
                      0---1
                      | / |
                      3---2
-
+              
                      */
                     var x0 = a * x + c * y + tx;
                     var y0 = b * x + d * y + ty;

@@ -1,4 +1,4 @@
-const SWFReader = require('swf-reader');
+const { getSwfInfo } = require('./common/theme-utils.js');
 
 const path = require('path');
 
@@ -6,34 +6,30 @@ let _containerEl = new WeakMap();
 let _src = new WeakMap();
 let _naturalWidth = new WeakMap();
 let _naturalHeight = new WeakMap();
+let _worldWidth = new WeakMap();
+let _worldHeight = new WeakMap();
 
 function createSWFObject(src) {
   let absolutePath = path.join(process.cwd(), src);
-  return new Promise((resolve, reject) => {
-    SWFReader.read(absolutePath, (error, swf) => {
-      if (error) {
-        reject(error);
-        return;
-      }
+  return getSwfInfo(absolutePath).then((swfInfo) => {
+    console.log(swfInfo);
+    let object = document.createElement('object');
+    object.data = absolutePath;
+    object.width  = swfInfo.naturalWidth;
+    object.height = swfInfo.naturalHeight;
 
-      let object = document.createElement('object');
-      object.data = absolutePath;
-      object.width  = swf.frameSize.width;
-      object.height = swf.frameSize.height;
+    let scaleParam = document.createElement('param');
+    scaleParam.name = 'scale';
+    scaleParam.value = 'exactfit';
+    object.appendChild(scaleParam);
 
-      let scaleParam = document.createElement('param');
-      scaleParam.name = 'scale';
-      scaleParam.value = 'exactfit';
-      object.appendChild(scaleParam);
+    let wmodeParam = document.createElement('param');
+    wmodeParam.name = 'wmode';
+    wmodeParam.value = 'transparent';
+    object.appendChild(wmodeParam);
 
-      let wmodeParam = document.createElement('param');
-      wmodeParam.name = 'wmode';
-      wmodeParam.value = 'transparent';
-      object.appendChild(wmodeParam);
-
-      resolve([object, swf]);
-    });
-  });
+    return [object, swfInfo];
+  }).catch(() => console.error('Unable to get SWF info', src));
 }
 
 class SWFImage extends HTMLElement {
@@ -83,16 +79,20 @@ class SWFImage extends HTMLElement {
 
     _naturalWidth.set(this, 0);
     _naturalHeight.set(this, 0);
+    _worldWidth.set(this, 0);
+    _worldHeight.set(this, 0);
 
     let containerEl = _containerEl.get(this);
     containerEl.innerHTML = '';
 
     if (value) {
-      createSWFObject(value).then(([object, swf]) => {
+      createSWFObject(value).then(([object, swfInfo]) => {
         containerEl.appendChild(object);
 
-        _naturalWidth.set(this, swf.frameSize.width);
-        _naturalHeight.set(this, swf.frameSize.height);
+        _naturalWidth.set(this, swfInfo.naturalWidth);
+        _naturalHeight.set(this, swfInfo.naturalHeight);
+        _worldWidth.set(this, swfInfo.worldWidth);
+        _worldHeight.set(this, swfInfo.worldHeight);
 
         if (typeof this.onload === 'function') {
           this.onload(this);
@@ -117,6 +117,14 @@ class SWFImage extends HTMLElement {
 
   get naturalHeight() {
     return _naturalHeight.get(this);
+  }
+
+  get worldWidth() {
+    return _worldWidth.get(this);
+  }
+
+  get worldHeight() {
+    return _worldHeight.get(this);
   }
 }
 

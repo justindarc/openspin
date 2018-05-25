@@ -34,6 +34,35 @@ function fetchXml(url) {
 
 exports.fetchXml = fetchXml;
 
+function getSwfInfo(path) {
+  return new Promise((resolve, reject) => {
+    let webView = document.createElement('webview');
+    webView.preload = './components/shumway/swf-info.js';
+    webView.src = './components/shumway/swf-info.html?path=' + path;
+    webView.style.visibility = 'hidden';
+
+    webView.addEventListener('ipc-message', (evt) => {
+      if (evt.channel !== 'render') {
+        if (evt.channel === 'error') {
+          webView.remove();
+          reject();
+        }
+
+        return;
+      }
+
+      webView.remove();
+
+      let swfInfo = evt.args[0];
+      resolve(swfInfo);
+    });
+
+    document.body.appendChild(webView);
+  });
+}
+
+exports.getSwfInfo = getSwfInfo;
+
 function getThemeData(system, game) {
   let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
   return getTempFileFromZip(zipPath, 'theme.xml')
@@ -162,7 +191,7 @@ function getTempFileFromZip(zipPath, prefix) {
                     console.error(error);
                   }
                 });
-              }, 1000);
+              }, 2000);
 
               resolve(tmpPath);
             });
@@ -199,10 +228,8 @@ function renderImage(el, system, game, component, attrs) {
               let scaleY = window.innerHeight / 768;
               let width  = swfImage.naturalWidth  * scaleX;
               let height = swfImage.naturalHeight * scaleY;
-              let worldWidth  = swfImage.naturalWidth  * scaleX;
-              let worldHeight = swfImage.naturalHeight * scaleY;
-              // let worldWidth  = swfImage.worldWidth  * scaleX;
-              // let worldHeight = swfImage.worldHeight * scaleY;
+              let worldWidth  = swfImage.worldWidth  * scaleX;
+              let worldHeight = swfImage.worldHeight * scaleY;
               let x = (attrs.x * scaleX) - (worldWidth  / 2);
               let y = (attrs.y * scaleY) - (worldHeight / 2);
               let rotate = attrs.r || 0;
