@@ -242,12 +242,10 @@ function renderImage(el, system, game, component, attrs) {
               el.style.left = x + 'px';
               el.style.top  = y + 'px';
               el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
-
-              renderTransition(el, attrs);
             }
 
             el.appendChild(swfImage);
-            resolve();
+            resolve({ el, attrs });
           });
         };
 
@@ -256,10 +254,6 @@ function renderImage(el, system, game, component, attrs) {
         };
 
         swfImage.src = tmpPath;
-
-        // <swf-object> cannot load until it is attached to DOM.
-        // el.appendChild(swfImage);
-        // swfImage.src = '../' + tmpPath;
       } else {
         let img = document.createElement('img');
         img.onload = () => {
@@ -281,12 +275,10 @@ function renderImage(el, system, game, component, attrs) {
               el.style.left = x + 'px';
               el.style.top  = y + 'px';
               el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
-
-              renderTransition(el, attrs);
             }
 
             el.appendChild(img);
-            resolve();
+            resolve({ el, attrs });
           });
         };
 
@@ -353,14 +345,12 @@ function renderVideo(el, system, game, attrs) {
           artworkEl.style.transform = 'translate3d(0,0,0)';
 
           artworkEl.appendChild(img);
-          resolve();
+          resolve({ el, attrs });
         });
       };
 
       img.src = '../' + tmpPath;
-    }).catch(() => resolve());
-
-    renderTransition(el, attrs);
+    }).catch(() => resolve({ el, attrs }));
 
     renderBorder(el.querySelector('.border1'), attrs.bshape, attrs.bsize,  attrs.bcolor);
     renderBorder(el.querySelector('.border2'), attrs.bshape, attrs.bsize2, attrs.bcolor2);

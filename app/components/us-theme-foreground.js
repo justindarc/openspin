@@ -1,4 +1,4 @@
-const { getThemeData, renderImage, renderVideo } = require('./common/theme-utils.js');
+const { getThemeData, renderImage, renderVideo, renderTransition } = require('./common/theme-utils.js');
 
 let _componentEls = new WeakMap();
 let _system = new WeakMap();
@@ -172,7 +172,13 @@ class USThemeForegroundElement extends HTMLElement {
         }
       }
 
-      Promise.all(promises).then(() => {
+      Promise.all(promises).then((renders) => {
+        for (let { el, attrs } of renders.filter(render => !!render)) {
+          if (el && attrs) {
+            renderTransition(el, attrs);
+          }
+        }
+
         this.dispatchEvent(new CustomEvent('render'));
       }).catch((error) => {
         console.error('Unable to render theme', error);
