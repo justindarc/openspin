@@ -382,6 +382,7 @@ function renderBorder(element, shape, size, color) {
 exports.renderBorder = renderBorder;
 
 function renderTransition(element, attrs) {
+  console.log(element, attrs);
   requestAnimationFrame(() => {
     let baseTransform = element.style.transform;
 

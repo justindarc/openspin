@@ -55,7 +55,7 @@ us-wheel {
   position: absolute;
   top: 0;
   right: 0;
-  opacity: .25;
+  opacity: .15;
   z-index: 2;
   transform: translate3d(0, 0, 0);
   transition: opacity 500ms ease 500ms, z-index 0ms linear 1000ms, transform 500ms ease-in-out 0ms;

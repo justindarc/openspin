@@ -10,7 +10,7 @@ const wheelViewHtml = `
 `;
 
 const exitMenuViewHtml = `
-  <img class="menu-background">
+  <transparent-image class="menu-background"></transparent-image>
   <div class="menu-container">
     <img class="menu-text">
     <us-menu arrow-src="Menu_Exit_Arrow">
