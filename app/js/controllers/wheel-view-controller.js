@@ -14,7 +14,10 @@ class WheelViewController extends ViewController {
 
     this.background = view.querySelector('us-theme-background');
     this.foreground = view.querySelector('us-theme-foreground');
+    this.special = view.querySelector('us-theme-special');
     this.wheel = view.querySelector('us-wheel');
+
+    this.special.system = system;
 
     let onChange = debounce((evt) => {
       this.game = this.gameList[evt.detail.selectedIndex].name;

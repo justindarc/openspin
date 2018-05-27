@@ -7,6 +7,7 @@ const wheelViewHtml = `
 <us-theme-background></us-theme-background>
 <us-wheel></us-wheel>
 <us-theme-foreground></us-theme-foreground>
+<us-theme-special></us-theme-special>
 `;
 
 const exitMenuViewHtml = `

@@ -10,10 +10,9 @@ let _worldWidth = new WeakMap();
 let _worldHeight = new WeakMap();
 
 function createSWFObject(src) {
-  let absolutePath = path.join(process.cwd(), src);
-  return getSwfInfo(absolutePath).then((swfInfo) => {
+  return getSwfInfo(src).then((swfInfo) => {
     let object = document.createElement('object');
-    object.data = absolutePath;
+    object.data = src;
     object.width  = swfInfo.naturalWidth;
     object.height = swfInfo.naturalHeight;
 

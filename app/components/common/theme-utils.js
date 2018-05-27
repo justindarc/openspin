@@ -66,7 +66,7 @@ exports.getSwfInfo = getSwfInfo;
 function getThemeData(system, game) {
   let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
   return getTempFileFromZip(zipPath, 'theme.xml')
-    .then((tmpPath) => fetchXml('../' + tmpPath))
+    .then((tmpPath) => fetchXml(tmpPath))
     .then((xmlDoc) => {
       let result = {};
 
@@ -158,6 +158,24 @@ function getFrontendImagePath(name) {
 
 exports.getFrontendImagePath = getFrontendImagePath;
 
+function getSpecialImagePath(system, name) {
+  try {
+    let swfPath = path.join(MEDIA_PATH, system, 'Images', 'Special', name + '.swf');
+    fs.accessSync(swfPath);
+    return swfPath;
+  } catch (e) {}
+
+  try {
+    let pngPath = path.join(MEDIA_PATH, system, 'Images', 'Special', name + '.png');
+    fs.accessSync(pngPath);
+    return pngPath;
+  } catch (e) {}
+
+  return null;
+}
+
+exports.getSpecialImagePath = getSpecialImagePath;
+
 function getTempFileFromZip(zipPath, prefix) {
   return new Promise((resolve, reject) => {
     let zip = new StreamZip({
@@ -193,7 +211,7 @@ function getTempFileFromZip(zipPath, prefix) {
                 });
               }, 2000);
 
-              resolve(tmpPath);
+              resolve(path.join(process.cwd(), tmpPath));
             });
           });
 
@@ -213,6 +231,82 @@ function getTempFileFromZip(zipPath, prefix) {
 }
 
 exports.getTempFileFromZip = getTempFileFromZip;
+
+function renderSpecialImage(el, system, name) {
+  return new Promise((resolve) => {
+    let imagePath = getSpecialImagePath(system, name);
+    if (!imagePath) {
+      resolve();
+      return;
+    }
+
+    let extension = path.extname(imagePath).toLowerCase();
+    if (extension === '.swf') {
+      let swfImage = document.createElement('swf-image');
+      swfImage.onload = () => {
+        requestAnimationFrame(() => {
+          let scaleX = window.innerWidth  / 1024;
+          let scaleY = window.innerHeight / 768;
+          let width  = swfImage.naturalWidth  * scaleX;
+          let height = swfImage.naturalHeight * scaleY;
+          let worldWidth  = swfImage.worldWidth  * scaleX;
+          let worldHeight = swfImage.worldHeight * scaleY;
+          let x = (512 * scaleX) - (worldWidth  / 2);
+          let y = (750 * scaleY) - (worldHeight / 1.25);
+
+          el.style.width  = width  + 'px';
+          el.style.height = height + 'px';
+          el.style.left = x + 'px';
+          el.style.top  = y + 'px';
+          el.style.transform = 'translate3d(0,0,0)';
+
+          el.appendChild(swfImage);
+          resolve({ el });
+        });
+      };
+
+      swfImage.onerror = (error) => {
+        console.error(error);
+        resolve();
+      };
+
+      swfImage.src = imagePath;
+    } else {
+      let img = document.createElement('img');
+      img.onload = () => {
+        requestAnimationFrame(() => {
+          let scaleX = window.innerWidth  / 1024;
+          let scaleY = window.innerHeight / 768;
+          let width  = img.naturalWidth  * scaleX;
+          let height = img.naturalHeight * scaleY;
+          let x = (512 * scaleX) - (width  / 2);
+          let y = (750 * scaleY) - (height / 1.25);
+
+          attrs.w = width;
+          attrs.h = height;
+
+          el.style.width  = width  + 'px';
+          el.style.height = height + 'px';
+          el.style.left = x + 'px';
+          el.style.top  = y + 'px';
+          el.style.transform = 'translate3d(0,0,0)';
+
+          el.appendChild(img);
+          resolve({ el });
+        });
+      };
+
+      img.onerror = (error) => {
+        console.error(error);
+        resolve();
+      };
+
+      img.src = imagePath;
+    }
+  });
+}
+
+exports.renderSpecialImage = renderSpecialImage;
 
 function renderImage(el, system, game, component, attrs) {
   return new Promise((resolve) => {
@@ -250,7 +344,8 @@ function renderImage(el, system, game, component, attrs) {
         };
 
         swfImage.onerror = (error) => {
-          reject(error);
+          console.error(error);
+          resolve();
         };
 
         swfImage.src = tmpPath;
@@ -283,10 +378,11 @@ function renderImage(el, system, game, component, attrs) {
         };
 
         img.onerror = (error) => {
-          reject(error);
+          console.error(error);
+          resolve();
         };
 
-        img.src = '../' + tmpPath;
+        img.src = tmpPath;
       }
     }).catch((error) => {
       if (game !== 'default') {
@@ -349,7 +445,7 @@ function renderVideo(el, system, game, attrs) {
         });
       };
 
-      img.src = '../' + tmpPath;
+      img.src = tmpPath;
     }).catch(() => resolve({ el, attrs }));
 
     renderBorder(el.querySelector('.border1'), attrs.bshape, attrs.bsize,  attrs.bcolor);

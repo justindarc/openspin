@@ -38,7 +38,8 @@ us-theme-background {
 }
 
 us-theme-background,
-us-theme-foreground {
+us-theme-foreground,
+us-theme-special {
   position: absolute;
   top: 0;
   left: 0;
@@ -49,6 +50,10 @@ us-theme-foreground {
 
 us-theme-foreground {
   z-index: 3;
+}
+
+us-theme-special {
+  z-index: 100;
 }
 
 us-wheel {
