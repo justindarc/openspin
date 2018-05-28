@@ -1,4 +1,4 @@
-const { ViewController } = require('../../components/view-element.js');
+const { ViewController } = require('../../components/view-container.js');
 const { debounce, getGameList, getWheelImagePath } = require('../../components/common/theme-utils.js');
 
 let _wheelActiveTimeout = new WeakMap();

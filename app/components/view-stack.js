@@ -3,7 +3,7 @@ let _slotEl = new WeakMap();
 let _transitionDuration = new WeakMap();
 let _lastOperation = new WeakMap();
 
-class ViewStack extends HTMLElement {
+class ViewStackElement extends HTMLElement {
   constructor() {
     super();
 
@@ -19,7 +19,7 @@ class ViewStack extends HTMLElement {
   ::slotted(*) {
     display: none;
   }
-  ::slotted(view-element) {
+  ::slotted(view-container) {
     position: absolute;
     top: 0;
     left: 0;
@@ -27,13 +27,13 @@ class ViewStack extends HTMLElement {
     height: 100%;
     z-index: 1;
   }
-  ::slotted(view-element[modal]) {
+  ::slotted(view-container[modal]) {
     z-index: 10;
   }
-  ::slotted(view-element:last-child),
-  ::slotted(view-element[modal]),
-  ::slotted(view-element[pop]),
-  ::slotted(view-element[push]) {
+  ::slotted(view-container:last-child),
+  ::slotted(view-container[modal]),
+  ::slotted(view-container[pop]),
+  ::slotted(view-container[push]) {
     display: block;
   }
   .container {
@@ -62,92 +62,92 @@ class ViewStack extends HTMLElement {
   }
 
   /* [modal] */
-  ::slotted(view-element[modal]) {
+  ::slotted(view-container[modal]) {
     transition: transform 200ms ease 0ms, opacity 200ms ease 0ms;
     transform: scale(2);
     opacity: 0;
   }
-  .container[data-modal][data-in] ::slotted(view-element[modal]) {
+  .container[data-modal][data-in] ::slotted(view-container[modal]) {
     transform: scale(1);
     opacity: 1;
   }
 
   /* [transition="fade"] */
-  .container[data-transition="fade"] ::slotted(view-element[pop="enter"]) {
+  .container[data-transition="fade"] ::slotted(view-container[pop="enter"]) {
     opacity: .9;
   }
-  .container[data-transition="fade"] ::slotted(view-element[pop="leave"]) {
+  .container[data-transition="fade"] ::slotted(view-container[pop="leave"]) {
     opacity: 1;
   }
-  .container[data-transition="fade"][data-go] ::slotted(view-element[pop="enter"]) {
+  .container[data-transition="fade"][data-go] ::slotted(view-container[pop="enter"]) {
     transition: opacity var(--transition-duration) ease;
     opacity: 1;
   }
-  .container[data-transition="fade"][data-go] ::slotted(view-element[pop="leave"]) {
+  .container[data-transition="fade"][data-go] ::slotted(view-container[pop="leave"]) {
     transition: opacity var(--transition-duration) ease;
     opacity: 0;
   }
-  .container[data-transition="fade"] ::slotted(view-element[push="enter"]) {
+  .container[data-transition="fade"] ::slotted(view-container[push="enter"]) {
     opacity: 0;
   }
-  .container[data-transition="fade"] ::slotted(view-element[push="leave"]) {
+  .container[data-transition="fade"] ::slotted(view-container[push="leave"]) {
     opacity: 1;
   }
-  .container[data-transition="fade"][data-go] ::slotted(view-element[push="enter"]) {
+  .container[data-transition="fade"][data-go] ::slotted(view-container[push="enter"]) {
     transition: opacity var(--transition-duration) ease;
     opacity: 1;
   }
-  .container[data-transition="fade"][data-go] ::slotted(view-element[push="leave"]) {
+  .container[data-transition="fade"][data-go] ::slotted(view-container[push="leave"]) {
     transition: opacity var(--transition-duration) ease;
     opacity: .9;
   }
 
   /* [transition="fade-black"] */
-  .container[data-transition="fade-black"] ::slotted(view-element[pop="enter"]),
-  .container[data-transition="fade-black"] ::slotted(view-element[push="enter"]) {
+  .container[data-transition="fade-black"] ::slotted(view-container[pop="enter"]),
+  .container[data-transition="fade-black"] ::slotted(view-container[push="enter"]) {
     opacity: 0;
   }
-  .container[data-transition="fade-black"] ::slotted(view-element[pop="leave"]),
-  .container[data-transition="fade-black"] ::slotted(view-element[push="leave"]) {
+  .container[data-transition="fade-black"] ::slotted(view-container[pop="leave"]),
+  .container[data-transition="fade-black"] ::slotted(view-container[push="leave"]) {
     opacity: 1;
   }
-  .container[data-transition="fade-black"][data-go] ::slotted(view-element[pop="enter"]),
-  .container[data-transition="fade-black"][data-go] ::slotted(view-element[push="enter"]) {
+  .container[data-transition="fade-black"][data-go] ::slotted(view-container[pop="enter"]),
+  .container[data-transition="fade-black"][data-go] ::slotted(view-container[push="enter"]) {
     transition: opacity calc(var(--transition-duration) / 2) ease calc(var(--transition-duration) / 2);
     opacity: 1;
   }
-  .container[data-transition="fade-black"][data-go] ::slotted(view-element[pop="leave"]),
-  .container[data-transition="fade-black"][data-go] ::slotted(view-element[push="leave"]) {
+  .container[data-transition="fade-black"][data-go] ::slotted(view-container[pop="leave"]),
+  .container[data-transition="fade-black"][data-go] ::slotted(view-container[push="leave"]) {
     transition: opacity calc(var(--transition-duration) / 2) ease;
     opacity: 0;
   }
 
   /* [transition="slide-horizontal"] */
-  .container[data-transition="slide-horizontal"] ::slotted(view-element[pop="enter"]) {
+  .container[data-transition="slide-horizontal"] ::slotted(view-container[pop="enter"]) {
     transform: translate3d(-100%, 0, 0);
   }
-  .container[data-transition="slide-horizontal"] ::slotted(view-element[pop="leave"]) {
+  .container[data-transition="slide-horizontal"] ::slotted(view-container[pop="leave"]) {
     transform: translate3d(0, 0, 0);
   }
-  .container[data-transition="slide-horizontal"][data-go] ::slotted(view-element[pop="enter"]) {
+  .container[data-transition="slide-horizontal"][data-go] ::slotted(view-container[pop="enter"]) {
     transition: transform var(--transition-duration) ease;
     transform: translate3d(0, 0, 0);
   }
-  .container[data-transition="slide-horizontal"][data-go] ::slotted(view-element[pop="leave"]) {
+  .container[data-transition="slide-horizontal"][data-go] ::slotted(view-container[pop="leave"]) {
     transition: transform var(--transition-duration) ease;
     transform: translate3d(100%, 0, 0);
   }
-  .container[data-transition="slide-horizontal"] ::slotted(view-element[push="enter"]) {
+  .container[data-transition="slide-horizontal"] ::slotted(view-container[push="enter"]) {
     transform: translate3d(100%, 0, 0);
   }
-  .container[data-transition="slide-horizontal"] ::slotted(view-element[push="leave"]) {
+  .container[data-transition="slide-horizontal"] ::slotted(view-container[push="leave"]) {
     transform: translate3d(0, 0, 0);
   }
-  .container[data-transition="slide-horizontal"][data-go] ::slotted(view-element[push="enter"]) {
+  .container[data-transition="slide-horizontal"][data-go] ::slotted(view-container[push="enter"]) {
     transition: transform var(--transition-duration) ease;
     transform: translate3d(0, 0, 0);
   }
-  .container[data-transition="slide-horizontal"][data-go] ::slotted(view-element[push="leave"]) {
+  .container[data-transition="slide-horizontal"][data-go] ::slotted(view-container[push="leave"]) {
     transition: transform var(--transition-duration) ease;
     transform: translate3d(-100%, 0, 0);
   }
@@ -190,7 +190,7 @@ class ViewStack extends HTMLElement {
 
   get views() {
     return _slotEl.get(this).assignedNodes().filter((node) => {
-      return node.nodeType === Node.ELEMENT_NODE && node.matches('view-element') && !node.hasAttribute('modal');
+      return node.nodeType === Node.ELEMENT_NODE && node.matches('view-container') && !node.hasAttribute('modal');
     });
   }
 
@@ -201,7 +201,7 @@ class ViewStack extends HTMLElement {
 
   get modalView() {
     let modalViews = _slotEl.get(this).assignedNodes().filter((node) => {
-      return node.nodeType === Node.ELEMENT_NODE && node.matches('view-element') && node.hasAttribute('modal');
+      return node.nodeType === Node.ELEMENT_NODE && node.matches('view-container') && node.hasAttribute('modal');
     })
     return modalViews[modalViews.length - 1] || null;
   }
@@ -456,6 +456,6 @@ class ViewStack extends HTMLElement {
   }
 }
 
-exports.ViewStack = ViewStack;
+exports.ViewStackElement = ViewStackElement;
 
-customElements.define('view-stack', ViewStack);
+customElements.define('view-stack', ViewStackElement);

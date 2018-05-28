@@ -2,7 +2,7 @@ let _componentEls = new WeakMap();
 let _alt = new WeakMap();
 let _src = new WeakMap();
 
-class USWheelImage extends HTMLElement {
+class USWheelImageElement extends HTMLElement {
   constructor() {
     super();
 
@@ -102,6 +102,6 @@ class USWheelImage extends HTMLElement {
   }
 }
 
-exports.USWheelImage = USWheelImage;
+exports.USWheelImageElement = USWheelImageElement;
 
-customElements.define('us-wheel-image', USWheelImage);
+customElements.define('us-wheel-image', USWheelImageElement);

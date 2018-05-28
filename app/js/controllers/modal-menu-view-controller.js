@@ -1,4 +1,4 @@
-const { ViewController } = require('../../components/view-element.js');
+const { ViewController } = require('../../components/view-container.js');
 
 let _menuItems = new WeakMap();
 

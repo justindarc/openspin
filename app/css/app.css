@@ -13,7 +13,7 @@ body {
   perspective: 1000px;
 }
 
-view-element:before {
+view-container:before {
   content: '';
   background: #000;
   opacity: 0;
@@ -27,7 +27,7 @@ view-element:before {
   transition: opacity 200ms ease 200ms;
 }
 
-view-element.hide-theme:before {
+view-container.hide-theme:before {
   opacity: 1;
   transition-delay: 0ms;
 }
@@ -66,8 +66,8 @@ us-wheel {
   transition: opacity 500ms ease 500ms, z-index 0ms linear 1000ms, transform 500ms ease-in-out 0ms;
 }
 
-view-element[push] us-wheel,
-view-element[pop] us-wheel,
+view-container[push] us-wheel,
+view-container[pop] us-wheel,
 us-wheel.active {
   opacity: 1;
   z-index: 100;
@@ -75,14 +75,14 @@ us-wheel.active {
   transition-delay: 0ms, 0ms, 0ms;
 }
 
-view-element[push] us-wheel,
-view-element[pop] us-wheel {
+view-container[push] us-wheel,
+view-container[pop] us-wheel {
   transform: translate3d(100%, 0, 0);
 }
 
-view-element[push="enter"] us-wheel,
-view-element[pop="enter"] us-wheel,
-view-element.hide-wheel us-wheel {
+view-container[push="enter"] us-wheel,
+view-container[pop="enter"] us-wheel,
+view-container.hide-wheel us-wheel {
   opacity: 1;
   z-index: 100;
   transform: translate3d(100%, 0, 0);

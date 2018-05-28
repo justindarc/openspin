@@ -7,7 +7,7 @@ let _ondidhide = new WeakMap();
 let _onblur = new WeakMap();
 let _onfocus = new WeakMap();
 
-class ViewElement extends HTMLElement {
+class ViewContainerElement extends HTMLElement {
   constructor() {
     super();
 
@@ -183,9 +183,9 @@ class ViewElement extends HTMLElement {
   }
 }
 
-exports.ViewElement = ViewElement;
+exports.ViewContainerElement = ViewContainerElement;
 
-customElements.define('view-element', ViewElement);
+customElements.define('view-container', ViewContainerElement);
 
 class ViewController {
   constructor(view) {

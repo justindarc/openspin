@@ -1,6 +1,4 @@
-const { getSwfInfo } = require('./common/theme-utils.js');
-
-const path = require('path');
+const { createSwfObject } = require('./common/swf-utils.js');
 
 let _containerEl = new WeakMap();
 let _src = new WeakMap();
@@ -9,28 +7,7 @@ let _naturalHeight = new WeakMap();
 let _worldWidth = new WeakMap();
 let _worldHeight = new WeakMap();
 
-function createSWFObject(src) {
-  return getSwfInfo(src).then((swfInfo) => {
-    let object = document.createElement('object');
-    object.data = src;
-    object.width  = swfInfo.naturalWidth;
-    object.height = swfInfo.naturalHeight;
-
-    let scaleParam = document.createElement('param');
-    scaleParam.name = 'scale';
-    scaleParam.value = 'exactfit';
-    object.appendChild(scaleParam);
-
-    let wmodeParam = document.createElement('param');
-    wmodeParam.name = 'wmode';
-    wmodeParam.value = 'transparent';
-    object.appendChild(wmodeParam);
-
-    return [object, swfInfo];
-  }).catch(() => console.error('Unable to get SWF info', src));
-}
-
-class SWFImage extends HTMLElement {
+class SWFImageElement extends HTMLElement {
   constructor() {
     super();
 
@@ -84,7 +61,7 @@ class SWFImage extends HTMLElement {
     containerEl.innerHTML = '';
 
     if (value) {
-      createSWFObject(value).then(([object, swfInfo]) => {
+      createSwfObject(value).then(([object, swfInfo]) => {
         containerEl.appendChild(object);
 
         _naturalWidth.set(this, swfInfo.naturalWidth);
@@ -126,6 +103,6 @@ class SWFImage extends HTMLElement {
   }
 }
 
-exports.SWFImage = SWFImage;
+exports.SWFImageElement = SWFImageElement;
 
-customElements.define('swf-image', SWFImage);
+customElements.define('swf-image', SWFImageElement);

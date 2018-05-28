@@ -11,14 +11,14 @@ const wheelViewHtml = `
 `;
 
 const exitMenuViewHtml = `
-  <transparent-image class="menu-background"></transparent-image>
-  <div class="menu-container">
-    <img class="menu-text">
-    <us-menu arrow-src="Menu_Exit_Arrow">
-      <us-menu-item value="yes" src="Text_Exit_Yes" selected></us-menu-item>
-      <us-menu-item value="no" src="Text_Exit_No"></us-menu-item>
-    </us-menu>
-  </div>
+<transparent-image class="menu-background"></transparent-image>
+<div class="menu-container">
+  <img class="menu-text">
+  <us-menu arrow-src="Menu_Exit_Arrow">
+    <us-menu-item value="yes" src="Text_Exit_Yes" selected></us-menu-item>
+    <us-menu-item value="no" src="Text_Exit_No"></us-menu-item>
+  </us-menu>
+</div>
 `;
 
 let viewStack = document.getElementById('view-stack');
@@ -32,7 +32,7 @@ function setupWheelViewController(view, system) {
       return;
     }
 
-    let view = document.createElement('view-element');
+    let view = document.createElement('view-container');
     view.transition = 'fade-black';
     view.innerHTML = wheelViewHtml;
 
@@ -50,7 +50,7 @@ function setupWheelViewController(view, system) {
       return;
     }
 
-    let exitMenuView = document.createElement('view-element');
+    let exitMenuView = document.createElement('view-container');
     exitMenuView.transitionDelay = 0;
     exitMenuView.innerHTML = exitMenuViewHtml;
 

@@ -2,7 +2,7 @@ const { getFrontendImagePath } = require('./common/theme-utils.js');
 
 let _slotEl = new WeakMap();
 
-class USMenu extends HTMLElement {
+class USMenuElement extends HTMLElement {
   constructor() {
     super();
 
@@ -104,14 +104,14 @@ class USMenu extends HTMLElement {
   }
 }
 
-exports.USMenu = USMenu;
+exports.USMenuElement = USMenuElement;
 
-customElements.define('us-menu', USMenu);
+customElements.define('us-menu', USMenuElement);
 
 let _arrowEl = new WeakMap();
 let _itemEl = new WeakMap();
 
-class USMenuItem extends HTMLElement {
+class USMenuItemElement extends HTMLElement {
   constructor() {
     super();
 
@@ -174,6 +174,6 @@ class USMenuItem extends HTMLElement {
   }
 }
 
-exports.USMenuItem = USMenuItem;
+exports.USMenuItemElement = USMenuItemElement;
 
-customElements.define('us-menu-item', USMenuItem);
+customElements.define('us-menu-item', USMenuItemElement);

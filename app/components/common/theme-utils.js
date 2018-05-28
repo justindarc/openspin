@@ -34,35 +34,6 @@ function fetchXml(url) {
 
 exports.fetchXml = fetchXml;
 
-function getSwfInfo(path) {
-  return new Promise((resolve, reject) => {
-    let webView = document.createElement('webview');
-    webView.preload = './components/shumway/swf-info.js';
-    webView.src = './components/shumway/swf-info.html?path=' + path;
-    webView.style.visibility = 'hidden';
-
-    webView.addEventListener('ipc-message', (evt) => {
-      if (evt.channel !== 'render') {
-        if (evt.channel === 'error') {
-          webView.remove();
-          reject();
-        }
-
-        return;
-      }
-
-      webView.remove();
-
-      let swfInfo = evt.args[0];
-      resolve(swfInfo);
-    });
-
-    document.body.appendChild(webView);
-  });
-}
-
-exports.getSwfInfo = getSwfInfo;
-
 function getThemeData(system, game) {
   let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
   return getTempFileFromZip(zipPath, 'theme.xml')
@@ -415,10 +386,18 @@ function loadVideoMetadata(el, src) {
 exports.loadVideoMetadata = loadVideoMetadata;
 
 function fitAspectRatio(width, height, aspectRatio) {
-  if (aspectRatio >= 1) {
-    return { width: width, height: Math.ceil(width / aspectRatio) };
+  if (width >= height) {
+    if (aspectRatio >= 1) {
+      return { width: width, height: Math.ceil(width / aspectRatio) };
+    } else {
+      return { width: Math.ceil(height / aspectRatio), height: height };
+    }
   } else {
-    return { width: Math.ceil(height / aspectRatio), height: height };
+    if (aspectRatio >= 1) {
+      return { width: Math.ceil(height / aspectRatio), height: height };
+    } else {
+      return { width: width, height: Math.ceil(width / aspectRatio) };
+    }
   }
 }
 

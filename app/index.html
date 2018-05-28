@@ -8,15 +8,16 @@
 </head>
 <body>
   <view-stack id="view-stack">
-    <view-element id="main-menu-view">
+    <view-container id="main-menu-view">
       <us-theme-background></us-theme-background>
       <us-wheel></us-wheel>
       <us-theme-foreground></us-theme-foreground>
       <us-theme-special></us-theme-special>
-    </view-element>
+    </view-container>
   </view-stack>
 
   <script>
+    require('./components/flv-video.js');
     require('./components/swf-image.js');
     require('./components/transparent-image.js');
     require('./components/us-menu.js');
@@ -25,7 +26,7 @@
     require('./components/us-theme-special.js');
     require('./components/us-wheel.js');
     require('./components/us-wheel-image.js');
-    require('./components/view-element.js');
+    require('./components/view-container.js');
     require('./components/view-stack.js');
     require('./js/app.js');
   </script>

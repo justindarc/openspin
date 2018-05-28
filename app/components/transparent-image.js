@@ -28,7 +28,7 @@ function drawImageToCanvasWithoutBackground(img, canvas, width, height) {
   ctx.putImageData(imageData, 0, 0);
 }
 
-class TransparentImage extends HTMLElement {
+class TransparentImageElement extends HTMLElement {
   constructor() {
     super();
 
@@ -105,6 +105,6 @@ class TransparentImage extends HTMLElement {
   }
 }
 
-exports.TransparentImage = TransparentImage;
+exports.TransparentImageElement = TransparentImageElement;
 
-customElements.define('transparent-image', TransparentImage);
+customElements.define('transparent-image', TransparentImageElement);
