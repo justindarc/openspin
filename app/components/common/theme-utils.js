@@ -397,60 +397,96 @@ function renderImage(el, system, game, component, attrs) {
 
 exports.renderImage = renderImage;
 
+function loadVideoMetadata(el, src) {
+  return new Promise((resolve, reject) => {
+    el.onloadedmetadata = () => {
+      let { videoWidth, videoHeight } = el;
+      resolve({ videoWidth, videoHeight });
+    };
+
+    el.onerror = () => {
+      reject();
+    };
+
+    el.src = src;
+  });
+}
+
+exports.loadVideoMetadata = loadVideoMetadata;
+
+function fitAspectRatio(width, height, aspectRatio) {
+  if (aspectRatio >= 1) {
+    return { width: width, height: Math.ceil(width / aspectRatio) };
+  } else {
+    return { width: Math.ceil(height / aspectRatio), height: height };
+  }
+}
+
 function renderVideo(el, system, game, attrs) {
   return new Promise((resolve) => {
-    let scaleX = window.innerWidth  / 1024;
-    let scaleY = window.innerHeight / 768;
-    let width  = attrs.w * scaleX;
-    let height = attrs.h * scaleY;
-    let x = (attrs.x * scaleX) - (width  / 2);
-    let y = (attrs.y * scaleY) - (height / 2);
-    let rotate = attrs.r || 0;
-
-    el.style.width  = width  + 'px';
-    el.style.height = height + 'px';
-    el.style.left = x + 'px';
-    el.style.top  = y + 'px';
-    el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
-    el.dataset.below = attrs.below;
-
-    let videoEl = window.vid = el.querySelector('video');
-    videoEl.src = path.join(MEDIA_PATH, system, 'Video', game + '.mp4');
+    let videoEl = el.querySelector('video');
     videoEl.dataset.forceaspect = attrs.forceaspect || 'none';
     videoEl.dataset.overlaybelow = attrs.overlaybelow;
 
-    let artworkEl = el.querySelector('.artwork');
-    artworkEl.innerHTML = '';
+    let src = path.join(MEDIA_PATH, system, 'Video', game + '.mp4');
+    loadVideoMetadata(videoEl, src).then(({ videoWidth, videoHeight }) => {
+      let totalBorderSize = (attrs.bsize || 0) + (attrs.bsize2 || 0) + (attrs.bsize3 || 0);
+      let scaleX = window.innerWidth  / 1024;
+      let scaleY = window.innerHeight / 768;
+      let width  = (attrs.w * scaleX) - totalBorderSize;
+      let height = (attrs.h * scaleY) - totalBorderSize;
 
-    let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
-    getTempFileFromZip(zipPath, 'video').then((tmpPath) => {
-      let img = document.createElement('img');
-      img.onload = () => {
-        requestAnimationFrame(() => {
-          let width  = img.naturalWidth  * scaleX;
-          let height = img.naturalHeight * scaleY;
-          let overlayOffsetX = attrs.overlayoffsetx || 0;
-          let overlayOffsetY = attrs.overlayoffsety || 0;
-          let imgX = ((attrs.x + overlayOffsetX) * scaleX) - (width  / 2) - x;
-          let imgY = ((attrs.y + overlayOffsetY) * scaleY) - (height / 2) - y;
+      if (videoEl.dataset.forceaspect === 'none') {
+        let aspectRatio = videoWidth / videoHeight;
+        let fittedSize = fitAspectRatio(width, height, aspectRatio);
+        width  = fittedSize.width;
+        height = fittedSize.height;
+      }
 
-          artworkEl.style.width  = width  + 'px';
-          artworkEl.style.height = height + 'px';
-          artworkEl.style.left = imgX + 'px';
-          artworkEl.style.top  = imgY + 'px';
-          artworkEl.style.transform = 'translate3d(0,0,0)';
+      let x = (attrs.x * scaleX) - (width  / 2);
+      let y = (attrs.y * scaleY) - (height / 2);
+      let rotate = attrs.r || 0;
 
-          artworkEl.appendChild(img);
-          resolve({ el, attrs });
-        });
-      };
+      el.style.width  = width  + 'px';
+      el.style.height = height + 'px';
+      el.style.left = x + 'px';
+      el.style.top  = y + 'px';
+      el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
+      el.dataset.below = attrs.below;
 
-      img.src = tmpPath;
+      let artworkEl = el.querySelector('.artwork');
+      artworkEl.innerHTML = '';
+
+      let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
+      getTempFileFromZip(zipPath, 'video').then((tmpPath) => {
+        let img = document.createElement('img');
+        img.onload = () => {
+          requestAnimationFrame(() => {
+            let width  = img.naturalWidth  * scaleX;
+            let height = img.naturalHeight * scaleY;
+            let overlayOffsetX = attrs.overlayoffsetx || 0;
+            let overlayOffsetY = attrs.overlayoffsety || 0;
+            let imgX = ((attrs.x + overlayOffsetX) * scaleX) - (width  / 2) - x;
+            let imgY = ((attrs.y + overlayOffsetY) * scaleY) - (height / 2) - y;
+
+            artworkEl.style.width  = width  + 'px';
+            artworkEl.style.height = height + 'px';
+            artworkEl.style.left = imgX + 'px';
+            artworkEl.style.top  = imgY + 'px';
+            artworkEl.style.transform = 'translate3d(0,0,0)';
+
+            artworkEl.appendChild(img);
+            resolve({ el, attrs });
+          });
+        };
+
+        img.src = tmpPath;
+      }).catch(() => resolve({ el, attrs }));
+
+      renderBorder(el.querySelector('.border1'), attrs.bshape, attrs.bsize,  attrs.bcolor);
+      renderBorder(el.querySelector('.border2'), attrs.bshape, attrs.bsize2, attrs.bcolor2);
+      renderBorder(el.querySelector('.border3'), attrs.bshape, attrs.bsize3, attrs.bcolor3);
     }).catch(() => resolve({ el, attrs }));
-
-    renderBorder(el.querySelector('.border1'), attrs.bshape, attrs.bsize,  attrs.bcolor);
-    renderBorder(el.querySelector('.border2'), attrs.bshape, attrs.bsize2, attrs.bcolor2);
-    renderBorder(el.querySelector('.border3'), attrs.bshape, attrs.bsize3, attrs.bcolor3);
   });
 }
 
