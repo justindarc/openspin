@@ -37,7 +37,7 @@ class USThemeForegroundElement extends HTMLElement {
   .video[data-below="yes"] {
     z-index: 1;
   }
-  .video > video,
+  .video > us-video,
   .video > .artwork > img,
   .video > .artwork > swf-image,
   .artwork1 > img,
@@ -52,17 +52,17 @@ class USThemeForegroundElement extends HTMLElement {
     width: 100%;
     height: 100%;
   }
-  .video > video {
+  .video > us-video {
     object-fit: fill;
     z-index: 1;
   }
-  .video > video[data-forceaspect="none"] {
+  .video > us-video[data-forceaspect="none"] {
     object-fit: contain;
   }
-  .video > video[data-forceaspect="both"] {
+  .video > us-video[data-forceaspect="both"] {
     object-fit: fill;
   }
-  .video > video[data-overlaybelow="true"] {
+  .video > us-video[data-overlaybelow="true"] {
     z-index: 2;
   }
   .video > .border1,
@@ -80,7 +80,7 @@ class USThemeForegroundElement extends HTMLElement {
 <div class="theme">
   <div class="artwork1"></div>
   <div class="video">
-    <video loop muted></video>
+    <us-video loop muted></us-video>
     <div class="border3"></div>
     <div class="border2"></div>
     <div class="border1"></div>
@@ -115,6 +115,10 @@ class USThemeForegroundElement extends HTMLElement {
   }
 
   set game(value) {
+    if (value === this.game) {
+      return;
+    }
+
     _game.set(this, value);
     this.render();
   }
@@ -124,17 +128,21 @@ class USThemeForegroundElement extends HTMLElement {
   }
 
   set system(value) {
+    if (value === this.system) {
+      return;
+    }
+
     _system.set(this, value);
     this.render();
   }
 
   play() {
-    let video = _componentEls.get(this).video.querySelector('video');
+    let video = _componentEls.get(this).video.querySelector('us-video');
     video.play();
   }
 
   pause() {
-    let video = _componentEls.get(this).video.querySelector('video');
+    let video = _componentEls.get(this).video.querySelector('us-video');
     video.pause();
   }
 
@@ -168,13 +176,15 @@ class USThemeForegroundElement extends HTMLElement {
       }
 
       Promise.all(promises).then((renders) => {
-        for (let { el, attrs } of renders.filter(render => !!render)) {
-          if (el && attrs) {
-            renderTransition(el, attrs);
-          }
-        }
-
         this.dispatchEvent(new CustomEvent('render'));
+
+        requestAnimationFrame(() => {
+          for (let { el, attrs } of renders.filter(render => !!render)) {
+            if (el && attrs) {
+              renderTransition(el, attrs);
+            }
+          }
+        });
       }).catch((error) => {
         console.error('Unable to render theme', error);
       });

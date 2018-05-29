@@ -1,14 +1,11 @@
-const WheelViewController = require('./controllers/wheel-view-controller.js');
+const IntroViewController = require('./controllers/intro-view-controller.js');
 const ModalMenuViewController = require('./controllers/modal-menu-view-controller.js');
+const WheelViewController = require('./controllers/wheel-view-controller.js');
 
 const { getFrontendImagePath } = require('../components/common/theme-utils.js');
 
-const wheelViewHtml = `
-<us-theme-background></us-theme-background>
-<us-wheel></us-wheel>
-<us-theme-foreground></us-theme-foreground>
-<us-theme-special></us-theme-special>
-`;
+const { webFrame } = require('electron');
+webFrame.registerURLSchemeAsPrivileged('file');
 
 const exitMenuViewHtml = `
 <transparent-image class="menu-background"></transparent-image>
@@ -21,9 +18,14 @@ const exitMenuViewHtml = `
 </div>
 `;
 
-let viewStack = document.getElementById('view-stack');
+const wheelViewHtml = `
+<us-theme-background></us-theme-background>
+<us-wheel></us-wheel>
+<us-theme-foreground></us-theme-foreground>
+<us-theme-special></us-theme-special>
+`;
 
-let viewControllers = [];
+let viewStack = document.getElementById('view-stack');
 
 function setupWheelViewController(view, system) {
   let wheelViewController = new WheelViewController(view, system);
@@ -72,11 +74,18 @@ function setupWheelViewController(view, system) {
 
     viewStack.presentModal(exitMenuView);
   };
-
-  viewControllers.push(wheelViewController);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  let mainMenuView = document.getElementById('main-menu-view');
-  setupWheelViewController(mainMenuView, 'Main Menu');
+  let introView = document.getElementById('intro-view');
+  let introViewController = new IntroViewController(introView);
+  introViewController.onDismiss = () => {
+    let mainMenuView = document.createElement('view-container');
+    mainMenuView.id = 'main-menu-view';
+    mainMenuView.transition = 'fade-black';
+    mainMenuView.innerHTML = wheelViewHtml;
+
+    setupWheelViewController(mainMenuView, 'Main Menu');
+    viewStack.replace(mainMenuView);
+  };
 });

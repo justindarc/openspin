@@ -129,6 +129,22 @@ function getFrontendImagePath(name) {
 
 exports.getFrontendImagePath = getFrontendImagePath;
 
+function getFrontendVideoPath(name) {
+  try {
+    let flvPath = path.join(MEDIA_PATH, 'Frontend', 'Video', name + '.flv');
+    fs.accessSync(flvPath);
+    return flvPath;
+  } catch (e) {}
+
+  try {
+    let mp4Path = path.join(MEDIA_PATH, 'Frontend', 'Video', name + '.mp4');
+    fs.accessSync(mp4Path);
+    return mp4Path;
+  } catch (e) {}
+}
+
+exports.getFrontendVideoPath = getFrontendVideoPath;
+
 function getSpecialImagePath(system, name) {
   try {
     let swfPath = path.join(MEDIA_PATH, system, 'Images', 'Special', name + '.swf');
@@ -180,7 +196,7 @@ function getTempFileFromZip(zipPath, prefix) {
                     console.error(error);
                   }
                 });
-              }, 2000);
+              }, 5000);
 
               resolve(path.join(process.cwd(), tmpPath));
             });
@@ -386,24 +402,12 @@ function loadVideoMetadata(el, src) {
 exports.loadVideoMetadata = loadVideoMetadata;
 
 function fitAspectRatio(width, height, aspectRatio) {
-  if (width >= height) {
-    if (aspectRatio >= 1) {
-      return { width: width, height: Math.ceil(width / aspectRatio) };
-    } else {
-      return { width: Math.ceil(height / aspectRatio), height: height };
-    }
-  } else {
-    if (aspectRatio >= 1) {
-      return { width: Math.ceil(height / aspectRatio), height: height };
-    } else {
-      return { width: width, height: Math.ceil(width / aspectRatio) };
-    }
-  }
+  return { width: width, height: Math.ceil(width / aspectRatio) };
 }
 
 function renderVideo(el, system, game, attrs) {
   return new Promise((resolve) => {
-    let videoEl = el.querySelector('video');
+    let videoEl = el.querySelector('us-video');
     videoEl.dataset.forceaspect = attrs.forceaspect || 'none';
     videoEl.dataset.overlaybelow = attrs.overlaybelow;
 
@@ -418,6 +422,7 @@ function renderVideo(el, system, game, attrs) {
       if (videoEl.dataset.forceaspect === 'none') {
         let aspectRatio = videoWidth / videoHeight;
         let fittedSize = fitAspectRatio(width, height, aspectRatio);
+        console.log('videoEl.dataset.forceaspect === "none"', width, height, aspectRatio, fittedSize);
         width  = fittedSize.width;
         height = fittedSize.height;
       }
@@ -494,69 +499,67 @@ exports.renderBorder = renderBorder;
 
 function renderTransition(element, attrs) {
   console.log(element, attrs);
+  let baseTransform = element.style.transform;
+
+  switch (attrs.start) {
+    case 'top':
+      element.style.transform += ' translateY(' + ( -768 - (attrs.y + attrs.h / 2)) + 'px)';
+      break;
+    case 'right':
+      element.style.transform += ' translateX(' + ( 1024 - (attrs.x - attrs.w / 2)) + 'px)';
+      break;
+    case 'bottom':
+      element.style.transform += ' translateY(' + (  768 - (attrs.y - attrs.h / 2)) + 'px)';
+      break;
+    case 'left':
+      element.style.transform += ' translateX(' + (-1024 - (attrs.x + attrs.w / 2)) + 'px)';
+      break;
+    case 'none':
+      switch (attrs.type) {
+        case 'grow':
+          element.style.transform += ' scale(.0001)';
+          break;
+        case 'grow x':
+          element.style.transform += ' scaleX(.0001)';
+          break;
+        case 'grow y':
+          element.style.transform += ' scaleY(.0001)';
+          break;
+        case 'tv zoom out':
+          element.style.transform += ' scale(4)';
+          element.style.opacity = '.0001';
+          break;
+        default:
+          break;
+      }
+      break;
+    default:
+      break;
+  }
+
+  let transitionTimingFunction;
+  switch (attrs.type) {
+    case 'ease':
+      transitionTimingFunction = 'ease';
+      break;
+    case 'elastic bounce':
+      transitionTimingFunction = 'cubic-bezier(.5,1,.5,2)';
+      break;
+    case 'fade':
+      transitionTimingFunction = 'linear';
+      element.style.opacity = '.0001';
+      break;
+    default:
+      transitionTimingFunction = 'linear';
+      break;
+  }
+
   requestAnimationFrame(() => {
-    let baseTransform = element.style.transform;
-
-    switch (attrs.start) {
-      case 'top':
-        element.style.transform += ' translateY(' + ( -768 - (attrs.y + attrs.h / 2)) + 'px)';
-        break;
-      case 'right':
-        element.style.transform += ' translateX(' + ( 1024 - (attrs.x - attrs.w / 2)) + 'px)';
-        break;
-      case 'bottom':
-        element.style.transform += ' translateY(' + (  768 - (attrs.y - attrs.h / 2)) + 'px)';
-        break;
-      case 'left':
-        element.style.transform += ' translateX(' + (-1024 - (attrs.x + attrs.w / 2)) + 'px)';
-        break;
-      case 'none':
-        switch (attrs.type) {
-          case 'grow':
-            element.style.transform += ' scale(.0001)';
-            break;
-          case 'grow x':
-            element.style.transform += ' scaleX(.0001)';
-            break;
-          case 'grow y':
-            element.style.transform += ' scaleY(.0001)';
-            break;
-          case 'tv zoom out':
-            element.style.transform += ' scale(4)';
-            element.style.opacity = '0';
-            break;
-          default:
-            break;
-        }
-        break;
-      default:
-        break;
-    }
-
-    let transitionTimingFunction;
-    switch (attrs.type) {
-      case 'ease':
-        transitionTimingFunction = 'ease';
-        break;
-      case 'elastic bounce':
-        transitionTimingFunction = 'cubic-bezier(.5,1,.5,2)';
-        break;
-      case 'fade':
-        transitionTimingFunction = 'linear';
-        element.style.opacity = '0';
-        break;
-      default:
-        transitionTimingFunction = 'linear';
-        break;
-    }
-
-    requestAnimationFrame(() => {
-      element.style.transition = 'all ' + attrs.time + 's';
-      element.style.transitionTimingFunction = transitionTimingFunction;
-      element.style.transitionDelay = attrs.delay + 's';
-      element.style.transform = baseTransform;
-      element.style.opacity = '1';
-    });
+    element.style.transition = 'all ' + attrs.time + 's';
+    element.style.transitionTimingFunction = transitionTimingFunction;
+    element.style.transitionDelay = attrs.delay + 's';
+    element.style.transform = baseTransform;
+    element.style.opacity = '1';
   });
 }
 

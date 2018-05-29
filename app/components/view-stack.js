@@ -206,6 +206,15 @@ class ViewStackElement extends HTMLElement {
     return modalViews[modalViews.length - 1] || null;
   }
 
+  replace(newActiveView) {
+    if (_lastOperation.get(this)) {
+      return Promise.reject();
+    }
+
+    let oldActiveView = this.activeView;
+    return this.push(newActiveView).then(() => oldActiveView.remove());
+  }
+
   pop() {
     if (_lastOperation.get(this)) {
       return Promise.reject();

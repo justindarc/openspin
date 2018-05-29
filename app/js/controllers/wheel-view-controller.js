@@ -117,9 +117,6 @@ class WheelViewController extends ViewController {
     this.background = document.createElement('us-theme-background');
     this.view.prepend(this.background);
 
-    this.background.system = this.system;
-    this.background.game = this.game;
-
     this.foreground = document.createElement('us-theme-foreground');
     this.view.append(this.foreground);
 
@@ -130,6 +127,9 @@ class WheelViewController extends ViewController {
       this.view.classList.remove('hide-theme');
       this.foreground.play();
     });
+
+    this.background.system = this.system;
+    this.background.game = this.game;
 
     this.foreground.system = this.system;
     this.foreground.game = this.game;

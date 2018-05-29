@@ -48,6 +48,10 @@ class USThemeBackgroundElement extends HTMLElement {
   }
 
   set game(value) {
+    if (value === this.game) {
+      return;
+    }
+
     _game.set(this, value);
     this.render();
   }
@@ -57,6 +61,10 @@ class USThemeBackgroundElement extends HTMLElement {
   }
 
   set system(value) {
+    if (value === this.system) {
+      return;
+    }
+
     _system.set(this, value);
     this.render();
   }

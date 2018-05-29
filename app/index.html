@@ -8,22 +8,19 @@
 </head>
 <body>
   <view-stack id="view-stack">
-    <view-container id="main-menu-view">
-      <us-theme-background></us-theme-background>
-      <us-wheel></us-wheel>
-      <us-theme-foreground></us-theme-foreground>
-      <us-theme-special></us-theme-special>
+    <view-container id="intro-view">
+      <us-video autoplay></us-video>
     </view-container>
   </view-stack>
 
   <script>
-    require('./components/flv-video.js');
     require('./components/swf-image.js');
     require('./components/transparent-image.js');
     require('./components/us-menu.js');
     require('./components/us-theme-background.js');
     require('./components/us-theme-foreground.js');
     require('./components/us-theme-special.js');
+    require('./components/us-video.js');
     require('./components/us-wheel.js');
     require('./components/us-wheel-image.js');
     require('./components/view-container.js');

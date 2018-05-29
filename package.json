@@ -32,7 +32,9 @@
     "electron-builder": "^20.8.1"
   },
   "dependencies": {
-    "flv.js": "^1.4.2",
+    "ffmpeg-static": "^2.3.0",
+    "ffprobe-static": "^2.0.0",
+    "fluent-ffmpeg": "^2.1.2",
     "node-stream-zip": "^1.7.0",
     "tmp": "0.0.33",
     "xml2js": "^0.4.19"
