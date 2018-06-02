@@ -1,9 +1,9 @@
-const { renderSpecialImage } = require('./common/theme-utils.js');
+const { renderSpecialImage } = require('../common/theme-utils.js');
 
 let _componentEls = new WeakMap();
 let _system = new WeakMap();
 
-class USThemeSpecialElement extends HTMLElement {
+class ThemeSpecialElement extends HTMLElement {
   constructor() {
     super();
 
@@ -126,6 +126,6 @@ class USThemeSpecialElement extends HTMLElement {
   }
 }
 
-exports.USThemeSpecialElement = USThemeSpecialElement;
+exports.ThemeSpecialElement = ThemeSpecialElement;
 
-customElements.define('us-theme-special', USThemeSpecialElement);
+customElements.define('theme-special', ThemeSpecialElement);

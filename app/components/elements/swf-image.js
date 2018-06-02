@@ -1,4 +1,4 @@
-const { createSwfObject } = require('./common/swf-utils.js');
+const { createSwfObject } = require('../common/swf-utils.js');
 
 let _containerEl = new WeakMap();
 let _src = new WeakMap();

@@ -3,28 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1">
-  <title>UltraSpin</title>
+  <title>OpenSpin</title>
   <link rel="stylesheet" href="./css/app.css">
 </head>
 <body>
   <view-stack id="view-stack">
     <view-container id="intro-view">
-      <us-video autoplay></us-video>
+      <video-player autoplay></video-player>
     </view-container>
   </view-stack>
 
   <script>
-    require('./components/swf-image.js');
-    require('./components/transparent-image.js');
-    require('./components/us-menu.js');
-    require('./components/us-theme-background.js');
-    require('./components/us-theme-foreground.js');
-    require('./components/us-theme-special.js');
-    require('./components/us-video.js');
-    require('./components/us-wheel.js');
-    require('./components/us-wheel-image.js');
-    require('./components/view-container.js');
-    require('./components/view-stack.js');
+    require('./components/elements/modal-menu.js');
+    require('./components/elements/swf-image.js');
+    require('./components/elements/theme-background.js');
+    require('./components/elements/theme-foreground.js');
+    require('./components/elements/theme-special.js');
+    require('./components/elements/transparent-image.js');
+    require('./components/elements/video-player.js');
+    require('./components/elements/view-container.js');
+    require('./components/elements/view-stack.js');
+    require('./components/elements/wheel-image.js');
+    require('./components/elements/wheel-menu.js');
     require('./js/app.js');
   </script>
 </body>

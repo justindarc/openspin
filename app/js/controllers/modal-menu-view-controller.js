@@ -1,4 +1,4 @@
-const { ViewController } = require('../../components/view-container.js');
+const ViewController = require('../../components/view-controller.js');
 
 let _menuItems = new WeakMap();
 
@@ -8,7 +8,7 @@ class ModalMenuViewController extends ViewController {
 
     this.background = view.querySelector('.menu-background');
     this.text = view.querySelector('.menu-text');
-    this.menu = view.querySelector('us-menu');
+    this.menu = view.querySelector('modal-menu');
 
     let onKeyDown = (evt) => {
       // If we're not visible, ignore key events.

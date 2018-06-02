@@ -1,11 +1,11 @@
-const { ViewController } = require('../../components/view-container.js');
+const ViewController = require('../../components/view-controller.js');
 const { getFrontendVideoPath } = require('../../components/common/theme-utils.js');
 
 class IntroViewController extends ViewController {
   constructor(view) {
     super(view);
 
-    this.video = view.querySelector('us-video');
+    this.video = view.querySelector('video-player');
     this.video.src = getFrontendVideoPath('Intro');
     this.video.onended = () => this.onDismiss();
 

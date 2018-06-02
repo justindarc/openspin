@@ -407,7 +407,7 @@ function fitAspectRatio(width, height, aspectRatio) {
 
 function renderVideo(el, system, game, attrs) {
   return new Promise((resolve) => {
-    let videoEl = el.querySelector('us-video');
+    let videoEl = el.querySelector('video-player');
     videoEl.dataset.forceaspect = attrs.forceaspect || 'none';
     videoEl.dataset.overlaybelow = attrs.overlaybelow;
 
@@ -422,7 +422,6 @@ function renderVideo(el, system, game, attrs) {
       if (videoEl.dataset.forceaspect === 'none') {
         let aspectRatio = videoWidth / videoHeight;
         let fittedSize = fitAspectRatio(width, height, aspectRatio);
-        console.log('videoEl.dataset.forceaspect === "none"', width, height, aspectRatio, fittedSize);
         width  = fittedSize.width;
         height = fittedSize.height;
       }

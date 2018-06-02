@@ -16,7 +16,7 @@ function normalizeIndex(index, itemCount) {
   return index % itemCount;
 }
 
-class USWheelElement extends HTMLElement {
+class WheelMenuElement extends HTMLElement {
   constructor() {
     super();
 
@@ -47,7 +47,7 @@ class USWheelElement extends HTMLElement {
     height: 7.5%;
     transform-origin: 100vw 50%;
   }
-  .wheel > .item > us-wheel-image {
+  .wheel > .item > wheel-image {
     width: 100%;
     height: 100%;
   }
@@ -300,6 +300,6 @@ class USWheelElement extends HTMLElement {
   }
 }
 
-exports.USWheelElement = USWheelElement;
+exports.WheelMenuElement = WheelMenuElement;
 
-customElements.define('us-wheel', USWheelElement);
+customElements.define('wheel-menu', WheelMenuElement);

@@ -11,18 +11,18 @@ const exitMenuViewHtml = `
 <transparent-image class="menu-background"></transparent-image>
 <div class="menu-container">
   <img class="menu-text">
-  <us-menu arrow-src="Menu_Exit_Arrow">
-    <us-menu-item value="yes" src="Text_Exit_Yes" selected></us-menu-item>
-    <us-menu-item value="no" src="Text_Exit_No"></us-menu-item>
-  </us-menu>
+  <modal-menu arrow-src="Menu_Exit_Arrow">
+    <modal-menu-item value="yes" src="Text_Exit_Yes" selected></modal-menu-item>
+    <modal-menu-item value="no" src="Text_Exit_No"></modal-menu-item>
+  </modal-menu>
 </div>
 `;
 
 const wheelViewHtml = `
-<us-theme-background></us-theme-background>
-<us-wheel></us-wheel>
-<us-theme-foreground></us-theme-foreground>
-<us-theme-special></us-theme-special>
+<theme-background></theme-background>
+<wheel-menu></wheel-menu>
+<theme-foreground></theme-foreground>
+<theme-special></theme-special>
 `;
 
 let viewStack = document.getElementById('view-stack');

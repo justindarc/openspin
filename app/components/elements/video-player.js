@@ -59,7 +59,7 @@ function getTranscodedVideoBuffer(src, seek, duration) {
   });
 }
 
-class USVideoElement extends HTMLElement {
+class VideoPlayerElement extends HTMLElement {
   constructor() {
     super();
 
@@ -180,6 +180,6 @@ class USVideoElement extends HTMLElement {
   onerror() {}
 }
 
-exports.USVideoElement = USVideoElement;
+exports.VideoPlayerElement = VideoPlayerElement;
 
-customElements.define('us-video', USVideoElement);
+customElements.define('video-player', VideoPlayerElement);

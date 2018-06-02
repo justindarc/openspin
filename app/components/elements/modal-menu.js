@@ -1,8 +1,8 @@
-const { getFrontendImagePath } = require('./common/theme-utils.js');
+const { getFrontendImagePath } = require('../common/theme-utils.js');
 
 let _slotEl = new WeakMap();
 
-class USMenuElement extends HTMLElement {
+class ModalMenuElement extends HTMLElement {
   constructor() {
     super();
 
@@ -45,7 +45,7 @@ class USMenuElement extends HTMLElement {
 
   get items() {
     return _slotEl.get(this).assignedNodes().filter((node) => {
-      return node.nodeType === Node.ELEMENT_NODE && node.matches('us-menu-item');
+      return node.nodeType === Node.ELEMENT_NODE && node.matches('modal-menu-item');
     });
   }
 
@@ -104,14 +104,14 @@ class USMenuElement extends HTMLElement {
   }
 }
 
-exports.USMenuElement = USMenuElement;
+exports.ModalMenuElement = ModalMenuElement;
 
-customElements.define('us-menu', USMenuElement);
+customElements.define('modal-menu', ModalMenuElement);
 
 let _arrowEl = new WeakMap();
 let _itemEl = new WeakMap();
 
-class USMenuItemElement extends HTMLElement {
+class ModalMenuItemElement extends HTMLElement {
   constructor() {
     super();
 
@@ -174,6 +174,6 @@ class USMenuItemElement extends HTMLElement {
   }
 }
 
-exports.USMenuItemElement = USMenuItemElement;
+exports.ModalMenuItemElement = ModalMenuItemElement;
 
-customElements.define('us-menu-item', USMenuItemElement);
+customElements.define('modal-menu-item', ModalMenuItemElement);

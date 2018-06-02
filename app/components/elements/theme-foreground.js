@@ -1,10 +1,10 @@
-const { getThemeData, renderImage, renderVideo, renderTransition } = require('./common/theme-utils.js');
+const { getThemeData, renderImage, renderVideo, renderTransition } = require('../common/theme-utils.js');
 
 let _componentEls = new WeakMap();
 let _system = new WeakMap();
 let _game = new WeakMap();
 
-class USThemeForegroundElement extends HTMLElement {
+class ThemeForegroundElement extends HTMLElement {
   constructor() {
     super();
 
@@ -37,7 +37,7 @@ class USThemeForegroundElement extends HTMLElement {
   .video[data-below="yes"] {
     z-index: 1;
   }
-  .video > us-video,
+  .video > video-player,
   .video > .artwork > img,
   .video > .artwork > swf-image,
   .artwork1 > img,
@@ -52,17 +52,17 @@ class USThemeForegroundElement extends HTMLElement {
     width: 100%;
     height: 100%;
   }
-  .video > us-video {
+  .video > video-player {
     object-fit: fill;
     z-index: 1;
   }
-  .video > us-video[data-forceaspect="none"] {
+  .video > video-player[data-forceaspect="none"] {
     object-fit: contain;
   }
-  .video > us-video[data-forceaspect="both"] {
+  .video > video-player[data-forceaspect="both"] {
     object-fit: fill;
   }
-  .video > us-video[data-overlaybelow="true"] {
+  .video > video-player[data-overlaybelow="true"] {
     z-index: 2;
   }
   .video > .border1,
@@ -80,7 +80,7 @@ class USThemeForegroundElement extends HTMLElement {
 <div class="theme">
   <div class="artwork1"></div>
   <div class="video">
-    <us-video loop muted></us-video>
+    <video-player loop muted></video-player>
     <div class="border3"></div>
     <div class="border2"></div>
     <div class="border1"></div>
@@ -137,12 +137,12 @@ class USThemeForegroundElement extends HTMLElement {
   }
 
   play() {
-    let video = _componentEls.get(this).video.querySelector('us-video');
+    let video = _componentEls.get(this).video.querySelector('video-player');
     video.play();
   }
 
   pause() {
-    let video = _componentEls.get(this).video.querySelector('us-video');
+    let video = _componentEls.get(this).video.querySelector('video-player');
     video.pause();
   }
 
@@ -192,6 +192,6 @@ class USThemeForegroundElement extends HTMLElement {
   }
 }
 
-exports.USThemeForegroundElement = USThemeForegroundElement;
+exports.ThemeForegroundElement = ThemeForegroundElement;
 
-customElements.define('us-theme-foreground', USThemeForegroundElement);
+customElements.define('theme-foreground', ThemeForegroundElement);

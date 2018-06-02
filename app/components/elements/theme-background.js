@@ -1,10 +1,10 @@
-const { renderImage } = require('./common/theme-utils.js');
+const { renderImage } = require('../common/theme-utils.js');
 
 let _backgroundEl = new WeakMap();
 let _system = new WeakMap();
 let _game = new WeakMap();
 
-class USThemeBackgroundElement extends HTMLElement {
+class ThemeBackgroundElement extends HTMLElement {
   constructor() {
     super();
 
@@ -86,6 +86,6 @@ class USThemeBackgroundElement extends HTMLElement {
   }
 }
 
-exports.USThemeBackgroundElement = USThemeBackgroundElement;
+exports.ThemeBackgroundElement = ThemeBackgroundElement;
 
-customElements.define('us-theme-background', USThemeBackgroundElement);
+customElements.define('theme-background', ThemeBackgroundElement);

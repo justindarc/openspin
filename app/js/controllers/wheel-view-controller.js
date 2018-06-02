@@ -1,4 +1,4 @@
-const { ViewController } = require('../../components/view-container.js');
+const ViewController = require('../../components/view-controller.js');
 const { debounce, getGameList, getWheelImagePath } = require('../../components/common/theme-utils.js');
 
 let _wheelActiveTimeout = new WeakMap();
@@ -12,10 +12,10 @@ class WheelViewController extends ViewController {
     this.game = null;
     this.gameList = [];
 
-    this.background = view.querySelector('us-theme-background');
-    this.foreground = view.querySelector('us-theme-foreground');
-    this.special = view.querySelector('us-theme-special');
-    this.wheel = view.querySelector('us-wheel');
+    this.background = view.querySelector('theme-background');
+    this.foreground = view.querySelector('theme-foreground');
+    this.special = view.querySelector('theme-special');
+    this.wheel = view.querySelector('wheel-menu');
 
     this.special.system = system;
 
@@ -38,7 +38,7 @@ class WheelViewController extends ViewController {
       let game = this.gameList[evt.detail.index];
       let src = getWheelImagePath(this.system, game.name);
       let alt = game.description || game.name;
-      evt.detail.element.innerHTML = '<us-wheel-image src="' + src + '" alt="' + alt + '"></us-wheel-image>';
+      evt.detail.element.innerHTML = '<wheel-image src="' + src + '" alt="' + alt + '"></wheel-image>';
     });
 
     this.wheel.addEventListener('change', (evt) => {
@@ -114,10 +114,10 @@ class WheelViewController extends ViewController {
     this.background.remove();
     this.foreground.remove();
 
-    this.background = document.createElement('us-theme-background');
+    this.background = document.createElement('theme-background');
     this.view.prepend(this.background);
 
-    this.foreground = document.createElement('us-theme-foreground');
+    this.foreground = document.createElement('theme-foreground');
     this.view.append(this.foreground);
 
     Promise.all([
