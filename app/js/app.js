@@ -1,11 +1,10 @@
 const IntroViewController = require('./controllers/intro-view-controller.js');
 const ModalMenuViewController = require('./controllers/modal-menu-view-controller.js');
-const WheelViewController = require('./controllers/wheel-view-controller.js');
+const WheelMenuViewController = require('./controllers/wheel-menu-view-controller.js');
 
 const { getFrontendImagePath } = require('../components/common/theme-utils.js');
 
-const { webFrame } = require('electron');
-webFrame.registerURLSchemeAsPrivileged('file');
+const electron = require('electron');
 
 const exitMenuViewHtml = `
 <transparent-image class="menu-background"></transparent-image>
@@ -25,11 +24,11 @@ const wheelViewHtml = `
 <theme-special></theme-special>
 `;
 
-let viewStack = document.getElementById('view-stack');
+const viewStack = document.getElementById('view-stack');
 
-function setupWheelViewController(view, system) {
-  let wheelViewController = new WheelViewController(view, system);
-  wheelViewController.onSystemSelect = (system) => {
+function setupWheelMenuViewController(view, system) {
+  let wheelMenuViewController = new WheelMenuViewController(view, system);
+  wheelMenuViewController.onSystemSelect = (system) => {
     if (viewStack.modalView) {
       return;
     }
@@ -38,11 +37,11 @@ function setupWheelViewController(view, system) {
     view.transition = 'fade-black';
     view.innerHTML = wheelViewHtml;
 
-    setupWheelViewController(view, system);
+    setupWheelMenuViewController(view, system);
     viewStack.push(view);
   };
 
-  wheelViewController.onExit = () => {
+  wheelMenuViewController.onExit = () => {
     if (viewStack.modalView) {
       return;
     }
@@ -85,7 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
     mainMenuView.transition = 'fade-black';
     mainMenuView.innerHTML = wheelViewHtml;
 
-    setupWheelViewController(mainMenuView, 'Main Menu');
+    setupWheelMenuViewController(mainMenuView, 'Main Menu');
     viewStack.replace(mainMenuView);
   };
 });
+
+electron.webFrame.registerURLSchemeAsPrivileged('file');

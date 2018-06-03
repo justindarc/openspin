@@ -1,9 +1,14 @@
 const ViewController = require('../../components/view-controller.js');
-const { debounce, getGameList, getWheelImagePath } = require('../../components/common/theme-utils.js');
+const { debounce, getGameList, getSettingsPath, getWheelImagePath } = require('../../components/common/theme-utils.js');
 
+const fs = require('fs');
+const ini = require('ini');
+const path = require('path');
+
+let _settings = new WeakMap();
 let _wheelActiveTimeout = new WeakMap();
 
-class WheelViewController extends ViewController {
+class WheelMenuViewController extends ViewController {
   constructor(view, system) {
     super(view);
 
@@ -18,6 +23,10 @@ class WheelViewController extends ViewController {
     this.wheel = view.querySelector('wheel-menu');
 
     this.special.system = system;
+
+    this.getSettings().then((settings) => {
+      this.special.settings = [settings['Special Art A'], settings['Special Art B']];
+    });
 
     let onChange = debounce((evt) => {
       this.game = this.gameList[evt.detail.selectedIndex].name;
@@ -100,6 +109,29 @@ class WheelViewController extends ViewController {
     this.wheel.disabled = false;
   }
 
+  getSettings() {
+    let settings = _settings.get(this);
+    if (settings) {
+      return settings;
+    }
+
+    settings = new Promise((resolve, reject) => {
+      let settingsPath = getSettingsPath(this.system);
+      fs.readFile(settingsPath, 'utf8', (error, string) => {
+        if (error) {
+          console.error(error);
+          reject(error);
+          return;
+        }
+
+        resolve(ini.parse(string));
+      });
+    });
+
+    _settings.set(this, settings);
+    return settings;
+  }
+
   activateWheel(timeout = 1000) {
     clearTimeout(_wheelActiveTimeout.get(this));
 
@@ -140,4 +172,4 @@ class WheelViewController extends ViewController {
   onExit() {}
 }
 
-module.exports = WheelViewController;
+module.exports = WheelMenuViewController;

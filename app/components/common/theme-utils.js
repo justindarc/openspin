@@ -8,6 +8,10 @@ const xml2js = require('xml2js');
 const ROOT_PATH = path.join(process.cwd(), 'HyperSpin');
 const DATABASES_PATH = path.join(ROOT_PATH, 'Databases');
 const MEDIA_PATH = path.join(ROOT_PATH, 'Media');
+const SETTINGS_PATH = path.join(ROOT_PATH, 'Settings');
+
+const DEFAULT_SCREEN_WIDTH = 1024;
+const DEFAULT_SCREEN_HEIGHT = 768;
 
 tmp.setGracefulCleanup();
 
@@ -41,8 +45,8 @@ function getThemeData(system, game) {
     .then((xmlDoc) => {
       let result = {};
 
-      xmlDoc.querySelectorAll('Theme > *').forEach((element) => {
-        result[element.nodeName] = parseElement(element);
+      xmlDoc.querySelectorAll('Theme > *').forEach((el) => {
+        result[el.nodeName] = parseElement(el);
       });
 
       return result;
@@ -104,10 +108,10 @@ function parseColor(color) {
 
 exports.parseColor = parseColor;
 
-function parseElement(element) {
+function parseElement(el) {
   let result = {};
 
-  for (let attr of element.attributes) {
+  for (let attr of el.attributes) {
     let numericValue = attr.value.startsWith('0x') ? parseInt(attr.value, 16) : parseFloat(attr.value);
     result[attr.name] = isNaN(numericValue) ? attr.value : numericValue;
   }
@@ -144,6 +148,12 @@ function getFrontendVideoPath(name) {
 }
 
 exports.getFrontendVideoPath = getFrontendVideoPath;
+
+function getSettingsPath(system) {
+  return path.join(SETTINGS_PATH, system + '.ini');
+}
+
+exports.getSettingsPath = getSettingsPath;
 
 function getSpecialImagePath(system, name) {
   try {
@@ -219,7 +229,8 @@ function getTempFileFromZip(zipPath, prefix) {
 
 exports.getTempFileFromZip = getTempFileFromZip;
 
-function renderSpecialImage(el, system, name) {
+function renderSpecialImage(el, system, name, attrs) {
+  console.log(el, attrs);
   return new Promise((resolve) => {
     let imagePath = getSpecialImagePath(system, name);
     if (!imagePath) {
@@ -232,14 +243,14 @@ function renderSpecialImage(el, system, name) {
       let swfImage = document.createElement('swf-image');
       swfImage.onload = () => {
         requestAnimationFrame(() => {
-          let scaleX = window.innerWidth  / 1024;
-          let scaleY = window.innerHeight / 768;
+          let scaleX = window.innerWidth  / DEFAULT_SCREEN_WIDTH;
+          let scaleY = window.innerHeight / DEFAULT_SCREEN_HEIGHT;
           let width  = swfImage.naturalWidth  * scaleX;
           let height = swfImage.naturalHeight * scaleY;
           let worldWidth  = swfImage.worldWidth  * scaleX;
           let worldHeight = swfImage.worldHeight * scaleY;
-          let x = (512 * scaleX) - (worldWidth  / 2);
-          let y = (750 * scaleY) - (worldHeight / 1.25);
+          let x = (attrs.x * scaleX) - (worldWidth  / 2);
+          let y = (attrs.y * scaleY) - (worldHeight / 2);
 
           el.style.width  = width  + 'px';
           el.style.height = height + 'px';
@@ -262,12 +273,12 @@ function renderSpecialImage(el, system, name) {
       let img = document.createElement('img');
       img.onload = () => {
         requestAnimationFrame(() => {
-          let scaleX = window.innerWidth  / 1024;
-          let scaleY = window.innerHeight / 768;
+          let scaleX = window.innerWidth  / DEFAULT_SCREEN_WIDTH;
+          let scaleY = window.innerHeight / DEFAULT_SCREEN_HEIGHT;
           let width  = img.naturalWidth  * scaleX;
           let height = img.naturalHeight * scaleY;
-          let x = (512 * scaleX) - (width  / 2);
-          let y = (750 * scaleY) - (height / 1.25);
+          let x = (attrs.x * scaleX) - (width  / 2);
+          let y = (attrs.y * scaleY) - (height / 2);
 
           attrs.w = width;
           attrs.h = height;
@@ -305,8 +316,8 @@ function renderImage(el, system, game, component, attrs) {
         swfImage.onload = () => {
           requestAnimationFrame(() => {
             if (attrs) {
-              let scaleX = window.innerWidth  / 1024;
-              let scaleY = window.innerHeight / 768;
+              let scaleX = window.innerWidth  / DEFAULT_SCREEN_WIDTH;
+              let scaleY = window.innerHeight / DEFAULT_SCREEN_HEIGHT;
               let width  = swfImage.naturalWidth  * scaleX;
               let height = swfImage.naturalHeight * scaleY;
               let worldWidth  = swfImage.worldWidth  * scaleX;
@@ -341,8 +352,8 @@ function renderImage(el, system, game, component, attrs) {
         img.onload = () => {
           requestAnimationFrame(() => {
             if (attrs) {
-              let scaleX = window.innerWidth  / 1024;
-              let scaleY = window.innerHeight / 768;
+              let scaleX = window.innerWidth  / DEFAULT_SCREEN_WIDTH;
+              let scaleY = window.innerHeight / DEFAULT_SCREEN_HEIGHT;
               let width  = img.naturalWidth  * scaleX;
               let height = img.naturalHeight * scaleY;
               let x = (attrs.x * scaleX) - (width  / 2);
@@ -414,8 +425,8 @@ function renderVideo(el, system, game, attrs) {
     let src = path.join(MEDIA_PATH, system, 'Video', game + '.mp4');
     loadVideoMetadata(videoEl, src).then(({ videoWidth, videoHeight }) => {
       let totalBorderSize = (attrs.bsize || 0) + (attrs.bsize2 || 0) + (attrs.bsize3 || 0);
-      let scaleX = window.innerWidth  / 1024;
-      let scaleY = window.innerHeight / 768;
+      let scaleX = window.innerWidth  / DEFAULT_SCREEN_WIDTH;
+      let scaleY = window.innerHeight / DEFAULT_SCREEN_HEIGHT;
       let width  = (attrs.w * scaleX) - totalBorderSize;
       let height = (attrs.h * scaleY) - totalBorderSize;
 
@@ -475,58 +486,58 @@ function renderVideo(el, system, game, attrs) {
 
 exports.renderVideo = renderVideo;
 
-function renderBorder(element, shape, size, color) {
-  element.style.borderRadius = '0';
+function renderBorder(el, shape, size, color) {
+  el.style.borderRadius = '0';
 
   if (size === undefined || color === undefined) {
-    element.style.border = 'none';
-    element.style.left = '0';
-    element.style.top = '0';
+    el.style.border = 'none';
+    el.style.left = '0';
+    el.style.top = '0';
     return null;
   }
 
   if (shape !== undefined) {
-    element.style.borderRadius = size + 'px';
+    el.style.borderRadius = size + 'px';
   }
 
-  element.style.border = size + 'px solid #' + parseColor(color);
-  element.style.left = -size + 'px';
-  element.style.top  = -size + 'px';
+  el.style.border = size + 'px solid #' + parseColor(color);
+  el.style.left = -size + 'px';
+  el.style.top  = -size + 'px';
 }
 
 exports.renderBorder = renderBorder;
 
-function renderTransition(element, attrs) {
-  console.log(element, attrs);
-  let baseTransform = element.style.transform;
+function renderTransition(el, attrs) {
+  console.log(el, attrs);
+  let baseTransform = el.style.transform;
 
   switch (attrs.start) {
     case 'top':
-      element.style.transform += ' translateY(' + ( -768 - (attrs.y + attrs.h / 2)) + 'px)';
+      el.style.transform += ' translateY(' + (-DEFAULT_SCREEN_HEIGHT - (attrs.y + attrs.h / 2)) + 'px)';
       break;
     case 'right':
-      element.style.transform += ' translateX(' + ( 1024 - (attrs.x - attrs.w / 2)) + 'px)';
+      el.style.transform += ' translateX(' + (  DEFAULT_SCREEN_WIDTH - (attrs.x - attrs.w / 2)) + 'px)';
       break;
     case 'bottom':
-      element.style.transform += ' translateY(' + (  768 - (attrs.y - attrs.h / 2)) + 'px)';
+      el.style.transform += ' translateY(' + ( DEFAULT_SCREEN_HEIGHT - (attrs.y - attrs.h / 2)) + 'px)';
       break;
     case 'left':
-      element.style.transform += ' translateX(' + (-1024 - (attrs.x + attrs.w / 2)) + 'px)';
+      el.style.transform += ' translateX(' + ( -DEFAULT_SCREEN_WIDTH - (attrs.x + attrs.w / 2)) + 'px)';
       break;
     case 'none':
       switch (attrs.type) {
         case 'grow':
-          element.style.transform += ' scale(.0001)';
+          el.style.transform += ' scale(.0001)';
           break;
         case 'grow x':
-          element.style.transform += ' scaleX(.0001)';
+          el.style.transform += ' scaleX(.0001)';
           break;
         case 'grow y':
-          element.style.transform += ' scaleY(.0001)';
+          el.style.transform += ' scaleY(.0001)';
           break;
         case 'tv zoom out':
-          element.style.transform += ' scale(4)';
-          element.style.opacity = '.0001';
+          el.style.transform += ' scale(4)';
+          el.style.opacity = '.0001';
           break;
         default:
           break;
@@ -546,7 +557,7 @@ function renderTransition(element, attrs) {
       break;
     case 'fade':
       transitionTimingFunction = 'linear';
-      element.style.opacity = '.0001';
+      el.style.opacity = '.0001';
       break;
     default:
       transitionTimingFunction = 'linear';
@@ -554,11 +565,11 @@ function renderTransition(element, attrs) {
   }
 
   requestAnimationFrame(() => {
-    element.style.transition = 'all ' + attrs.time + 's';
-    element.style.transitionTimingFunction = transitionTimingFunction;
-    element.style.transitionDelay = attrs.delay + 's';
-    element.style.transform = baseTransform;
-    element.style.opacity = '1';
+    el.style.transition = 'all ' + attrs.time + 's';
+    el.style.transitionTimingFunction = transitionTimingFunction;
+    el.style.transitionDelay = attrs.delay + 's';
+    el.style.transform = baseTransform;
+    el.style.opacity = '1';
   });
 }
 

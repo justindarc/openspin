@@ -2,6 +2,7 @@ const { renderSpecialImage } = require('../common/theme-utils.js');
 
 let _componentEls = new WeakMap();
 let _system = new WeakMap();
+let _settings = new WeakMap();
 
 class ThemeSpecialElement extends HTMLElement {
   constructor() {
@@ -78,10 +79,10 @@ class ThemeSpecialElement extends HTMLElement {
   }
 </style>
 <div class="theme">
-  <div class="special-a-1"></div>
-  <div class="special-a-2"></div>
-  <div class="special-b-1"></div>
-  <div class="special-b-2"></div>
+  <div class="special-a-1" data-settings-index="0"></div>
+  <div class="special-a-2" data-settings-index="0"></div>
+  <div class="special-b-1" data-settings-index="1"></div>
+  <div class="special-b-2" data-settings-index="1"></div>
 </div>
 `;
 
@@ -110,18 +111,29 @@ class ThemeSpecialElement extends HTMLElement {
     this.render();
   }
 
+  get settings() {
+    return _settings.get(this);
+  }
+
+  set settings(value) {
+    _settings.set(this, value);
+    this.render();
+  }
+
   render() {
     let system = this.system;
+    let settings = this.settings;
 
-    if (!system) {
+    if (!system || !settings) {
       return;
     }
 
     let componentEls = _componentEls.get(this);
     for (let component in componentEls) {
       let componentEl = componentEls[component];
+      let attrs = settings[componentEl.dataset.settingsIndex];
 
-      renderSpecialImage(componentEl, system, component);
+      renderSpecialImage(componentEl, system, component, attrs);
     }
   }
 }
