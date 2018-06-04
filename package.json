@@ -7,6 +7,16 @@
     "start": "electron .",
     "build": "electron-builder"
   },
+  "build": {
+    "asarUnpack": [
+      "node_modules/ffmpeg-static",
+      "node_modules/ffprobe-static",
+      "plugins"
+    ],
+    "files": [
+      "!HyperSpin/*"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/justindarc/openspin.git"

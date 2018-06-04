@@ -7,6 +7,8 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require('path');
 const url = require('url');
 
+const appPath = getAppPath();
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -18,6 +20,8 @@ function createWindow() {
     height: 768 + 22,
     webPreferences: { plugins: true }
   });
+
+  mainWindow.appPath = appPath;
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
@@ -38,6 +42,27 @@ function createWindow() {
   });
 }
 
+function getAppPath() {
+  let appPath = app.getAppPath();
+  if (path.extname(appPath) === '.asar') {
+    switch (process.platform) {
+      case 'win32':
+        appPath = path.join(appPath, '../');
+        break;
+      case 'darwin':
+        appPath = path.join(appPath, '../../../../');
+        break;
+      case 'linux':
+        appPath = path.join(appPath, '../');
+        break;
+      default:
+        break;
+    }
+  }
+
+  return appPath;
+}
+
 function loadPepperFlashPlugin() {
   let pluginName;
   switch (process.platform) {
@@ -55,7 +80,7 @@ function loadPepperFlashPlugin() {
       break;
   }
 
-  let pluginPath = path.join(process.cwd(), 'plugins', 'PepperFlash', process.arch, process.platform, pluginName);
+  let pluginPath = path.join(__dirname, 'plugins', 'PepperFlash', process.arch, process.platform, pluginName).replace('app.asar', 'app.asar.unpacked');
   app.commandLine.appendSwitch('ppapi-flash-path', pluginPath);
 }
 

@@ -1,11 +1,13 @@
 const StreamZip = require('node-stream-zip');
 
+const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
 const xml2js = require('xml2js');
 
-const ROOT_PATH = path.join(process.cwd(), 'HyperSpin');
+const PROCESS_PATH = electron.remote.getCurrentWindow().appPath;
+const ROOT_PATH = path.join(PROCESS_PATH, 'HyperSpin');
 const DATABASES_PATH = path.join(ROOT_PATH, 'Databases');
 const MEDIA_PATH = path.join(ROOT_PATH, 'Media');
 const SETTINGS_PATH = path.join(ROOT_PATH, 'Settings');
@@ -187,7 +189,7 @@ function getTempFileFromZip(zipPath, prefix) {
           let zipEntry = zipEntries[filename];
           let extension = path.extname(filename);
 
-          tmp.tmpName({ template: './tmp/theme-XXXXXX' + extension }, (error, tmpPath) => {
+          tmp.tmpName({ template: path.join(PROCESS_PATH, 'tmp', 'theme-XXXXXX' + extension) }, (error, tmpPath) => {
             if (error) {
               reject(error);
               return;
@@ -208,7 +210,7 @@ function getTempFileFromZip(zipPath, prefix) {
                 });
               }, 5000);
 
-              resolve(path.join(process.cwd(), tmpPath));
+              resolve(tmpPath);
             });
           });
 

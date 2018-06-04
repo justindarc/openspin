@@ -1,10 +1,13 @@
+const electron = require('electron');
 const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
 
-ffmpeg.setFfmpegPath(require('ffmpeg-static').path);
-ffmpeg.setFfprobePath(require('ffprobe-static').path);
+const PROCESS_PATH = electron.remote.getCurrentWindow().appPath;
+
+ffmpeg.setFfmpegPath(require('ffmpeg-static').path.replace('app.asar', 'app.asar.unpacked'));
+ffmpeg.setFfprobePath(require('ffprobe-static').path.replace('app.asar', 'app.asar.unpacked'));
 
 let _videoEl = new WeakMap();
 
@@ -23,8 +26,7 @@ function getMetadata(src) {
 
 function getTranscodedVideoBuffer(src, seek, duration) {
   return new Promise((resolve, reject) => {
-    tmp.tmpName({ template: './tmp/video-XXXXXX.mp4' }, (error, tmpPath) => {
-      let absoluteTmpPath = path.join(process.cwd(), tmpPath);
+    tmp.tmpName({ template: path.join(PROCESS_PATH, 'tmp', 'video-XXXXXX.mp4') }, (error, tmpPath) => {
       ffmpeg(src)
         .format('mp4')
         .videoCodec('libx264')
@@ -32,7 +34,7 @@ function getTranscodedVideoBuffer(src, seek, duration) {
         .duration(duration)
         .outputOptions('-movflags frag_keyframe+empty_moov+default_base_moof')
         .on('end', () => {
-          fs.readFile(absoluteTmpPath, (error, data) => {
+          fs.readFile(tmpPath, (error, data) => {
             if (error) {
               reject(error);
               return;
@@ -40,7 +42,7 @@ function getTranscodedVideoBuffer(src, seek, duration) {
 
             // Cleanup temp file.
             setTimeout(() => {
-              fs.unlink(absoluteTmpPath, (error) => {
+              fs.unlink(tmpPath, (error) => {
                 if (error) {
                   console.error(error);
                 }
@@ -53,7 +55,7 @@ function getTranscodedVideoBuffer(src, seek, duration) {
         .on('error', (error) => {
           reject(error);
         })
-        .output(absoluteTmpPath)
+        .output(tmpPath)
         .run();
     });
   });
