@@ -59,7 +59,7 @@ theme-special {
 wheel-menu {
   position: absolute;
   top: 0;
-  right: 0;
+  right: 10px;
   opacity: .15;
   z-index: 2;
   transform: translate3d(0, 0, 0);

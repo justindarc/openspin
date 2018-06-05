@@ -41,10 +41,10 @@ class WheelMenuElement extends HTMLElement {
     box-sizing: border-box;
     text-align: center;
     position: absolute;
-    top: calc(50vh - 7.5% / 2);
+    top: calc(50vh - 10% / 2);
     left: 25%;
     width: 50%;
-    height: 7.5%;
+    height: 10%;
     transform-origin: 100vw 50%;
   }
   .wheel > .item > wheel-image {

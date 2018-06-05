@@ -247,7 +247,6 @@ function getTempFileFromZip(zipPath, prefix) {
 exports.getTempFileFromZip = getTempFileFromZip;
 
 function renderSpecialImage(el, system, name, attrs) {
-  console.log(el, attrs);
   return new Promise((resolve) => {
     let imagePath = getSpecialImagePath(system, name);
     if (!imagePath) {
@@ -529,36 +528,38 @@ function renderBorder(el, shape, size, color) {
 exports.renderBorder = renderBorder;
 
 function renderTransition(el, attrs) {
-  console.log(el, attrs);
   let baseTransform = el.style.transform;
+  let keyframes = [];
 
   switch (attrs.start) {
     case 'top':
-      el.style.transform += ' translateY(' + (-DEFAULT_SCREEN_HEIGHT - (attrs.y + attrs.h / 2)) + 'px)';
+      keyframes.push({ transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)' });
       break;
     case 'right':
-      el.style.transform += ' translateX(' + (  DEFAULT_SCREEN_WIDTH - (attrs.x - attrs.w / 2)) + 'px)';
+      keyframes.push({ transform: baseTransform + ' translateX(' + (  DEFAULT_SCREEN_WIDTH - (attrs.x - attrs.w / 2)) + 'px)' });
       break;
     case 'bottom':
-      el.style.transform += ' translateY(' + ( DEFAULT_SCREEN_HEIGHT - (attrs.y - attrs.h / 2)) + 'px)';
+      keyframes.push({ transform: baseTransform + ' translateY(' + ( DEFAULT_SCREEN_HEIGHT - (attrs.y - attrs.h)) + 'px)' });
       break;
     case 'left':
-      el.style.transform += ' translateX(' + ( -DEFAULT_SCREEN_WIDTH - (attrs.x + attrs.w / 2)) + 'px)';
+      keyframes.push({ transform: baseTransform + ' translateX(' + ( -DEFAULT_SCREEN_WIDTH - (attrs.x + attrs.w / 2)) + 'px)' });
       break;
     case 'none':
       switch (attrs.type) {
+        case 'fade':
+          keyframes.push({ transform: baseTransform, opacity: '.0001' });
+          break;
         case 'grow':
-          el.style.transform += ' scale(.0001)';
+          keyframes.push({ transform: baseTransform + ' scale(.0001)' });
           break;
         case 'grow x':
-          el.style.transform += ' scaleX(.0001)';
+          keyframes.push({ transform: baseTransform + ' scaleX(.0001)' });
           break;
         case 'grow y':
-          el.style.transform += ' scaleY(.0001)';
+          keyframes.push({ transform: baseTransform + ' scaleY(.0001)' });
           break;
         case 'tv zoom out':
-          el.style.transform += ' scale(4)';
-          el.style.opacity = '.0001';
+          keyframes.push({ transform: baseTransform + ' scale(4)', opacity: '.0001' });
           break;
         default:
           break;
@@ -568,29 +569,46 @@ function renderTransition(el, attrs) {
       break;
   }
 
-  let transitionTimingFunction;
+  let easing;
   switch (attrs.type) {
     case 'ease':
-      transitionTimingFunction = 'ease';
+      easing = 'ease';
       break;
     case 'elastic bounce':
-      transitionTimingFunction = 'cubic-bezier(.5,1,.5,2)';
+      easing = 'cubic-bezier(.5,1,.5,2)';
       break;
     case 'fade':
-      transitionTimingFunction = 'linear';
-      el.style.opacity = '.0001';
+      easing = 'linear';
+      if (keyframes.length > 0) {
+        keyframes[0].opacity = '.0001';
+      }
       break;
     default:
-      transitionTimingFunction = 'linear';
+      easing = 'linear';
       break;
   }
 
+  if (keyframes.length === 0) {
+    console.log('Unsupported transition', el, attrs);
+    return;
+  }
+
+  if (keyframes[0].opacity) {
+    keyframes.push({ transform: baseTransform, opacity: '1' });
+  } else {
+    keyframes.push({ transform: baseTransform });
+  }
+
+  let animation = el.animate(keyframes, {
+    duration: (attrs.time || 0) * 1000,
+    easing: easing
+  });
+  animation.pause();
+
   requestAnimationFrame(() => {
-    el.style.transition = 'all ' + attrs.time + 's';
-    el.style.transitionTimingFunction = transitionTimingFunction;
-    el.style.transitionDelay = attrs.delay + 's';
-    el.style.transform = baseTransform;
-    el.style.opacity = '1';
+    setTimeout(() => {
+      animation.play();
+    }, (attrs.delay || 0) * 1000);
   });
 }
 
