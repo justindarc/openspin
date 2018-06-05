@@ -1,10 +1,13 @@
+const { getTempFilePath } = require('../common/theme-utils.js');
+
 const electron = require('electron');
 const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
 
-const PROCESS_PATH = electron.remote.getCurrentWindow().appPath;
+const MAX_VIDEO_CHUNK_DURATION = 6.0;
+const MIN_VIDEO_CHUNK_DURATION = 4.0;
 
 ffmpeg.setFfmpegPath(require('ffmpeg-static').path.replace('app.asar', 'app.asar.unpacked'));
 ffmpeg.setFfprobePath(require('ffprobe-static').path.replace('app.asar', 'app.asar.unpacked'));
@@ -26,7 +29,7 @@ function getMetadata(src) {
 
 function getTranscodedVideoBuffer(src, seek, duration) {
   return new Promise((resolve, reject) => {
-    tmp.tmpName({ template: path.join(PROCESS_PATH, 'tmp', 'video-XXXXXX.mp4') }, (error, tmpPath) => {
+    getTempFilePath('video-XXXXXX.mp4').then((tmpPath) => {
       ffmpeg(src)
         .format('mp4')
         .videoCodec('libx264')
@@ -57,7 +60,7 @@ function getTranscodedVideoBuffer(src, seek, duration) {
         })
         .output(tmpPath)
         .run();
-    });
+    }).catch(error => reject(error));
   });
 }
 
@@ -92,6 +95,12 @@ class VideoPlayerElement extends HTMLElement {
     videoEl.onloadedmetadata = () => this.onloadedmetadata();
     videoEl.onended = () => this.onended();
     videoEl.onerror = () => this.onerror();
+    videoEl.oncanplay = () => {
+      let src = videoEl.src;
+      if (src && src.startsWith('blob:')) {
+        URL.revokeObjectURL(src);
+      }
+    };
     _videoEl.set(this, videoEl);
 
     setTimeout(() => {
@@ -120,8 +129,23 @@ class VideoPlayerElement extends HTMLElement {
     if (extension === '.flv') {
       getMetadata(value).then((metadata) => {
         let duration = metadata.format.duration;
+        if (duration <= MAX_VIDEO_CHUNK_DURATION) {
+          // Since the video is smaller than our chunk size,
+          // just convert the entire video to a Blob.
+          getTranscodedVideoBuffer(value, 0, duration).then((buffer) => {
+            let blob = new Blob([buffer], { type: 'video/mp4' });
+
+            videoEl.src = URL.createObjectURL(blob);
+
+            if (this.hasAttribute('autoplay')) {
+              videoEl.play();
+            }
+          });
+          return;
+        }
+
         let seek = 0;
-        let timestampOffset = 6;
+        let timestampOffset = MAX_VIDEO_CHUNK_DURATION;
 
         let mediaSource = new MediaSource();
         mediaSource.onsourceopen = () => {
@@ -131,7 +155,8 @@ class VideoPlayerElement extends HTMLElement {
               sourceBuffer.appendBuffer(buffer);
               seek += timestampOffset;
 
-              timestampOffset = Math.max(4.5, timestampOffset / 1.125);
+              // Keep reducing the size of the video chunks as we progress.
+              timestampOffset = Math.max(MIN_VIDEO_CHUNK_DURATION, timestampOffset / 1.125);
 
               if (seek > duration) {
                 sourceBuffer.onupdateend = null;

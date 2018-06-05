@@ -135,22 +135,6 @@ function getFrontendImagePath(name) {
 
 exports.getFrontendImagePath = getFrontendImagePath;
 
-function getFrontendVideoPath(name) {
-  try {
-    let flvPath = path.join(MEDIA_PATH, 'Frontend', 'Video', name + '.flv');
-    fs.accessSync(flvPath);
-    return flvPath;
-  } catch (e) {}
-
-  try {
-    let mp4Path = path.join(MEDIA_PATH, 'Frontend', 'Video', name + '.mp4');
-    fs.accessSync(mp4Path);
-    return mp4Path;
-  } catch (e) {}
-}
-
-exports.getFrontendVideoPath = getFrontendVideoPath;
-
 function getSettingsPath(system) {
   return path.join(SETTINGS_PATH, system + '.ini');
 }
@@ -175,6 +159,43 @@ function getSpecialImagePath(system, name) {
 
 exports.getSpecialImagePath = getSpecialImagePath;
 
+function getVideoPath(system, name) {
+  try {
+    let flvPath = path.join(MEDIA_PATH, system, 'Video', name + '.flv');
+    fs.accessSync(flvPath);
+    return flvPath;
+  } catch (e) {}
+
+  try {
+    let mp4Path = path.join(MEDIA_PATH, system, 'Video', name + '.mp4');
+    fs.accessSync(mp4Path);
+    return mp4Path;
+  } catch (e) {}
+
+  if (system !== 'Frontend' || name !== 'No Video') {
+    return getVideoPath('Frontend', 'No Video');
+  }
+
+  return null;
+}
+
+exports.getVideoPath = getVideoPath;
+
+function getTempFilePath(pattern) {
+  return new Promise((resolve, reject) => {
+    tmp.tmpName({ template: path.join(PROCESS_PATH, 'tmp', pattern) }, (error, tmpPath) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+
+      resolve(tmpPath);
+    });
+  });
+}
+
+exports.getTempFilePath = getTempFilePath;
+
 function getTempFileFromZip(zipPath, prefix) {
   return new Promise((resolve, reject) => {
     let zip = new StreamZip({
@@ -189,12 +210,7 @@ function getTempFileFromZip(zipPath, prefix) {
           let zipEntry = zipEntries[filename];
           let extension = path.extname(filename);
 
-          tmp.tmpName({ template: path.join(PROCESS_PATH, 'tmp', 'theme-XXXXXX' + extension) }, (error, tmpPath) => {
-            if (error) {
-              reject(error);
-              return;
-            }
-
+          getTempFilePath('theme-XXXXXX' + extension).then((tmpPath) => {
             zip.extract(filename, tmpPath, (error) => {
               if (error) {
                 reject(error);
@@ -212,8 +228,7 @@ function getTempFileFromZip(zipPath, prefix) {
 
               resolve(tmpPath);
             });
-          });
-
+          }).catch(error => reject(error));
           return;
         }
       }
@@ -399,6 +414,10 @@ exports.renderImage = renderImage;
 
 function loadVideoMetadata(el, src) {
   return new Promise((resolve, reject) => {
+    if (!src) {
+      reject();
+    }
+
     el.onloadedmetadata = () => {
       let { videoWidth, videoHeight } = el;
       resolve({ videoWidth, videoHeight });
@@ -424,7 +443,7 @@ function renderVideo(el, system, game, attrs) {
     videoEl.dataset.forceaspect = attrs.forceaspect || 'none';
     videoEl.dataset.overlaybelow = attrs.overlaybelow;
 
-    let src = path.join(MEDIA_PATH, system, 'Video', game + '.mp4');
+    let src = getVideoPath(system, game);
     loadVideoMetadata(videoEl, src).then(({ videoWidth, videoHeight }) => {
       let totalBorderSize = (attrs.bsize || 0) + (attrs.bsize2 || 0) + (attrs.bsize3 || 0);
       let scaleX = window.innerWidth  / DEFAULT_SCREEN_WIDTH;
