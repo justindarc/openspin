@@ -1,3 +1,5 @@
+const Pixelate = require('../common/pixelate.js');
+
 const StreamZip = require('node-stream-zip');
 
 const electron = require('electron');
@@ -531,6 +533,8 @@ function renderTransition(el, attrs) {
   let baseTransform = el.style.transform;
   let keyframes = [];
 
+  let pixelate;
+
   switch (attrs.start) {
     case 'top':
       keyframes.push({ transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)' });
@@ -557,6 +561,15 @@ function renderTransition(el, attrs) {
           break;
         case 'grow y':
           keyframes.push({ transform: baseTransform + ' scaleY(.0001)' });
+          break;
+        case 'none':
+          keyframes.push({ transform: baseTransform, visibility: 'hidden' });
+          break;
+        case 'pixelate zoom out':
+          keyframes.push({ transform: baseTransform + ' scale(2)', opacity: '.0001' });
+
+          pixelate = new Pixelate(el.querySelector('img'));
+          pixelate.amount = 1;
           break;
         case 'tv zoom out':
           keyframes.push({ transform: baseTransform + ' scale(4)', opacity: '.0001' });
@@ -595,6 +608,8 @@ function renderTransition(el, attrs) {
 
   if (keyframes[0].opacity) {
     keyframes.push({ transform: baseTransform, opacity: '1' });
+  } else if (keyframes[0].visibility) {
+    keyframes.push({ transform: baseTransform, visibility: 'visible' });
   } else {
     keyframes.push({ transform: baseTransform });
   }
@@ -608,6 +623,10 @@ function renderTransition(el, attrs) {
   requestAnimationFrame(() => {
     setTimeout(() => {
       animation.play();
+
+      if (pixelate) {
+        pixelate.animate(0, (attrs.time || 0) * 1000);
+      }
     }, (attrs.delay || 0) * 1000);
   });
 }
