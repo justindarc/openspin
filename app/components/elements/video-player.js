@@ -29,7 +29,7 @@ function getMetadata(src) {
 
 function getTranscodedVideoBuffer(src, seek, duration) {
   return new Promise((resolve, reject) => {
-    getTempFilePath('video-XXXXXX.mp4').then((tmpPath) => {
+    getTempFilePath('video-XXXXXX.mp4').then((tmpFilePath) => {
       ffmpeg(src)
         .format('mp4')
         .videoCodec('libx264')
@@ -37,7 +37,7 @@ function getTranscodedVideoBuffer(src, seek, duration) {
         .duration(duration)
         .outputOptions('-movflags frag_keyframe+empty_moov+default_base_moof')
         .on('end', () => {
-          fs.readFile(tmpPath, (error, data) => {
+          fs.readFile(tmpFilePath, (error, data) => {
             if (error) {
               reject(error);
               return;
@@ -45,7 +45,7 @@ function getTranscodedVideoBuffer(src, seek, duration) {
 
             // Cleanup temp file.
             setTimeout(() => {
-              fs.unlink(tmpPath, (error) => {
+              fs.unlink(tmpFilePath, (error) => {
                 if (error) {
                   console.error(error);
                 }
@@ -58,7 +58,7 @@ function getTranscodedVideoBuffer(src, seek, duration) {
         .on('error', (error) => {
           reject(error);
         })
-        .output(tmpPath)
+        .output(tmpFilePath)
         .run();
     }).catch(error => reject(error));
   });

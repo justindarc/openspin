@@ -1,13 +1,13 @@
 const electron = require('electron');
-// Module to control application life.
-const app = electron.app;
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow;
-
+const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
-const appPath = getAppPath();
+// Module to create native browser window.
+const BrowserWindow = electron.BrowserWindow;
+
+// Module to control application life.
+const app = electron.app;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -16,12 +16,14 @@ let mainWindow;
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
+    backgroundColor: '#000',
     width: 1024,
     height: 768 + 22,
+    // fullscreen: true,
     webPreferences: { plugins: true }
   });
 
-  mainWindow.appPath = appPath;
+  mainWindow.appPath = getAppPath();
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
@@ -35,6 +37,19 @@ function createWindow() {
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
+    // Clean up temp files.
+    let tmpPath = path.join(mainWindow.appPath, 'tmp');
+    try {
+      fs.readdirSync(tmpPath).forEach((tmpFileName) => {
+        if (tmpFileName.startsWith('.')) {
+          return;
+        }
+
+        let tmpFilePath = path.join(tmpPath, tmpFileName);
+        fs.unlinkSync(tmpFilePath);
+      });
+    } catch (e) {}
+
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.

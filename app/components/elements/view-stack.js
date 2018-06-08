@@ -124,32 +124,32 @@ class ViewStackElement extends HTMLElement {
 
   /* [transition="slide-horizontal"] */
   .container[data-transition="slide-horizontal"] ::slotted(view-container[pop="enter"]) {
-    transform: translate3d(-100%, 0, 0);
+    transform: translateX(-100%);
   }
   .container[data-transition="slide-horizontal"] ::slotted(view-container[pop="leave"]) {
-    transform: translate3d(0, 0, 0);
+    transform: translateX(0);
   }
   .container[data-transition="slide-horizontal"][data-go] ::slotted(view-container[pop="enter"]) {
     transition: transform var(--transition-duration) ease;
-    transform: translate3d(0, 0, 0);
+    transform: translateX(0);
   }
   .container[data-transition="slide-horizontal"][data-go] ::slotted(view-container[pop="leave"]) {
     transition: transform var(--transition-duration) ease;
-    transform: translate3d(100%, 0, 0);
+    transform: translateX(100%);
   }
   .container[data-transition="slide-horizontal"] ::slotted(view-container[push="enter"]) {
-    transform: translate3d(100%, 0, 0);
+    transform: translateX(100%);
   }
   .container[data-transition="slide-horizontal"] ::slotted(view-container[push="leave"]) {
-    transform: translate3d(0, 0, 0);
+    transform: translateX(0);
   }
   .container[data-transition="slide-horizontal"][data-go] ::slotted(view-container[push="enter"]) {
     transition: transform var(--transition-duration) ease;
-    transform: translate3d(0, 0, 0);
+    transform: translateX(0);
   }
   .container[data-transition="slide-horizontal"][data-go] ::slotted(view-container[push="leave"]) {
     transition: transform var(--transition-duration) ease;
-    transform: translate3d(-100%, 0, 0);
+    transform: translateX(-100%);
   }
 </style>
 <div class="container">

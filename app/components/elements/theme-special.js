@@ -50,18 +50,18 @@ class ThemeSpecialElement extends HTMLElement {
     animation: special-b-2 linear 7800ms infinite;
   }
   @keyframes special-a-1 {
-    0%   { transform: translate3d(0, 100%, 0); }
-    5%   { transform: translate3d(0, 0, 0); }
-    45%  { transform: translate3d(0, 0, 0); }
-    50%  { transform: translate3d(0, 100%, 0); }
-    100% { transform: translate3d(0, 100%, 0); }
+    0%   { transform: translateY(100%); }
+    5%   { transform: translateY(0); }
+    45%  { transform: translateY(0); }
+    50%  { transform: translateY(100%); }
+    100% { transform: translateY(100%); }
   }
   @keyframes special-a-2 {
-    0%   { transform: translate3d(0, 100%, 0); }
-    50%  { transform: translate3d(0, 100%, 0); }
-    55%  { transform: translate3d(0, 0, 0); }
-    95%  { transform: translate3d(0, 0, 0); }
-    100% { transform: translate3d(0, 100%, 0); }
+    0%   { transform: translateY(100%); }
+    50%  { transform: translateY(100%); }
+    55%  { transform: translateY(0); }
+    95%  { transform: translateY(0); }
+    100% { transform: translateY(100%); }
   }
   @keyframes special-b-1 {
     0%   { opacity: 0; }

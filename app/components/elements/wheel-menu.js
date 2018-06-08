@@ -34,8 +34,6 @@ class WheelMenuElement extends HTMLElement {
     position: relative;
     width: 50vw;
     height: 100vh;
-    transform-style: preserve-3d;
-    perspective: 1000px;
   }
   .wheel > .item {
     box-sizing: border-box;
@@ -55,51 +53,51 @@ class WheelMenuElement extends HTMLElement {
   .wheel.next > .item {
     transition: all 100ms;
   }
-  .wheel > .item:nth-child(1)  { transform: translate3d(0, 0, 0) rotate( 35deg); }
-  .wheel > .item:nth-child(2)  { transform: translate3d(0, 0, 0) rotate( 30deg); }
-  .wheel > .item:nth-child(3)  { transform: translate3d(0, 0, 0) rotate( 25deg); }
-  .wheel > .item:nth-child(4)  { transform: translate3d(0, 0, 0) rotate( 20deg); }
-  .wheel > .item:nth-child(5)  { transform: translate3d(0, 0, 0) rotate( 15deg); }
-  .wheel > .item:nth-child(6)  { transform: translate3d(0, 0, 0) rotate( 10deg); }
-  .wheel > .item:nth-child(7)  { transform: translate3d(0, 0, 0) rotate(  5deg); }
-  .wheel > .item:nth-child(8)  { transform: translate3d(0, 0, 0) translateX(87.5vw) scale(2); z-index: 1; }
-  .wheel > .item:nth-child(9)  { transform: translate3d(0, 0, 0) rotate( -5deg); }
-  .wheel > .item:nth-child(10) { transform: translate3d(0, 0, 0) rotate(-10deg); }
-  .wheel > .item:nth-child(11) { transform: translate3d(0, 0, 0) rotate(-15deg); }
-  .wheel > .item:nth-child(12) { transform: translate3d(0, 0, 0) rotate(-20deg); }
-  .wheel > .item:nth-child(13) { transform: translate3d(0, 0, 0) rotate(-25deg); }
-  .wheel > .item:nth-child(14) { transform: translate3d(0, 0, 0) rotate(-30deg); }
-  .wheel > .item:nth-child(15) { transform: translate3d(0, 0, 0) rotate(-35deg); }
-  .wheel.previous > .item:nth-child(1)  { transform: translate3d(0, 0, 0) rotate( 30deg); }
-  .wheel.previous > .item:nth-child(2)  { transform: translate3d(0, 0, 0) rotate( 25deg); }
-  .wheel.previous > .item:nth-child(3)  { transform: translate3d(0, 0, 0) rotate( 20deg); }
-  .wheel.previous > .item:nth-child(4)  { transform: translate3d(0, 0, 0) rotate( 15deg); }
-  .wheel.previous > .item:nth-child(5)  { transform: translate3d(0, 0, 0) rotate( 10deg); }
-  .wheel.previous > .item:nth-child(6)  { transform: translate3d(0, 0, 0) rotate(  5deg); }
-  .wheel.previous > .item:nth-child(7)  { transform: translate3d(0, 0, 0) translateX(87.5vw) scale(2); z-index: 1; }
-  .wheel.previous > .item:nth-child(8)  { transform: translate3d(0, 0, 0) rotate( -5deg); }
-  .wheel.previous > .item:nth-child(9)  { transform: translate3d(0, 0, 0) rotate(-10deg); }
-  .wheel.previous > .item:nth-child(10) { transform: translate3d(0, 0, 0) rotate(-15deg); }
-  .wheel.previous > .item:nth-child(11) { transform: translate3d(0, 0, 0) rotate(-20deg); }
-  .wheel.previous > .item:nth-child(12) { transform: translate3d(0, 0, 0) rotate(-25deg); }
-  .wheel.previous > .item:nth-child(13) { transform: translate3d(0, 0, 0) rotate(-30deg); }
-  .wheel.previous > .item:nth-child(14) { transform: translate3d(0, 0, 0) rotate(-35deg); }
-  .wheel.previous > .item:nth-child(15) { transform: translate3d(0, 0, 0) rotate(-40deg); }
-  .wheel.next > .item:nth-child(1)  { transform: translate3d(0, 0, 0) rotate( 40deg); }
-  .wheel.next > .item:nth-child(2)  { transform: translate3d(0, 0, 0) rotate( 35deg); }
-  .wheel.next > .item:nth-child(3)  { transform: translate3d(0, 0, 0) rotate( 30deg); }
-  .wheel.next > .item:nth-child(4)  { transform: translate3d(0, 0, 0) rotate( 25deg); }
-  .wheel.next > .item:nth-child(5)  { transform: translate3d(0, 0, 0) rotate( 20deg); }
-  .wheel.next > .item:nth-child(6)  { transform: translate3d(0, 0, 0) rotate( 15deg); }
-  .wheel.next > .item:nth-child(7)  { transform: translate3d(0, 0, 0) rotate( 10deg); }
-  .wheel.next > .item:nth-child(8)  { transform: translate3d(0, 0, 0) rotate(  5deg); }
-  .wheel.next > .item:nth-child(9)  { transform: translate3d(0, 0, 0) translateX(87.5vw) scale(2); z-index: 1; }
-  .wheel.next > .item:nth-child(10) { transform: translate3d(0, 0, 0) rotate( -5deg); }
-  .wheel.next > .item:nth-child(11) { transform: translate3d(0, 0, 0) rotate(-10deg); }
-  .wheel.next > .item:nth-child(12) { transform: translate3d(0, 0, 0) rotate(-15deg); }
-  .wheel.next > .item:nth-child(13) { transform: translate3d(0, 0, 0) rotate(-20deg); }
-  .wheel.next > .item:nth-child(14) { transform: translate3d(0, 0, 0) rotate(-25deg); }
-  .wheel.next > .item:nth-child(15) { transform: translate3d(0, 0, 0) rotate(-30deg); }
+  .wheel > .item:nth-child(1)  { transform: rotate( 35deg); }
+  .wheel > .item:nth-child(2)  { transform: rotate( 30deg); }
+  .wheel > .item:nth-child(3)  { transform: rotate( 25deg); }
+  .wheel > .item:nth-child(4)  { transform: rotate( 20deg); }
+  .wheel > .item:nth-child(5)  { transform: rotate( 15deg); }
+  .wheel > .item:nth-child(6)  { transform: rotate( 10deg); }
+  .wheel > .item:nth-child(7)  { transform: rotate(  5deg); }
+  .wheel > .item:nth-child(8)  { transform: translateX(87.5vw) scale(2); z-index: 1; }
+  .wheel > .item:nth-child(9)  { transform: rotate( -5deg); }
+  .wheel > .item:nth-child(10) { transform: rotate(-10deg); }
+  .wheel > .item:nth-child(11) { transform: rotate(-15deg); }
+  .wheel > .item:nth-child(12) { transform: rotate(-20deg); }
+  .wheel > .item:nth-child(13) { transform: rotate(-25deg); }
+  .wheel > .item:nth-child(14) { transform: rotate(-30deg); }
+  .wheel > .item:nth-child(15) { transform: rotate(-35deg); }
+  .wheel.previous > .item:nth-child(1)  { transform: rotate( 30deg); }
+  .wheel.previous > .item:nth-child(2)  { transform: rotate( 25deg); }
+  .wheel.previous > .item:nth-child(3)  { transform: rotate( 20deg); }
+  .wheel.previous > .item:nth-child(4)  { transform: rotate( 15deg); }
+  .wheel.previous > .item:nth-child(5)  { transform: rotate( 10deg); }
+  .wheel.previous > .item:nth-child(6)  { transform: rotate(  5deg); }
+  .wheel.previous > .item:nth-child(7)  { transform: translateX(87.5vw) scale(2); z-index: 1; }
+  .wheel.previous > .item:nth-child(8)  { transform: rotate( -5deg); }
+  .wheel.previous > .item:nth-child(9)  { transform: rotate(-10deg); }
+  .wheel.previous > .item:nth-child(10) { transform: rotate(-15deg); }
+  .wheel.previous > .item:nth-child(11) { transform: rotate(-20deg); }
+  .wheel.previous > .item:nth-child(12) { transform: rotate(-25deg); }
+  .wheel.previous > .item:nth-child(13) { transform: rotate(-30deg); }
+  .wheel.previous > .item:nth-child(14) { transform: rotate(-35deg); }
+  .wheel.previous > .item:nth-child(15) { transform: rotate(-40deg); }
+  .wheel.next > .item:nth-child(1)  { transform: rotate( 40deg); }
+  .wheel.next > .item:nth-child(2)  { transform: rotate( 35deg); }
+  .wheel.next > .item:nth-child(3)  { transform: rotate( 30deg); }
+  .wheel.next > .item:nth-child(4)  { transform: rotate( 25deg); }
+  .wheel.next > .item:nth-child(5)  { transform: rotate( 20deg); }
+  .wheel.next > .item:nth-child(6)  { transform: rotate( 15deg); }
+  .wheel.next > .item:nth-child(7)  { transform: rotate( 10deg); }
+  .wheel.next > .item:nth-child(8)  { transform: rotate(  5deg); }
+  .wheel.next > .item:nth-child(9)  { transform: translateX(87.5vw) scale(2); z-index: 1; }
+  .wheel.next > .item:nth-child(10) { transform: rotate( -5deg); }
+  .wheel.next > .item:nth-child(11) { transform: rotate(-10deg); }
+  .wheel.next > .item:nth-child(12) { transform: rotate(-15deg); }
+  .wheel.next > .item:nth-child(13) { transform: rotate(-20deg); }
+  .wheel.next > .item:nth-child(14) { transform: rotate(-25deg); }
+  .wheel.next > .item:nth-child(15) { transform: rotate(-30deg); }
 </style>
 <div class="wheel">
   <div class="item"></div>

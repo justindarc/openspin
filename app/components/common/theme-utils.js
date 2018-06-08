@@ -45,7 +45,7 @@ exports.fetchXml = fetchXml;
 function getThemeData(system, game) {
   let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
   return getTempFileFromZip(zipPath, 'theme.xml')
-    .then((tmpPath) => fetchXml(tmpPath))
+    .then((tmpFilePath) => fetchXml(tmpFilePath))
     .then((xmlDoc) => {
       let result = {};
 
@@ -185,13 +185,13 @@ exports.getVideoPath = getVideoPath;
 
 function getTempFilePath(pattern) {
   return new Promise((resolve, reject) => {
-    tmp.tmpName({ template: path.join(PROCESS_PATH, 'tmp', pattern) }, (error, tmpPath) => {
+    tmp.tmpName({ template: path.join(PROCESS_PATH, 'tmp', pattern) }, (error, tmpFilePath) => {
       if (error) {
         reject(error);
         return;
       }
 
-      resolve(tmpPath);
+      resolve(tmpFilePath);
     });
   });
 }
@@ -212,8 +212,8 @@ function getTempFileFromZip(zipPath, prefix) {
           let zipEntry = zipEntries[filename];
           let extension = path.extname(filename);
 
-          getTempFilePath('theme-XXXXXX' + extension).then((tmpPath) => {
-            zip.extract(filename, tmpPath, (error) => {
+          getTempFilePath('theme-XXXXXX' + extension).then((tmpFilePath) => {
+            zip.extract(filename, tmpFilePath, (error) => {
               if (error) {
                 reject(error);
                 return;
@@ -221,14 +221,14 @@ function getTempFileFromZip(zipPath, prefix) {
 
               // Cleanup temp file later.
               setTimeout(() => {
-                fs.unlink(tmpPath, (error) => {
+                fs.unlink(tmpFilePath, (error) => {
                   if (error) {
                     console.error(error);
                   }
                 });
               }, 5000);
 
-              resolve(tmpPath);
+              resolve(tmpFilePath);
             });
           }).catch(error => reject(error));
           return;
@@ -274,7 +274,6 @@ function renderSpecialImage(el, system, name, attrs) {
           el.style.height = height + 'px';
           el.style.left = x + 'px';
           el.style.top  = y + 'px';
-          el.style.transform = 'translate3d(0,0,0)';
 
           el.appendChild(swfImage);
           resolve({ el });
@@ -305,7 +304,6 @@ function renderSpecialImage(el, system, name, attrs) {
           el.style.height = height + 'px';
           el.style.left = x + 'px';
           el.style.top  = y + 'px';
-          el.style.transform = 'translate3d(0,0,0)';
 
           el.appendChild(img);
           resolve({ el });
@@ -327,8 +325,8 @@ exports.renderSpecialImage = renderSpecialImage;
 function renderImage(el, system, game, component, attrs) {
   return new Promise((resolve) => {
     let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
-    getTempFileFromZip(zipPath, component).then((tmpPath) => {
-      let extension = path.extname(tmpPath).toLowerCase();
+    getTempFileFromZip(zipPath, component).then((tmpFilePath) => {
+      let extension = path.extname(tmpFilePath).toLowerCase();
       if (extension === '.swf') {
         let swfImage = document.createElement('swf-image');
         swfImage.onload = () => {
@@ -351,7 +349,7 @@ function renderImage(el, system, game, component, attrs) {
               el.style.height = height + 'px';
               el.style.left = x + 'px';
               el.style.top  = y + 'px';
-              el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
+              el.style.transform = 'rotate(' + rotate + 'deg)';
             }
 
             el.appendChild(swfImage);
@@ -364,7 +362,7 @@ function renderImage(el, system, game, component, attrs) {
           resolve();
         };
 
-        swfImage.src = tmpPath;
+        swfImage.src = tmpFilePath;
       } else {
         let img = document.createElement('img');
         img.onload = () => {
@@ -385,7 +383,7 @@ function renderImage(el, system, game, component, attrs) {
               el.style.height = height + 'px';
               el.style.left = x + 'px';
               el.style.top  = y + 'px';
-              el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
+              el.style.transform = 'rotate(' + rotate + 'deg)';
             }
 
             el.appendChild(img);
@@ -398,7 +396,7 @@ function renderImage(el, system, game, component, attrs) {
           resolve();
         };
 
-        img.src = tmpPath;
+        img.src = tmpFilePath;
       }
     }).catch((error) => {
       if (game !== 'default') {
@@ -467,14 +465,14 @@ function renderVideo(el, system, game, attrs) {
       el.style.height = height + 'px';
       el.style.left = x + 'px';
       el.style.top  = y + 'px';
-      el.style.transform = 'translate3d(0,0,0) rotate(' + rotate + 'deg)';
+      el.style.transform = 'rotate(' + rotate + 'deg)';
       el.dataset.below = attrs.below;
 
       let artworkEl = el.querySelector('.artwork');
       artworkEl.innerHTML = '';
 
       let zipPath = path.join(MEDIA_PATH, system, 'Themes', game + '.zip');
-      getTempFileFromZip(zipPath, 'video').then((tmpPath) => {
+      getTempFileFromZip(zipPath, 'video').then((tmpFilePath) => {
         let img = document.createElement('img');
         img.onload = () => {
           requestAnimationFrame(() => {
@@ -489,14 +487,13 @@ function renderVideo(el, system, game, attrs) {
             artworkEl.style.height = height + 'px';
             artworkEl.style.left = imgX + 'px';
             artworkEl.style.top  = imgY + 'px';
-            artworkEl.style.transform = 'translate3d(0,0,0)';
 
             artworkEl.appendChild(img);
             resolve({ el, attrs });
           });
         };
 
-        img.src = tmpPath;
+        img.src = tmpFilePath;
       }).catch(() => resolve({ el, attrs }));
 
       renderBorder(el.querySelector('.border1'), attrs.bshape, attrs.bsize,  attrs.bcolor);
