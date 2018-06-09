@@ -534,6 +534,7 @@ function renderTransition(el, attrs) {
   let options = {
     delay: (attrs.delay || 0) * 1000,
     duration: (attrs.time || 0) * 1000,
+    easing: 'linear',
     fill: 'forwards'
   };
 
@@ -559,6 +560,10 @@ function renderTransition(el, attrs) {
           break;
         case 'grow':
           keyframes.push({ transform: baseTransform + ' scale(.0001)' });
+          break;
+        case 'grow bounce':
+          keyframes.push({ transform: baseTransform + ' scale(.0001)' });
+          options.easing = 'cubic-bezier(.25,1.5,.5,2)';
           break;
         case 'grow center shrink':
           keyframes.push({ transform: baseTransform +
@@ -624,7 +629,7 @@ function renderTransition(el, attrs) {
       options.easing = 'ease';
       break;
     case 'elastic bounce':
-      options.easing = 'cubic-bezier(.5,1,.5,2)';
+      options.easing = 'cubic-bezier(.25,1.5,.5,2)';
       break;
     case 'fade':
       options.easing = 'linear';
@@ -633,7 +638,6 @@ function renderTransition(el, attrs) {
       }
       break;
     default:
-      options.easing = 'linear';
       break;
   }
 
@@ -651,7 +655,7 @@ function renderTransition(el, attrs) {
     } else if (keyframes[0].visibility) {
       keyframes.push({ transform: baseTransform, visibility: 'visible' });
     } else {
-      keyframes.push({ transform: baseTransform });
+      keyframes.push({ transform: baseTransform + ' scale(1)' });
     }
   }
 
