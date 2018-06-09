@@ -544,7 +544,7 @@ function renderTransition(el, attrs) {
       keyframes.push({ transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)' });
       break;
     case 'right':
-      keyframes.push({ transform: baseTransform + ' translateX(' + ( DEFAULT_SCREEN_WIDTH - (attrs.x - attrs.w)) + 'px)' });
+      keyframes.push({ transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH  - (attrs.x - attrs.w)) + 'px)' });
       break;
     case 'bottom':
       keyframes.push({ transform: baseTransform + ' translateY(' + (DEFAULT_SCREEN_HEIGHT - (attrs.y - attrs.h)) + 'px)' });
@@ -559,6 +559,24 @@ function renderTransition(el, attrs) {
           break;
         case 'grow':
           keyframes.push({ transform: baseTransform + ' scale(.0001)' });
+          break;
+        case 'grow center shrink':
+          keyframes.push({ transform: baseTransform +
+            ' translate(' +
+              (-attrs.x + (DEFAULT_SCREEN_WIDTH  / 2)) + 'px,' +
+              (-attrs.y + (DEFAULT_SCREEN_HEIGHT / 2)) + 'px)' +
+            ' scale(.0001)' });
+          keyframes.push({ transform: baseTransform +
+            ' translate(' +
+              (-attrs.x + (DEFAULT_SCREEN_WIDTH  / 2)) + 'px,' +
+              (-attrs.y + (DEFAULT_SCREEN_HEIGHT / 2)) + 'px)' +
+            ' scale(2.5)', offset: .2 });
+          keyframes.push({ transform: baseTransform +
+            ' translate(' +
+              (-attrs.x + (DEFAULT_SCREEN_WIDTH  / 2)) + 'px,' +
+              (-attrs.y + (DEFAULT_SCREEN_HEIGHT / 2)) + 'px)' +
+            ' scale(2.5)', offset: .8 });
+          keyframes.push({ transform: baseTransform });
           break;
         case 'grow x':
           keyframes.push({ transform: baseTransform + ' scaleX(.0001)' });
@@ -597,8 +615,8 @@ function renderTransition(el, attrs) {
       keyframes = [
         { transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)' },
         { transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)', offset: .00001 + delayOffset },
-        { transform: baseTransform + ' translateX(' + ( DEFAULT_SCREEN_WIDTH - (attrs.x - attrs.w)) + 'px)', offset: .5 },
-        { transform: baseTransform + ' translateX(' + ( DEFAULT_SCREEN_WIDTH - (attrs.x - attrs.w)) + 'px) rotateY(180deg)', offset: .50001 + delayOffset },
+        { transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH - (attrs.x - attrs.w)) + 'px)', offset: .5 },
+        { transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH - (attrs.x - attrs.w)) + 'px) rotateY(180deg)', offset: .50001 + delayOffset },
         { transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px) rotateY(180deg)' }
       ];
       break;
@@ -646,13 +664,11 @@ function renderTransition(el, attrs) {
   animation.pause();
 
   requestAnimationFrame(() => {
-    // setTimeout(() => {
-      animation.play();
+    animation.play();
 
-      if (pixelate) {
-        pixelate.animate(0, (attrs.time || 0) * 1000);
-      }
-    // }, (attrs.delay || 0) * 1000);
+    if (pixelate) {
+      pixelate.animate(0, (attrs.time || 0) * 1000);
+    }
   });
 }
 
