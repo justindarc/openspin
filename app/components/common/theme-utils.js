@@ -17,6 +17,8 @@ const SETTINGS_PATH = path.join(ROOT_PATH, 'Settings');
 const DEFAULT_SCREEN_WIDTH = 1024;
 const DEFAULT_SCREEN_HEIGHT = 768;
 
+const TRANSITION_CHASE_PAUSE = 2000;
+
 tmp.setGracefulCleanup();
 
 function debounce(fn, delay, scope) {
@@ -529,6 +531,11 @@ exports.renderBorder = renderBorder;
 function renderTransition(el, attrs) {
   let baseTransform = el.style.transform;
   let keyframes = [];
+  let options = {
+    delay: (attrs.delay || 0) * 1000,
+    duration: (attrs.time || 0) * 1000,
+    fill: 'forwards'
+  };
 
   let pixelate;
 
@@ -537,13 +544,13 @@ function renderTransition(el, attrs) {
       keyframes.push({ transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)' });
       break;
     case 'right':
-      keyframes.push({ transform: baseTransform + ' translateX(' + (  DEFAULT_SCREEN_WIDTH - (attrs.x - attrs.w / 2)) + 'px)' });
+      keyframes.push({ transform: baseTransform + ' translateX(' + ( DEFAULT_SCREEN_WIDTH - (attrs.x - attrs.w)) + 'px)' });
       break;
     case 'bottom':
-      keyframes.push({ transform: baseTransform + ' translateY(' + ( DEFAULT_SCREEN_HEIGHT - (attrs.y - attrs.h)) + 'px)' });
+      keyframes.push({ transform: baseTransform + ' translateY(' + (DEFAULT_SCREEN_HEIGHT - (attrs.y - attrs.h)) + 'px)' });
       break;
     case 'left':
-      keyframes.push({ transform: baseTransform + ' translateX(' + ( -DEFAULT_SCREEN_WIDTH - (attrs.x + attrs.w / 2)) + 'px)' });
+      keyframes.push({ transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)' });
       break;
     case 'none':
       switch (attrs.type) {
@@ -579,52 +586,73 @@ function renderTransition(el, attrs) {
       break;
   }
 
-  let easing;
   switch (attrs.type) {
+    case 'chase':
+      options.duration = (options.duration + TRANSITION_CHASE_PAUSE) * 2;
+      options.iterations = Infinity;
+
+      let delayOffset = TRANSITION_CHASE_PAUSE / options.duration;
+      options.iterationStart = delayOffset;
+
+      keyframes = [
+        { transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)' },
+        { transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)', offset: .00001 + delayOffset },
+        { transform: baseTransform + ' translateX(' + ( DEFAULT_SCREEN_WIDTH - (attrs.x - attrs.w)) + 'px)', offset: .5 },
+        { transform: baseTransform + ' translateX(' + ( DEFAULT_SCREEN_WIDTH - (attrs.x - attrs.w)) + 'px) rotateY(180deg)', offset: .50001 + delayOffset },
+        { transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px) rotateY(180deg)' }
+      ];
+      break;
     case 'ease':
-      easing = 'ease';
+      options.easing = 'ease';
       break;
     case 'elastic bounce':
-      easing = 'cubic-bezier(.5,1,.5,2)';
+      options.easing = 'cubic-bezier(.5,1,.5,2)';
       break;
     case 'fade':
-      easing = 'linear';
+      options.easing = 'linear';
       if (keyframes.length > 0) {
         keyframes[0].opacity = '.0001';
       }
       break;
     default:
-      easing = 'linear';
+      options.easing = 'linear';
       break;
   }
 
+  // If there are no keyframes, this transition is not supported.
   if (keyframes.length === 0) {
     console.log('Unsupported transition', el, attrs);
     return;
   }
 
-  if (keyframes[0].opacity) {
-    keyframes.push({ transform: baseTransform, opacity: '1' });
-  } else if (keyframes[0].visibility) {
-    keyframes.push({ transform: baseTransform, visibility: 'visible' });
-  } else {
-    keyframes.push({ transform: baseTransform });
+  // If there is only one keyframe, this is a finite transition
+  // and it needs its "landing" keyframe added.
+  else if (keyframes.length === 1) {
+    if (keyframes[0].opacity) {
+      keyframes.push({ transform: baseTransform, opacity: '1' });
+    } else if (keyframes[0].visibility) {
+      keyframes.push({ transform: baseTransform, visibility: 'visible' });
+    } else {
+      keyframes.push({ transform: baseTransform });
+    }
   }
 
-  let animation = el.animate(keyframes, {
-    duration: (attrs.time || 0) * 1000,
-    easing: easing
-  });
+  let firstKeyframe = keyframes[0];
+  for (let property in firstKeyframe) {
+    el.style[property] = firstKeyframe[property];
+  }
+
+  let animation = el.animate(keyframes, options);
   animation.pause();
 
   requestAnimationFrame(() => {
-    setTimeout(() => {
+    // setTimeout(() => {
       animation.play();
 
       if (pixelate) {
         pixelate.animate(0, (attrs.time || 0) * 1000);
       }
-    }, (attrs.delay || 0) * 1000);
+    // }, (attrs.delay || 0) * 1000);
   });
 }
 
