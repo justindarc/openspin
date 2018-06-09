@@ -555,8 +555,15 @@ function renderTransition(el, attrs) {
       break;
     case 'none':
       switch (attrs.type) {
+        case 'blur':
+          keyframes.push({ transform: baseTransform, opacity: '.0001', filter: 'blur(20px)' });
+          keyframes.push({ transform: baseTransform, opacity: '1',     filter: 'blur(0)' });
+          break;
         case 'fade':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
+          break;
+        case 'flip':
+          keyframes.push({ transform: baseTransform + ' rotateY(90deg)' });
           break;
         case 'grow':
           keyframes.push({ transform: baseTransform + ' scale(.0001)' });
@@ -592,11 +599,50 @@ function renderTransition(el, attrs) {
         case 'none':
           keyframes.push({ transform: baseTransform, visibility: 'hidden' });
           break;
+        case 'pixelate':
+          keyframes.push({ transform: baseTransform, opacity: '.0001' });
+
+          pixelate = new Pixelate(el.querySelector('img'));
+          pixelate.amount = 1;
+          break;
         case 'pixelate zoom out':
           keyframes.push({ transform: baseTransform + ' scale(2)', opacity: '.0001' });
 
           pixelate = new Pixelate(el.querySelector('img'));
           pixelate.amount = 1;
+          break;
+        case 'pump':
+          keyframes.push({ transform: baseTransform + ' scale(.125)',  offset: 0 });
+          keyframes.push({ transform: baseTransform + ' scale(.375)',  offset: .2 });
+          keyframes.push({ transform: baseTransform + ' scale(.25)',   offset: .25 });
+          keyframes.push({ transform: baseTransform + ' scale(.625)',  offset: .45 });
+          keyframes.push({ transform: baseTransform + ' scale(.5)',    offset: .5 });
+          keyframes.push({ transform: baseTransform + ' scale(.875)',  offset: .7 });
+          keyframes.push({ transform: baseTransform + ' scale(.75)',   offset: .75 });
+          keyframes.push({ transform: baseTransform + ' scale(1.125)', offset: .95 });
+          keyframes.push({ transform: baseTransform + ' scale(1)',     offset: 1 });
+          break;
+        case 'strobe':
+          keyframes.push({ transform: baseTransform, opacity: '.0001' });
+
+          let strobes = (attrs.time || 0) * 4;
+          let opacityPerKeyframe = 1 / strobes;
+          let opacity = 0;
+          for (let i = 0; i < strobes; i++) {
+            opacity += opacityPerKeyframe;
+            keyframes.push({ transform: baseTransform, opacity: '.0001',      offset: opacity - opacityPerKeyframe + .0001 });
+            keyframes.push({ transform: baseTransform, opacity: '.0001',      offset: opacity - (opacityPerKeyframe / 2) });
+            keyframes.push({ transform: baseTransform, opacity: '' + opacity, offset: opacity - (opacityPerKeyframe / 2) + .0001 });
+            keyframes.push({ transform: baseTransform, opacity: '' + opacity, offset: opacity });
+          }
+
+          keyframes.push({ transform: baseTransform, opacity: '1' });
+          break;
+        case 'sweep left':
+          keyframes.push({ transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)' });
+          keyframes.push({ transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH  - (attrs.x - attrs.w)) + 'px)', offset: .5 });
+          keyframes.push({ transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)', offset: .50001 });
+          keyframes.push({ transform: baseTransform });
           break;
         case 'tv zoom out':
           // TODO: Add TV static effect
@@ -672,11 +718,13 @@ function renderTransition(el, attrs) {
   animation.pause();
 
   requestAnimationFrame(() => {
-    animation.play();
-
     if (pixelate) {
-      pixelate.animate(0, (attrs.time || 0) * 1000);
+      setTimeout(() => {
+        pixelate.animate(0, options.duration);
+      }, options.delay);
     }
+
+    animation.play();
   });
 }
 
