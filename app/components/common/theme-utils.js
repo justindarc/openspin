@@ -599,6 +599,10 @@ function renderTransition(el, attrs) {
           pixelate.amount = 1;
           break;
         case 'tv zoom out':
+          // TODO: Add TV static effect
+          keyframes.push({ transform: baseTransform + ' scale(4)', opacity: '.0001' });
+          break;
+        case 'zoom out':
           keyframes.push({ transform: baseTransform + ' scale(4)', opacity: '.0001' });
           break;
         default:
@@ -651,9 +655,9 @@ function renderTransition(el, attrs) {
   // and it needs its "landing" keyframe added.
   else if (keyframes.length === 1) {
     if (keyframes[0].opacity) {
-      keyframes.push({ transform: baseTransform, opacity: '1' });
+      keyframes.push({ transform: baseTransform + ' scale(1)', opacity: '1' });
     } else if (keyframes[0].visibility) {
-      keyframes.push({ transform: baseTransform, visibility: 'visible' });
+      keyframes.push({ transform: baseTransform + ' scale(1)', visibility: 'visible' });
     } else {
       keyframes.push({ transform: baseTransform + ' scale(1)' });
     }
