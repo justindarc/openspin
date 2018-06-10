@@ -34,6 +34,8 @@ class ThemeForegroundElement extends HTMLElement {
   .video[data-below="yes"] {
     z-index: 1;
   }
+  .video > img,
+  .video > swf-image,
   .video > video-player,
   .video > .artwork > img,
   .video > .artwork > swf-image,
@@ -51,16 +53,13 @@ class ThemeForegroundElement extends HTMLElement {
   }
   .video > video-player {
     object-fit: fill;
-    z-index: 1;
+    z-index: 2;
   }
   .video > video-player[data-forceaspect="none"] {
     object-fit: contain;
   }
   .video > video-player[data-forceaspect="both"] {
     object-fit: fill;
-  }
-  .video > video-player[data-overlaybelow="true"] {
-    z-index: 2;
   }
   .video > .border1,
   .video > .border2,
@@ -71,6 +70,12 @@ class ThemeForegroundElement extends HTMLElement {
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 3;
+  }
+  .video > video-player[data-overlaybelow="true"] ~ .border1,
+  .video > video-player[data-overlaybelow="true"] ~ .border2,
+  .video > video-player[data-overlaybelow="true"] ~ .border3,
+  .video > video-player[data-overlaybelow="true"] ~ .artwork {
     z-index: 1;
   }
 </style>

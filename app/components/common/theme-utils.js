@@ -1,4 +1,5 @@
-const Pixelate = require('../common/pixelate.js');
+const Noise = require('./noise.js');
+const Pixelate = require('./pixelate.js');
 
 const StreamZip = require('node-stream-zip');
 
@@ -538,6 +539,7 @@ function renderTransition(el, attrs) {
     fill: 'forwards'
   };
 
+  let noise;
   let pixelate;
 
   switch (attrs.start) {
@@ -570,6 +572,7 @@ function renderTransition(el, attrs) {
           break;
         case 'grow bounce':
           keyframes.push({ transform: baseTransform + ' scale(.0001)' });
+
           options.easing = 'cubic-bezier(.25,1.5,.5,2)';
           break;
         case 'grow center shrink':
@@ -644,9 +647,21 @@ function renderTransition(el, attrs) {
           keyframes.push({ transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)', offset: .50001 });
           keyframes.push({ transform: baseTransform });
           break;
+        case 'tv':
+          keyframes.push({ transform: baseTransform, opacity: '.0001' });
+
+          noise = new Noise(document.createElement('img'), { width: attrs.w, height: attrs.h });
+          noise.el.style.position = 'absolute';
+          noise.el.style.zIndex = '3';
+          el.prepend(noise.el);
+          break;
         case 'tv zoom out':
-          // TODO: Add TV static effect
           keyframes.push({ transform: baseTransform + ' scale(4)', opacity: '.0001' });
+
+          noise = new Noise(document.createElement('img'), { width: attrs.w, height: attrs.h });
+          noise.el.style.position = 'absolute';
+          noise.el.style.zIndex = '3';
+          el.prepend(noise.el);
           break;
         case 'zoom out':
           keyframes.push({ transform: baseTransform + ' scale(4)', opacity: '.0001' });
@@ -718,6 +733,25 @@ function renderTransition(el, attrs) {
   animation.pause();
 
   requestAnimationFrame(() => {
+    if (noise) {
+      setTimeout(() => {
+        let noiseAnimation = noise.el.animate([
+          { opacity: '1' }, { opacity: '0' }
+        ], {
+          duration: options.duration,
+          easing: 'linear',
+          fill: 'forwards'
+        });
+
+        noiseAnimation.onfinish = () => {
+          noise.pause();
+          noise.el.remove();
+        };
+
+        noiseAnimation.play();
+      }, options.delay + 2000);
+    }
+
     if (pixelate) {
       setTimeout(() => {
         pixelate.animate(0, options.duration);
