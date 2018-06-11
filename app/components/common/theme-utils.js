@@ -1,3 +1,4 @@
+const Flag = require('./flag.js');
 const Noise = require('./noise.js');
 const Pixelate = require('./pixelate.js');
 
@@ -539,6 +540,7 @@ function renderTransition(el, attrs) {
     fill: 'forwards'
   };
 
+  let flag;
   let noise;
   let pixelate;
 
@@ -563,6 +565,11 @@ function renderTransition(el, attrs) {
           break;
         case 'fade':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
+          break;
+        case 'flag':
+          keyframes.push({ transform: baseTransform, opacity: '.0001' });
+
+          flag = new Flag(el.querySelector('img'));
           break;
         case 'flip':
           keyframes.push({ transform: baseTransform + ' rotateY(90deg)' });
@@ -733,6 +740,12 @@ function renderTransition(el, attrs) {
   animation.pause();
 
   requestAnimationFrame(() => {
+    if (flag) {
+      setTimeout(() => {
+        flag.animate(0, options.duration);
+      }, options.delay);
+    }
+
     if (noise) {
       setTimeout(() => {
         let noiseAnimation = noise.el.animate([
