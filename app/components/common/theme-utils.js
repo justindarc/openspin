@@ -130,7 +130,13 @@ function parseElement(el) {
 exports.parseElement = parseElement;
 
 function getWheelImagePath(system, name) {
-  return path.join(MEDIA_PATH, system, 'Images', 'Wheel', name + '.png');
+  try {
+    let pngPath = path.join(MEDIA_PATH, system, 'Images', 'Wheel', name + '.png');
+    fs.accessSync(pngPath);
+    return pngPath;
+  } catch (e) {}
+
+  return null;
 }
 
 exports.getWheelImagePath = getWheelImagePath;
@@ -406,7 +412,9 @@ function renderImage(el, system, game, component, attrs) {
       if (game !== 'default') {
         resolve(renderImage(el, system, 'default', component, attrs));
       } else {
-        console.error(error);
+        // TODO: Retrieve artwork directly from system's
+        // `Images/Artwork#` folder.
+        // console.error(error);
         resolve();
       }
     });
@@ -557,11 +565,15 @@ function renderTransition(el, attrs) {
     case 'left':
       keyframes.push({ transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)' });
       break;
+    case 'center':
     case 'none':
       switch (attrs.type) {
         case 'blur':
           keyframes.push({ transform: baseTransform, opacity: '.0001', filter: 'blur(20px)' });
           keyframes.push({ transform: baseTransform, opacity: '1',     filter: 'blur(0)' });
+          break;
+        case 'bounce around 3D':
+          // TODO: NES -> Snake's Revenge
           break;
         case 'fade':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });

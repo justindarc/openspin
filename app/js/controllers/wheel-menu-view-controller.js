@@ -5,6 +5,7 @@ const fs = require('fs');
 const ini = require('ini');
 const path = require('path');
 
+let _didFirstRender = new WeakMap();
 let _settings = new WeakMap();
 let _wheelActiveTimeout = new WeakMap();
 
@@ -45,7 +46,7 @@ class WheelMenuViewController extends ViewController {
 
     this.wheel.addEventListener('render', (evt) => {
       let game = this.gameList[evt.detail.index];
-      let src = getWheelImagePath(this.system, game.name);
+      let src = getWheelImagePath(this.system, game.name) || '';
       let alt = game.description || game.name;
       evt.detail.element.innerHTML = '<wheel-image src="' + src + '" alt="' + alt + '"></wheel-image>';
     });
@@ -84,13 +85,16 @@ class WheelMenuViewController extends ViewController {
   }
 
   onWillShow() {
+    this.view.classList.add('hide-theme');
     this.view.classList.add('hide-wheel');
   }
 
   onDidShow() {
-    this.view.classList.add('hide-theme');
-
-    this.renderTheme();
+    if (_didFirstRender.get(this)) {
+      this.renderTheme();
+    } else {
+      _didFirstRender.set(this, true);
+    }
 
     requestAnimationFrame(() => {
       // Trigger re-flow.

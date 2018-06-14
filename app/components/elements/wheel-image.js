@@ -43,7 +43,7 @@ class WheelImageElement extends HTMLElement {
   }
 </style>
 <div class="container">
-  <img class="img">
+  <img class="img hidden">
   <p class="alt"></p>
 </div>
 `;

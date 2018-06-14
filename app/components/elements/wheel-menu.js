@@ -51,7 +51,7 @@ class WheelMenuElement extends HTMLElement {
   }
   .wheel.previous > .item,
   .wheel.next > .item {
-    transition: all 100ms;
+    transition: all 50ms;
   }
   .wheel > .item:nth-child(1)  { transform: rotate( 35deg); }
   .wheel > .item:nth-child(2)  { transform: rotate( 30deg); }
