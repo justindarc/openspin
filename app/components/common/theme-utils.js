@@ -1,3 +1,4 @@
+const Bounce = require('./bounce.js');
 const Flag = require('./flag.js');
 const Noise = require('./noise.js');
 const Pixelate = require('./pixelate.js');
@@ -549,6 +550,7 @@ function renderTransition(el, attrs) {
     fill: 'forwards'
   };
 
+  let bounce;
   let flag;
   let noise;
   let pixelate;
@@ -584,7 +586,9 @@ function renderTransition(el, attrs) {
           // TODO
           break;
         case 'bounce around 3D':
-          // TODO: NES -> Snake's Revenge
+          keyframes.push({ transform: baseTransform, opacity: '.0001' });
+
+          bounce = new Bounce(el);
           break;
         case 'bounce random':
           // TODO
@@ -666,6 +670,7 @@ function renderTransition(el, attrs) {
           break;
         case 'rain float':
           // TODO
+          console.log('')
           break;
         case 'scroll':
           // TODO
@@ -695,20 +700,6 @@ function renderTransition(el, attrs) {
           }
 
           keyframes.push({ transform: baseTransform, opacity: '1' });
-          break;
-        case 'sweep left':
-          keyframes.push({ transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)' });
-          keyframes.push({ transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH  - (attrs.x - attrs.w)) + 'px)', offset: .5 });
-          keyframes.push({ transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)', offset: .50001 });
-          keyframes.push({ transform: baseTransform });
-          break;
-        case 'sweep right':
-          // TODO: Check if this is correct
-          console.log('TODO: Check if this is correct', el, attrs, keyframes);
-          keyframes.push({ transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH  - (attrs.x - attrs.w)) + 'px)' });
-          keyframes.push({ transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)', offset: .5 });
-          keyframes.push({ transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)', offset: .50001 });
-          keyframes.push({ transform: baseTransform });
           break;
         case 'tv':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
@@ -768,6 +759,23 @@ function renderTransition(el, attrs) {
         keyframes[0].opacity = '.0001';
       }
       break;
+    case 'sweep left':
+      keyframes = [
+        { transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)' },
+        { transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH  - (attrs.x - attrs.w)) + 'px)', offset: .5 },
+        { transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)', offset: .50001 },
+        { transform: baseTransform }
+      ];
+      break;
+    case 'sweep right':
+      // TODO: Check if this is correct
+      keyframes = [
+        { transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH  - (attrs.x - attrs.w)) + 'px)' },
+        { transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)', offset: .5 },
+        { transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)', offset: .50001 },
+        { transform: baseTransform }
+      ];
+      break;
     default:
       break;
   }
@@ -799,6 +807,12 @@ function renderTransition(el, attrs) {
   animation.pause();
 
   requestAnimationFrame(() => {
+    if (bounce) {
+      setTimeout(() => {
+        bounce.duration = options.duration;
+        bounce.play();
+      }, options.delay);
+    }
     if (flag) {
       setTimeout(() => {
         flag.animate(0, options.duration);
