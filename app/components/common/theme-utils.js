@@ -671,10 +671,11 @@ function renderTransition(el, attrs) {
           // TODO
           break;
         case 'stripes':
-          // TODO
+          keyframes.push({ transform: baseTransform });
+
+          slicer = new Slicer(el.querySelector('img'), { simple: true, slices: 16 });
           break;
         case 'stripes 2':
-          // TODO: Atari 2600 -> 3D Tic-Tac-Toe
           keyframes.push({ transform: baseTransform });
 
           slicer = new Slicer(el.querySelector('img'));

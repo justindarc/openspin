@@ -2,9 +2,11 @@ let _onLoad = new WeakMap();
 let _nextTick = new WeakMap();
 
 let _duration = new WeakMap();
+let _simple = new WeakMap();
 let _slices = new WeakMap();
 
 const DEFAULT_DURATION = 1000;
+const DEFAULT_SIMPLE = false;
 const DEFAULT_SLICES = 11;
 
 const SLICE_DURATION = 1000;
@@ -32,6 +34,9 @@ class Slicer {
     let duration = options.duration || DEFAULT_DURATION;
     this.duration = duration;
 
+    let simple = options.simple || DEFAULT_SIMPLE;
+    this.simple = simple;
+
     let slices = options.slices || DEFAULT_SLICES;
     this.slices = slices;
 
@@ -44,6 +49,14 @@ class Slicer {
 
   set duration(value) {
     _duration.set(this, Math.max(value || 1000, 1000));
+  }
+
+  get simple() {
+    return _simple.get(this);
+  }
+
+  set simple(value) {
+    _simple.set(this, !!value);
   }
 
   get slices() {
@@ -95,14 +108,22 @@ class Slicer {
         let sliceStartTimestamp = ((duration - SLICE_DURATION) / slices) * slice;
         let slicePercent = Math.min(Math.max((timestamp - sliceStartTimestamp) / SLICE_DURATION, 0), 1);
 
-        let sliceScaledWidth  = sliceWidth * slicePercent;
-        let sliceScaledHeight = height * slicePercent
+        if (this.simple) {
+          let sliceX = slice * sliceWidth;
+          let sliceHeight = height * slicePercent;
 
-        let sliceX = slice % 2 ? ((slice + 1) * sliceWidth) - sliceScaledWidth : slice * sliceWidth;
-        let sliceY = slice % 2 ? height - sliceScaledHeight : 0;
+          ctx.clearRect(sliceX, 0, sliceWidth, height);
+          ctx.drawImage(sourceImage, sliceX, 0, sliceWidth, sliceHeight, sliceX, 0, sliceWidth, sliceHeight);
+        } else {
+          let sliceScaledWidth  = sliceWidth * slicePercent;
+          let sliceScaledHeight = height * slicePercent
 
-        ctx.clearRect(sliceX, 0, sliceWidth, height);
-        ctx.drawImage(sourceImage, sliceX, 0, sliceWidth, height, sliceX, sliceY, sliceScaledWidth, sliceScaledHeight);
+          let sliceX = slice % 2 ? ((slice + 1) * sliceWidth) - sliceScaledWidth : slice * sliceWidth;
+          let sliceY = slice % 2 ? height - sliceScaledHeight : 0;
+
+          ctx.clearRect(sliceX, 0, sliceWidth, height);
+          ctx.drawImage(sourceImage, sliceX, 0, sliceWidth, height, sliceX, sliceY, sliceScaledWidth, sliceScaledHeight);
+        }
       }
 
       return this.el.src = canvas.toDataURL('image/png');
