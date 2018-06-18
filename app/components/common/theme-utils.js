@@ -1,6 +1,7 @@
 const Flag = require('./flag.js');
 const Noise = require('./noise.js');
 const Pixelate = require('./pixelate.js');
+const Slicer = require('./slicer.js');
 
 const StreamZip = require('node-stream-zip');
 
@@ -551,6 +552,7 @@ function renderTransition(el, attrs) {
   let flag;
   let noise;
   let pixelate;
+  let slicer;
 
   switch (attrs.start) {
     case 'top':
@@ -568,12 +570,24 @@ function renderTransition(el, attrs) {
     case 'center':
     case 'none':
       switch (attrs.type) {
+        case 'arc grow':
+          // TODO
+          break;
+        case 'arc shrink':
+          // TODO
+          break;
         case 'blur':
           keyframes.push({ transform: baseTransform, opacity: '.0001', filter: 'blur(20px)' });
           keyframes.push({ transform: baseTransform, opacity: '1',     filter: 'blur(0)' });
           break;
+        case 'bounce':
+          // TODO
+          break;
         case 'bounce around 3D':
           // TODO: NES -> Snake's Revenge
+          break;
+        case 'bounce random':
+          // TODO
           break;
         case 'fade':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
@@ -588,6 +602,9 @@ function renderTransition(el, attrs) {
           break;
         case 'grow':
           keyframes.push({ transform: baseTransform + ' scale(.0001)' });
+          break;
+        case 'grow blur':
+          // TODO
           break;
         case 'grow bounce':
           keyframes.push({ transform: baseTransform + ' scale(.0001)' });
@@ -621,6 +638,9 @@ function renderTransition(el, attrs) {
         case 'none':
           keyframes.push({ transform: baseTransform, visibility: 'hidden' });
           break;
+        case 'pendulum':
+          // TODO
+          break;
         case 'pixelate':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
 
@@ -644,6 +664,21 @@ function renderTransition(el, attrs) {
           keyframes.push({ transform: baseTransform + ' scale(1.125)', offset: .95 });
           keyframes.push({ transform: baseTransform + ' scale(1)',     offset: 1 });
           break;
+        case 'rain float':
+          // TODO
+          break;
+        case 'scroll':
+          // TODO
+          break;
+        case 'stripes':
+          // TODO
+          break;
+        case 'stripes 2':
+          // TODO: Atari 2600 -> 3D Tic-Tac-Toe
+          keyframes.push({ transform: baseTransform });
+
+          slicer = new Slicer(el.querySelector('img'));
+          break;
         case 'strobe':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
 
@@ -663,6 +698,14 @@ function renderTransition(el, attrs) {
         case 'sweep left':
           keyframes.push({ transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)' });
           keyframes.push({ transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH  - (attrs.x - attrs.w)) + 'px)', offset: .5 });
+          keyframes.push({ transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)', offset: .50001 });
+          keyframes.push({ transform: baseTransform });
+          break;
+        case 'sweep right':
+          // TODO: Check if this is correct
+          console.log('TODO: Check if this is correct', el, attrs, keyframes);
+          keyframes.push({ transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH  - (attrs.x - attrs.w)) + 'px)' });
+          keyframes.push({ transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)', offset: .5 });
           keyframes.push({ transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)', offset: .50001 });
           keyframes.push({ transform: baseTransform });
           break;
@@ -711,6 +754,9 @@ function renderTransition(el, attrs) {
       break;
     case 'ease':
       options.easing = 'ease';
+      break;
+    case 'elastic':
+      // TODO
       break;
     case 'elastic bounce':
       options.easing = 'cubic-bezier(.25,1.5,.5,2)';
@@ -780,6 +826,13 @@ function renderTransition(el, attrs) {
     if (pixelate) {
       setTimeout(() => {
         pixelate.animate(0, options.duration);
+      }, options.delay);
+    }
+
+    if (slicer) {
+      setTimeout(() => {
+        slicer.duration = options.duration;
+        slicer.play();
       }, options.delay);
     }
 

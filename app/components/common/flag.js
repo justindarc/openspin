@@ -24,13 +24,13 @@ class Flag {
     _onLoad.set(this, new Promise((resolve) => {
       let image = new Image();
       image.onload = () => {
-        let width = canvas.width  = image.naturalWidth;
+        let width  = canvas.width  = image.naturalWidth;
         let height = canvas.height = image.naturalHeight;
 
         let ctx = canvas.getContext('2d');
         ctx.drawImage(image, 0, 0);
 
-        let sourceImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let sourceImageData = ctx.getImageData(0, 0, width, height);
 
         resolve({ sourceImageData, width, height, canvas, ctx });
       };
