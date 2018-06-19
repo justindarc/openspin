@@ -22,7 +22,7 @@ class Bounce {
   }
 
   set duration(value) {
-    _duration.set(this, Math.max(value || 1000, 1000));
+    _duration.set(this, Math.max(value || DEFAULT_DURATION, DEFAULT_DURATION));
   }
 
   play() {

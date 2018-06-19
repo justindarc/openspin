@@ -2,6 +2,7 @@ const Bounce = require('./bounce.js');
 const Flag = require('./flag.js');
 const Noise = require('./noise.js');
 const Pixelate = require('./pixelate.js');
+const Rain = require('./rain.js');
 const Slicer = require('./slicer.js');
 
 const StreamZip = require('node-stream-zip');
@@ -554,6 +555,7 @@ function renderTransition(el, attrs) {
   let flag;
   let noise;
   let pixelate;
+  let rain;
   let slicer;
 
   switch (attrs.start) {
@@ -579,10 +581,18 @@ function renderTransition(el, attrs) {
           el.style.top = 'calc(50vh - ' + Math.floor(attrs.h / 2) + 'px)';
           el.style.left = -attrs.w + 'px';
 
-          keyframes.push({ transform: 'translate(0vw, -25vh) scale(.25)', offset: 0 });
-          keyframes.push({ transform: 'translate(50vw, -50vh) scale(.5)', offset: .25 });
-          keyframes.push({ transform: 'translate(125vw, 25vh) scale(1)',  offset: .5 });
-          keyframes.push({ transform: 'translate(200vw, 100vh) scale(2)', offset: 1 });
+          keyframes.push({ transform: 'translate( 25vw, -19.80vh) scale(.15)',  offset: 0 });   /*  .596 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 35vw, -32.05vh) scale(.25)',  offset: .05 }); /*  .841 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 45vw, -38.85vh) scale(.35)',  offset: .1 });  /*  .973 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 55vw, -39.65vh) scale(.45)',  offset: .15 }); /*  .993 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 65vw, -34.35vh) scale(.55)',  offset: .2 });  /*  .887 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 75vw, -24.15vh) scale(.65)',  offset: .25 }); /*  .683 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 85vw, -10.20vh) scale(.75)',  offset: .3 });  /*  .404 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 95vw,   7.20vh) scale(.85)',  offset: .35 }); /*  .056 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate(105vw,  24.20vh) scale(.95)',  offset: .4 });  /* -.284 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate(115vw,  39.80vh) scale(1.05)', offset: .45 }); /* -.596 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate(125vw,  52.05vh) scale(1.15)', offset: .5 });  /* -.841 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate(150vw, 100.00vh) scale(1.25)', offset: 1 });
 
           options.duration += 1000;
           options.iterations = Infinity;
@@ -594,10 +604,18 @@ function renderTransition(el, attrs) {
           el.style.top = 'calc(50vh - ' + Math.floor(attrs.h / 2) + 'px)';
           el.style.left = -attrs.w + 'px';
 
-          keyframes.push({ transform: 'translate(200vw, 100vh) scale(2)', offset: 0 });
-          keyframes.push({ transform: 'translate(125vw, 25vh) scale(1)',  offset: .5 });
-          keyframes.push({ transform: 'translate(50vw, -50vh) scale(.5)', offset: .75 });
-          keyframes.push({ transform: 'translate(0vw, -25vh) scale(.25)', offset: 1 });
+          keyframes.push({ transform: 'translate(125vw,  52.05vh) scale(1.15)', offset: 0 });   /* -.841 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate(115vw,  39.80vh) scale(1.05)', offset: .05 }); /* -.596 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate(105vw,  24.20vh) scale(.95)',  offset: .1 });  /* -.284 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 95vw,   7.20vh) scale(.85)',  offset: .15 }); /*  .056 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 85vw, -10.20vh) scale(.75)',  offset: .2 });  /*  .404 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 75vw, -24.15vh) scale(.65)',  offset: .25 }); /*  .683 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 65vw, -34.35vh) scale(.55)',  offset: .3 });  /*  .887 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 55vw, -39.65vh) scale(.45)',  offset: .35 }); /*  .993 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 45vw, -38.85vh) scale(.35)',  offset: .4 });  /*  .973 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 35vw, -32.05vh) scale(.25)',  offset: .45 }); /*  .841 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate( 25vw, -19.80vh) scale(.15)',  offset: .5 });  /*  .596 * -50vh + 10vh */
+          keyframes.push({ transform: 'translate(-25vw,     25vh) scale(.05)',  offset: 1 });
 
           options.duration += 1000;
           options.iterations = Infinity;
@@ -691,9 +709,15 @@ function renderTransition(el, attrs) {
           keyframes.push({ transform: baseTransform + ' scale(1)',     offset: 1 });
           break;
         case 'rain float':
-          // TODO: Implement this
-          console.log('UNIMPLEMENTED: rain float', el, attrs);
+          // TODO: Check this for correctness
+          console.log('CHECK: rain float', el, attrs);
           // This animation ignores the specified X/Y position.
+          el.style.top = '0';
+          el.style.left = '0';
+
+          keyframes.push({ transform: baseTransform });
+
+          rain = new Rain(el.querySelector('img'));
           break;
         case 'stripes':
           keyframes.push({ transform: baseTransform });
@@ -886,6 +910,12 @@ function renderTransition(el, attrs) {
     if (pixelate) {
       setTimeout(() => {
         pixelate.animate(0, options.duration);
+      }, options.delay);
+    }
+
+    if (rain) {
+      setTimeout(() => {
+        rain.play();
       }, options.delay);
     }
 
