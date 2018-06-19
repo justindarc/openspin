@@ -573,25 +573,38 @@ function renderTransition(el, attrs) {
     case 'none':
       switch (attrs.type) {
         case 'arc grow':
-          // TODO: Implement this
-          console.log('UNIMPLEMENTED: arc grow', el, attrs);
-          // FYI: This animation ignores the X/Y position and is the
-          // inverse of 'arc shrink'
+          // TODO: Check this for correctness
+          console.log('CHECK: arc grow', el, attrs);
+          // This animation ignores the specified X/Y position.
+          el.style.top = 'calc(50vh - ' + Math.floor(attrs.h / 2) + 'px)';
+          el.style.left = -attrs.w + 'px';
+
+          keyframes.push({ transform: 'translate(0vw, -25vh) scale(.25)', offset: 0 });
+          keyframes.push({ transform: 'translate(50vw, -50vh) scale(.5)', offset: .25 });
+          keyframes.push({ transform: 'translate(125vw, 25vh) scale(1)',  offset: .5 });
+          keyframes.push({ transform: 'translate(200vw, 100vh) scale(2)', offset: 1 });
+
+          options.duration += 1000;
+          options.iterations = Infinity;
           break;
         case 'arc shrink':
-          // TODO: Implement this
-          console.log('UNIMPLEMENTED: arc shrink', el, attrs);
-          // FYI: This animation ignores the X/Y position and is the
-          // inverse of 'arc grow'
+          // TODO: Check this for correctness
+          console.log('CHECK: arc shrink', el, attrs);
+          // This animation ignores the specified X/Y position.
+          el.style.top = 'calc(50vh - ' + Math.floor(attrs.h / 2) + 'px)';
+          el.style.left = -attrs.w + 'px';
+
+          keyframes.push({ transform: 'translate(200vw, 100vh) scale(2)', offset: 0 });
+          keyframes.push({ transform: 'translate(125vw, 25vh) scale(1)',  offset: .5 });
+          keyframes.push({ transform: 'translate(50vw, -50vh) scale(.5)', offset: .75 });
+          keyframes.push({ transform: 'translate(0vw, -25vh) scale(.25)', offset: 1 });
+
+          options.duration += 1000;
+          options.iterations = Infinity;
           break;
         case 'blur':
           keyframes.push({ transform: baseTransform, opacity: '.0001', filter: 'blur(20px)' });
           keyframes.push({ transform: baseTransform, opacity: '1',     filter: 'blur(0)' });
-          break;
-        case 'bounce':
-          // TODO: Implement this
-          console.log('UNIMPLEMENTED: bounce', el, attrs);
-          // FYI: This animation requires a 'start' position
           break;
         case 'bounce around 3D':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
@@ -601,7 +614,7 @@ function renderTransition(el, attrs) {
         case 'bounce random':
           // TODO: Implement this
           console.log('UNIMPLEMENTED: bounce random', el, attrs);
-          // FYI: This animation ignores the X/Y position
+          // This animation ignores the specified X/Y position.
           break;
         case 'fade':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
@@ -652,7 +665,7 @@ function renderTransition(el, attrs) {
         case 'pendulum':
           // TODO: Implement this
           console.log('UNIMPLEMENTED: pendulum', el, attrs);
-          // FYI: This animation ignores the X/Y position
+          // This animation ignores the specified X/Y position.
           break;
         case 'pixelate':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
@@ -680,12 +693,7 @@ function renderTransition(el, attrs) {
         case 'rain float':
           // TODO: Implement this
           console.log('UNIMPLEMENTED: rain float', el, attrs);
-          // FYI: This animation ignores the X/Y position
-          break;
-        case 'scroll':
-          // TODO: Implement this
-          console.log('UNIMPLEMENTED: scroll', el, attrs);
-          // FYI: This animation requires a 'start' position
+          // This animation ignores the specified X/Y position.
           break;
         case 'stripes':
           keyframes.push({ transform: baseTransform });
@@ -741,6 +749,11 @@ function renderTransition(el, attrs) {
   }
 
   switch (attrs.type) {
+    case 'bounce':
+      // TODO: Implement this
+      console.log('UNIMPLEMENTED: bounce', el, attrs);
+      // FYI: This animation requires a 'start' position
+      break;
     case 'chase':
       options.duration = (options.duration + TRANSITION_CHASE_PAUSE) * 2;
       options.iterations = Infinity;
@@ -786,6 +799,11 @@ function renderTransition(el, attrs) {
       }
 
       keyframes.push({ transform: baseTransform, opacity: '1', filter: 'blur(0)' });
+      break;
+    case 'scroll':
+      // TODO: Implement this
+      console.log('UNIMPLEMENTED: scroll', el, attrs);
+      // FYI: This animation requires a 'start' position
       break;
     case 'sweep left':
       keyframes = [
