@@ -573,17 +573,25 @@ function renderTransition(el, attrs) {
     case 'none':
       switch (attrs.type) {
         case 'arc grow':
-          // TODO
+          // TODO: Implement this
+          console.log('UNIMPLEMENTED: arc grow', el, attrs);
+          // FYI: This animation ignores the X/Y position and is the
+          // inverse of 'arc shrink'
           break;
         case 'arc shrink':
-          // TODO
+          // TODO: Implement this
+          console.log('UNIMPLEMENTED: arc shrink', el, attrs);
+          // FYI: This animation ignores the X/Y position and is the
+          // inverse of 'arc grow'
           break;
         case 'blur':
           keyframes.push({ transform: baseTransform, opacity: '.0001', filter: 'blur(20px)' });
           keyframes.push({ transform: baseTransform, opacity: '1',     filter: 'blur(0)' });
           break;
         case 'bounce':
-          // TODO
+          // TODO: Implement this
+          console.log('UNIMPLEMENTED: bounce', el, attrs);
+          // FYI: This animation requires a 'start' position
           break;
         case 'bounce around 3D':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
@@ -591,7 +599,9 @@ function renderTransition(el, attrs) {
           bounce = new Bounce(el);
           break;
         case 'bounce random':
-          // TODO
+          // TODO: Implement this
+          console.log('UNIMPLEMENTED: bounce random', el, attrs);
+          // FYI: This animation ignores the X/Y position
           break;
         case 'fade':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
@@ -606,9 +616,6 @@ function renderTransition(el, attrs) {
           break;
         case 'grow':
           keyframes.push({ transform: baseTransform + ' scale(.0001)' });
-          break;
-        case 'grow blur':
-          // TODO
           break;
         case 'grow bounce':
           keyframes.push({ transform: baseTransform + ' scale(.0001)' });
@@ -643,7 +650,9 @@ function renderTransition(el, attrs) {
           keyframes.push({ transform: baseTransform, visibility: 'hidden' });
           break;
         case 'pendulum':
-          // TODO
+          // TODO: Implement this
+          console.log('UNIMPLEMENTED: pendulum', el, attrs);
+          // FYI: This animation ignores the X/Y position
           break;
         case 'pixelate':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
@@ -669,11 +678,14 @@ function renderTransition(el, attrs) {
           keyframes.push({ transform: baseTransform + ' scale(1)',     offset: 1 });
           break;
         case 'rain float':
-          // TODO
-          console.log('')
+          // TODO: Implement this
+          console.log('UNIMPLEMENTED: rain float', el, attrs);
+          // FYI: This animation ignores the X/Y position
           break;
         case 'scroll':
-          // TODO
+          // TODO: Implement this
+          console.log('UNIMPLEMENTED: scroll', el, attrs);
+          // FYI: This animation requires a 'start' position
           break;
         case 'stripes':
           keyframes.push({ transform: baseTransform });
@@ -748,9 +760,13 @@ function renderTransition(el, attrs) {
       options.easing = 'ease';
       break;
     case 'elastic':
-      // TODO
+      // TODO: Implement this
+      console.log('UNIMPLEMENTED: elastic', el, attrs);
+      // FYI: This animation requires a 'start' position
       break;
     case 'elastic bounce':
+      // TODO: Re-implement this correctly
+      console.log('INCORRECT: elastic bounce', el, attrs);
       options.easing = 'cubic-bezier(.25,1.5,.5,2)';
       break;
     case 'fade':
@@ -758,6 +774,18 @@ function renderTransition(el, attrs) {
       if (keyframes.length > 0) {
         keyframes[0].opacity = '.0001';
       }
+      break;
+    case 'grow blur':
+      // TODO: Check this for correctness
+      console.log('CHECK: grow blur', el, attrs);
+      if (keyframes.length > 0) {
+        keyframes[0].opacity = '.0001';
+        keyframes[0].filter = 'blur(20px)';
+      } else {
+        keyframes.push({ transform: baseTransform, opacity: '.0001', filter: 'blur(20px)' });
+      }
+
+      keyframes.push({ transform: baseTransform, opacity: '1', filter: 'blur(0)' });
       break;
     case 'sweep left':
       keyframes = [
@@ -768,7 +796,6 @@ function renderTransition(el, attrs) {
       ];
       break;
     case 'sweep right':
-      // TODO: Check if this is correct
       keyframes = [
         { transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH  - (attrs.x - attrs.w)) + 'px)' },
         { transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)', offset: .5 },
