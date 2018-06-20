@@ -1,4 +1,5 @@
 const Bounce = require('./bounce.js');
+const Bounce3D = require('./bounce-3d.js');
 const Flag = require('./flag.js');
 const Noise = require('./noise.js');
 const Pixelate = require('./pixelate.js');
@@ -552,6 +553,7 @@ function renderTransition(el, attrs) {
   };
 
   let bounce;
+  let bounce3D;
   let flag;
   let noise;
   let pixelate;
@@ -625,14 +627,20 @@ function renderTransition(el, attrs) {
           keyframes.push({ transform: baseTransform, opacity: '1',     filter: 'blur(0)' });
           break;
         case 'bounce around 3D':
-          keyframes.push({ transform: baseTransform, opacity: '.0001' });
+          keyframes.push({ transform: baseTransform });
 
-          bounce = new Bounce(el);
+          bounce3D = new Bounce3D(el);
           break;
         case 'bounce random':
-          // TODO: Implement this
-          console.log('UNIMPLEMENTED: bounce random', el, attrs);
+          // TODO: Check this for correctness
+          console.log('CHECK: bounce random', el, attrs);
           // This animation ignores the specified X/Y position.
+          el.style.top = '0';
+          el.style.left = '0';
+
+          keyframes.push({ transform: baseTransform });
+
+          bounce = new Bounce(el);
           break;
         case 'fade':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
@@ -878,10 +886,17 @@ function renderTransition(el, attrs) {
   requestAnimationFrame(() => {
     if (bounce) {
       setTimeout(() => {
-        bounce.duration = options.duration;
         bounce.play();
       }, options.delay);
     }
+
+    if (bounce3D) {
+      setTimeout(() => {
+        bounce3D.duration = options.duration;
+        bounce3D.play();
+      }, options.delay);
+    }
+
     if (flag) {
       setTimeout(() => {
         flag.animate(0, options.duration);
