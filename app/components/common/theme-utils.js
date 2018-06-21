@@ -836,9 +836,24 @@ function renderTransition(el, attrs) {
       options.easing = 'ease';
       break;
     case 'elastic':
-      // TODO: Implement this
-      console.log('UNIMPLEMENTED: elastic', el, attrs);
-      // FYI: This animation requires a 'start' position
+      // This animation requires a 'start' position
+      if (start.x !== undefined) {
+        keyframes.push({ transform: baseTransform + ' translateX(' + (-start.x / 4)  + 'px)', offset: .2 });
+        keyframes.push({ transform: baseTransform + ' translateX(' + ( start.x / 6)  + 'px)', offset: .4 });
+        keyframes.push({ transform: baseTransform + ' translateX(' + (-start.x / 8)  + 'px)', offset: .6 });
+        keyframes.push({ transform: baseTransform + ' translateX(' + ( start.x / 12) + 'px)', offset: .7 });
+        keyframes.push({ transform: baseTransform + ' translateX(' + (-start.x / 16) + 'px)', offset: .8 });
+        keyframes.push({ transform: baseTransform + ' translateX(' + ( start.x / 24) + 'px)', offset: .9 });
+        keyframes.push({ transform: baseTransform + ' scale(1)',                              offset: 1 });
+      } else if (start.y !== undefined) {
+        keyframes.push({ transform: baseTransform + ' translateY(' + (-start.y / 4)  + 'px)', offset: .2 });
+        keyframes.push({ transform: baseTransform + ' translateY(' + ( start.y / 6)  + 'px)', offset: .4 });
+        keyframes.push({ transform: baseTransform + ' translateY(' + (-start.y / 8)  + 'px)', offset: .6 });
+        keyframes.push({ transform: baseTransform + ' translateY(' + ( start.y / 12) + 'px)', offset: .7 });
+        keyframes.push({ transform: baseTransform + ' translateY(' + (-start.y / 16) + 'px)', offset: .8 });
+        keyframes.push({ transform: baseTransform + ' translateY(' + ( start.y / 24) + 'px)', offset: .9 });
+        keyframes.push({ transform: baseTransform + ' scale(1)',                              offset: 1 });
+      }
       break;
     case 'elastic bounce':
       // TODO: Re-implement this correctly
