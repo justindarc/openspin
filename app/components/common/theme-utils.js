@@ -552,6 +552,8 @@ function renderTransition(el, attrs) {
     fill: 'forwards'
   };
 
+  let start = {};
+
   let bounce;
   let bounce3D;
   let flag;
@@ -562,16 +564,20 @@ function renderTransition(el, attrs) {
 
   switch (attrs.start) {
     case 'top':
-      keyframes.push({ transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)' });
+      start.y = -(attrs.y + attrs.h);
+      keyframes.push({ transform: baseTransform + ' translateY(' + start.y + 'px)' });
       break;
     case 'right':
-      keyframes.push({ transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH  - (attrs.x - attrs.w)) + 'px)' });
+      start.x = DEFAULT_SCREEN_WIDTH  - (attrs.x - attrs.w);
+      keyframes.push({ transform: baseTransform + ' translateX(' + start.x + 'px)' });
       break;
     case 'bottom':
-      keyframes.push({ transform: baseTransform + ' translateY(' + (DEFAULT_SCREEN_HEIGHT - (attrs.y - attrs.h)) + 'px)' });
+      start.y = DEFAULT_SCREEN_HEIGHT - (attrs.y - attrs.h);
+      keyframes.push({ transform: baseTransform + ' translateY(' + start.y + 'px)' });
       break;
     case 'left':
-      keyframes.push({ transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)' });
+      start.x = -(attrs.x + attrs.w);
+      keyframes.push({ transform: baseTransform + ' translateX(' + start.x + 'px)' });
       break;
     case 'center':
     case 'none':
@@ -792,9 +798,24 @@ function renderTransition(el, attrs) {
 
   switch (attrs.type) {
     case 'bounce':
-      // TODO: Implement this
-      console.log('UNIMPLEMENTED: bounce', el, attrs);
-      // FYI: This animation requires a 'start' position
+      // This animation requires a 'start' position
+      if (start.x !== undefined) {
+        keyframes.push({ transform: baseTransform + ' scale(1)',                             offset: .2 });
+        keyframes.push({ transform: baseTransform + ' translateX(' + (start.x / 4)  + 'px)', offset: .4 });
+        keyframes.push({ transform: baseTransform + ' scale(1)',                             offset: .6 });
+        keyframes.push({ transform: baseTransform + ' translateX(' + (start.x / 8)  + 'px)', offset: .7 });
+        keyframes.push({ transform: baseTransform + ' scale(1)',                             offset: .8 });
+        keyframes.push({ transform: baseTransform + ' translateX(' + (start.x / 16) + 'px)', offset: .9 });
+        keyframes.push({ transform: baseTransform + ' scale(1)',                             offset: 1 });
+      } else if (start.y !== undefined) {
+        keyframes.push({ transform: baseTransform + ' scale(1)',                             offset: .2 });
+        keyframes.push({ transform: baseTransform + ' translateY(' + (start.y / 4)  + 'px)', offset: .4 });
+        keyframes.push({ transform: baseTransform + ' scale(1)',                             offset: .6 });
+        keyframes.push({ transform: baseTransform + ' translateY(' + (start.y / 8)  + 'px)', offset: .7 });
+        keyframes.push({ transform: baseTransform + ' scale(1)',                             offset: .8 });
+        keyframes.push({ transform: baseTransform + ' translateY(' + (start.y / 16) + 'px)', offset: .9 });
+        keyframes.push({ transform: baseTransform + ' scale(1)',                             offset: 1 });
+      }
       break;
     case 'chase':
       options.duration = (options.duration + TRANSITION_CHASE_PAUSE) * 2;
