@@ -689,9 +689,19 @@ function renderTransition(el, attrs) {
           keyframes.push({ transform: baseTransform, visibility: 'hidden' });
           break;
         case 'pendulum':
-          // TODO: Implement this
-          console.log('UNIMPLEMENTED: pendulum', el, attrs);
+          // TODO: Check this for correctness
+          console.log('CHECK: pendulum', el, attrs);
           // This animation ignores the specified X/Y position.
+          el.style.top = 'calc(100vh - ' + el.offsetHeight + 'px)';
+          el.style.left = 'calc(50vw - ' + (el.offsetWidth / 2) + 'px)';
+          el.style.transformOrigin = '50% -100vh';
+
+          keyframes.push({ transform: 'rotate(90deg)' });
+          keyframes.push({ transform: 'rotate(-90deg)' });
+
+          options.direction = 'alternate';
+          options.easing = 'ease-in-out';
+          options.iterations = Infinity;
           break;
         case 'pixelate':
           keyframes.push({ transform: baseTransform, opacity: '.0001' });
