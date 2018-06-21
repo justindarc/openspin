@@ -867,8 +867,6 @@ function renderTransition(el, attrs) {
       }
       break;
     case 'grow blur':
-      // TODO: Check this for correctness
-      console.log('CHECK: grow blur', el, attrs);
       if (keyframes.length > 0) {
         keyframes[0].opacity = '.0001';
         keyframes[0].filter = 'blur(20px)';
@@ -879,9 +877,28 @@ function renderTransition(el, attrs) {
       keyframes.push({ transform: baseTransform, opacity: '1', filter: 'blur(0)' });
       break;
     case 'scroll':
-      // TODO: Implement this
-      console.log('UNIMPLEMENTED: scroll', el, attrs);
+      // TODO: Check this for correctness
+      console.log('CHECK: scroll', el, attrs);
+
       // FYI: This animation requires a 'start' position
+      switch (attrs.start) {
+        case 'top':
+          keyframes.push({ transform: baseTransform + ' translateY(' + (DEFAULT_SCREEN_HEIGHT - (attrs.y - attrs.h)) + 'px)' });
+          break;
+        case 'right':
+          keyframes.push({ transform: baseTransform + ' translateX(' + (-(attrs.x + attrs.w)) + 'px)' });
+          break;
+        case 'bottom':
+          keyframes.push({ transform: baseTransform + ' translateY(' + (-(attrs.y + attrs.h)) + 'px)' });
+          break;
+        case 'left':
+          keyframes.push({ transform: baseTransform + ' translateX(' + (DEFAULT_SCREEN_WIDTH  - (attrs.x - attrs.w)) + 'px)' });
+          break;
+        default:
+          break;
+      }
+
+      options.iterations = Infinity;
       break;
     case 'sweep left':
       keyframes = [
