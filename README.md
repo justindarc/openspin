@@ -1,3 +1,6 @@
+
+<p align="center"><img src="logo/OpenSpin3.png" alt="OpenSpin" height="150px"></p>
+
 # OpenSpin
 
 An open source drop-in replacement for [HyperSpin](http://hyperspin-fe.com/), a big screen front-end system for launching games and other media
