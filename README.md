@@ -54,3 +54,7 @@ To build an application executable for distribution, run:
 ```bash
 npm run build
 ```
+
+### License
+
+MIT License
